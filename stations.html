@@ -66,8 +66,9 @@ button {
       <th>SNO</th>
       <th>Station</th>
       <th>Contact</th>
+       <th>Pics</th>
       <th>Google Map</th>
-      <th>Pics</th>
+     
     </tr>
   </thead>
   <tbody></tbody>
@@ -75,7 +76,7 @@ button {
 </main>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/XXXXX/exec?action=stations";
+const API_URL = "https://script.google.com/macros/s/AKfycbwcVY92XXUhcz_c9lQGW1EO6ahHqkLjx7j5EAoHJRQdqvrYqJqU2VDmeSGQIdR3UPy6/exec?action=stations";
 
 fetch(API_URL)
   .then(res => res.json())
@@ -89,8 +90,9 @@ fetch(API_URL)
           <td>${row.sno}</td>
           <td>${row.station}</td>
           <td>${row.contact}</td>
+           <td><a href="${row.pics}" target="_blank">🖼 View</a></td>
           <td><a href="${row.map}" target="_blank">📍 Map</a></td>
-          <td><a href="${row.pics}" target="_blank">🖼 View</a></td>
+         
         </tr>`;
     });
   })
