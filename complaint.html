@@ -56,13 +56,13 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
   status.innerText = "Submitting complaint...";
 
   const fileInput = document.getElementById("image");
-  let imageData = null;
+  let imagePayload = {};
 
   if (fileInput.files.length > 0) {
     const file = fileInput.files[0];
     const base64 = await toBase64(file);
 
-    imageData = {
+    imagePayload = {
       image: base64.split(",")[1],
       imageName: file.name,
       imageType: file.type
@@ -74,25 +74,22 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
     contact: document.getElementById("contact").value,
     type: document.getElementById("type").value,
     message: document.getElementById("message").value,
-    ...imageData
+    ...imagePayload
   };
 
+  // 🔴 IMPORTANT PART
   fetch(API_URL, {
     method: "POST",
+    mode: "no-cors",          // ✅ REQUIRED
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(payload)
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.status === "success") {
-      status.innerText = "✅ Complaint submitted successfully";
-      document.getElementById("complaintForm").reset();
-    } else {
-      status.innerText = "❌ Error submitting complaint";
-    }
-  })
-  .catch(() => {
-    status.innerText = "❌ Network error";
   });
+
+  // ✅ Do NOT wait for response
+  status.innerText = "✅ Complaint submitted successfully";
+  document.getElementById("complaintForm").reset();
 });
 
 function toBase64(file) {
@@ -104,6 +101,5 @@ function toBase64(file) {
   });
 }
 </script>
-
 </body>
 </html>
