@@ -1,22 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Sukkur Division Complaint Form</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h2>Register Complaint</h2>
-  <form id="complaintForm">
-    <label>Station:</label>
-    <input type="text" name="station" required><br>
-    <label>Category:</label>
-    <input type="text" name="category" required><br>
-    <label>Message:</label>
-    <textarea name="message" required></textarea><br>
-    <button type="submit">Submit</button>
-  </form>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?!= include('style'); ?>
 
-  <script src="script.js"></script>
+  <style>
+    /* ================= HEADER ================= */
+    header {
+      background-color: #2e7d32;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    /* ================= NAVIGATION ================= */
+    nav {
+      background-color: rgba(0, 0, 50, 0.9);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    nav a {
+      color: white;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 16px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #1a237e;
+    }
+
+    nav button {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    /* ================= MAIN LAYOUT ================= */
+    main {
+      display: flex;
+      flex-direction: row;              /* side-by-side */
+      align-items: flex-start;          /* start from top */
+      justify-content: space-between;
+      gap: 30px;
+      padding: 25px;
+    }
+
+    /* ================= LEFT SIDE (DS IMAGE) ================= */
+    .ds-pic {
+      flex: 0 0 300px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    .ds-pic img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .ds-name {
+      margin-top: 10px;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    /* ================= RIGHT SIDE (MESSAGE) ================= */
+    .ds-message {
+      flex: 1;
+      text-align: justify;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .ds-heading {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 20px;
+      color: #0b5c2d;
+      text-align: left;
+    }
+
+    .ds-message p {
+      margin-bottom: 14px;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+
+      nav {
+        flex-direction: column;
+      }
+
+      nav button {
+        display: block;
+      }
+
+      nav a {
+        display: none;
+      }
+
+      nav a.active {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  Pakistan Railways – Sukkur Division
+</header>
+
+<nav id="menu">
+  <button onclick="toggleMenu()">☰ Menu</button>
+  <a href="?page=home">Home</a>
+  <a href="https://script.google.com/macros/s/AKfycbyyxsVOMzik31Kp332zNELFx10ONjW9c2VuTSYni7JbViSruXss5nP5c4fYluOFesGF/exec?page=stations" target="_blank">Stations</a>
+  <a href="?page=train_timing">Train Timing</a>
+  <a href="?page=departments">Departments</a>
+  <a href="?page=complaint">Register Complaint</a>
+</nav>
+
+<main>
+
+  <!-- LEFT : DS IMAGE & DETAILS -->
+  <div class="ds-pic">
+    <img 
+      src="https://drive.google.com/thumbnail?id=1A5baIOAx2aMHuJRuyD6Ru77wEBttPSj8&sz=w400"
+      alt="Divisional Superintendent"
+    >
+    <div class="ds-name">
+      <strong>Jamshaid Alam</strong><br>
+      Divisional Superintendent<br>
+      Pakistan Railways, Sukkur Division
+    </div>
+  </div>
+
+  <!-- RIGHT : MESSAGE -->
+  <div class="ds-message">
+    <h3 class="ds-heading">Message from the Divisional Superintendent</h3>
+
+    <p>
+      Pakistan Railways, Sukkur Division is committed to continuously improving
+      passenger services and station facilities to ensure a safe, comfortable,
+      and reliable travel experience. We are actively working on the upgradation
+      of infrastructure, cleanliness, information services, and passenger support
+      systems across all stations of the division.
+    </p>
+
+    <p>
+      This digital portal has been developed to provide easy access to station
+      information, facilities, and important updates for the public. It also
+      serves as a platform for passengers to share their concerns, suggestions,
+      or complaints.
+    </p>
+
+    <p>
+      If you experience any inconvenience during your journey or at any station,
+      we encourage you to register your complaint through this portal. Your
+      feedback is important to us and will be reviewed and addressed promptly by
+      the concerned authorities.
+    </p>
+
+    <p>
+      Together, we aim to build a more efficient, transparent, and
+      passenger-friendly railway system.
+    </p>
+  </div>
+
+</main>
+
+<?!= include('script'); ?>
+
+<script>
+function toggleMenu() {
+  const links = document.querySelectorAll('nav a');
+  links.forEach(link => link.classList.toggle('active'));
+}
+</script>
+
 </body>
 </html>
