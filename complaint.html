@@ -1,52 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Register Complaint</title>
-<style>
-body { font-family: Arial; background:#f5f5f5; margin:0; }
-header { background:#2e7d32; color:white; padding:15px; text-align:center; }
-main { padding:20px; max-width:600px; margin:auto; background:white; }
-input, select, textarea, button {
-  width:100%; padding:10px; margin:8px 0;
-}
-button {
-  background:#2e7d32; color:white; border:none; cursor:pointer;
-}
-button:hover { opacity:0.9; }
-</style>
-</head>
-
-<body>
-
-<header>Register Complaint – Pakistan Railways (Sukkur Division)</header>
-
-<main>
-<form id="complaintForm">
-  <input type="text" name="name" placeholder="Complainant Name" required>
-  <input type="text" name="contact" placeholder="Contact Number" required>
-
-  <select name="type" required>
-    <option value="">Select Complaint Type</option>
-    <option>Station Facilities</option>
-    <option>Train Delay</option>
-    <option>Staff Behaviour</option>
-    <option>Cleanliness</option>
-    <option>Other</option>
-  </select>
-
-  <textarea name="message" placeholder="Complaint Details" rows="4" required></textarea>
-
-  <input type="file" name="image" accept="image/*">
-
-  <button type="submit">Submit Complaint</button>
-</form>
-
-<p id="status"></p>
-</main>
-
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec"; // replace with your deployed web app URL
+const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
 document.getElementById("complaintForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -54,20 +7,39 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
   const status = document.getElementById("status");
   status.innerText = "Submitting complaint...";
 
-  const form = e.target;
-  const formData = new FormData(form);
+  const fileInput = document.getElementById("image");
+  let imagePayload = {};
+
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const base64 = await toBase64(file);
+    imagePayload = {
+      image: base64.split(",")[1], // remove prefix
+      imageName: file.name,
+      imageType: file.type
+    };
+  }
+
+  const payload = {
+    name: document.getElementById("name").value,
+    contact: document.getElementById("contact").value,
+    type: document.getElementById("type").value,
+    message: document.getElementById("message").value,
+    ...imagePayload
+  };
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      body: formData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
 
     const result = await res.json();
 
     if (result.status === "success") {
       status.innerText = "✅ Complaint submitted successfully";
-      form.reset();
+      document.getElementById("complaintForm").reset();
     } else {
       status.innerText = "❌ Error: " + result.message;
     }
@@ -77,6 +49,13 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
     console.error(err);
   }
 });
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 </script>
-</body>
-</html>
