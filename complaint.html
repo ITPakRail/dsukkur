@@ -23,10 +23,10 @@ button:hover { opacity:0.9; }
 
 <main>
 <form id="complaintForm">
-  <input type="text" name="name" placeholder="Complainant Name" required>
-  <input type="text" name="contact" placeholder="Contact Number" required>
+  <input type="text" id="name" placeholder="Complainant Name" required>
+  <input type="text" id="contact" placeholder="Contact Number" required>
 
-  <select name="type" required>
+  <select id="type" required>
     <option value="">Select Complaint Type</option>
     <option>Station Facilities</option>
     <option>Train Delay</option>
@@ -35,19 +35,18 @@ button:hover { opacity:0.9; }
     <option>Other</option>
   </select>
 
-  <textarea name="message" placeholder="Complaint Details" rows="4" required></textarea>
+  <textarea id="message" placeholder="Complaint Details" rows="4" required></textarea>
 
-<input type="file" name="image" accept="image/*" onchange="checkSize(this)">
-<script>
-function checkSize(input) {
-  const file = input.files[0];
-  if (file && file.size > 500000) { // 500 KB
-    alert("Image too large! Maximum allowed is 500 KB.");
-    input.value = "";
-  }
-}
-</script>
-
+  <input type="file" id="image" accept="image/*" onchange="checkSize(this)">
+  <script>
+    function checkSize(input) {
+      const file = input.files[0];
+      if (file && file.size > 500000) { // 500 KB max
+        alert("Image too large! Max 500 KB.");
+        input.value = "";
+      }
+    }
+  </script>
 
   <button type="submit">Submit Complaint</button>
 </form>
@@ -60,30 +59,25 @@ const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0
 
 document.getElementById("complaintForm").addEventListener("submit", async function(e) {
   e.preventDefault();
-
   const status = document.getElementById("status");
   status.innerText = "Submitting complaint...";
-
-  const fileInput = document.getElementById("image");
-  let imagePayload = {};
-
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const base64 = await toBase64(file);
-    imagePayload = {
-      image: base64.split(",")[1], // remove prefix
-      imageName: file.name,
-      imageType: file.type
-    };
-  }
 
   const payload = {
     name: document.getElementById("name").value,
     contact: document.getElementById("contact").value,
     type: document.getElementById("type").value,
-    message: document.getElementById("message").value,
-    ...imagePayload
+    message: document.getElementById("message").value
   };
+
+  // Optional image
+  const fileInput = document.getElementById("image");
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const base64 = await toBase64(file);
+    payload.image = base64.split(",")[1];
+    payload.imageName = file.name;
+    payload.imageType = file.type;
+  }
 
   try {
     const res = await fetch(API_URL, {
@@ -100,7 +94,6 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
     } else {
       status.innerText = "❌ Error: " + result.message;
     }
-
   } catch (err) {
     status.innerText = "❌ Network or script error";
     console.error(err);
@@ -116,5 +109,6 @@ function toBase64(file) {
   });
 }
 </script>
+
 </body>
 </html>
