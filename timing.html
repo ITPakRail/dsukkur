@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Train Timing</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body { font-family: Arial; margin:0; background:#f2f2f2; }
+
+header {
+  background: green;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 22px;
+}
+
+.panel {
+  background: navy;
+  padding: 15px;
+  color: white;
+  text-align: center;
+}
+
+select, button {
+  padding: 8px;
+  width: 90%;
+  max-width: 400px;
+  margin: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background: #333;
+  color: white;
+}
+
+#trainTitle {
+  margin-top: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<header>Train Timing</header>
+
+<div class="panel">
+  <select id="trainSelect"></select><br>
+  <button onclick="loadTiming()">Search</button>
+</div>
+
+<div id="trainTitle"></div>
+
+<table id="resultTable" style="display:none">
+  <thead>
+    <tr>
+      <th>Station</th>
+      <th>Arrival</th>
+      <th>Departure</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const API = "YOUR_WEB_APP_URL_HERE";
+
+/* 🔹 Load dropdown */
+fetch(API + "?action=trains")
+  .then(r => r.json())
+  .then(data => {
+    const sel = document.getElementById("trainSelect");
+    sel.innerHTML = `<option value="">Search Train...</option>`;
+    data.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = `${t.id} - ${t.name}`;
+      sel.appendChild(opt);
+    });
+  });
+
+/* 🔹 Load timing */
+function loadTiming() {
+  const trainId = document.getElementById("trainSelect").value;
+  if (!trainId) return alert("Select a train");
+
+  fetch(API + "?action=timing&trainid=" + trainId)
+    .then(r => r.json())
+    .then(rows => {
+      document.getElementById("resultTable").style.display = "table";
+      document.querySelector("#resultTable tbody").innerHTML = "";
+
+      document.getElementById("trainTitle").innerText =
+        document.getElementById("trainSelect").selectedOptions[0].text;
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.station}</td>
+          <td>${r.arrival}</td>
+          <td>${r.departure}</td>
+        `;
+        document.querySelector("#resultTable tbody").appendChild(tr);
+      });
+    });
+}
+</script>
+
+</body>
+</html>
