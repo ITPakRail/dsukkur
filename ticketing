@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticketing Services - Sukkur Division</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f2f2f2;
+    color: #333;
+  }
+
+  header {
+    background: green;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 10px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+  }
+
+  .image-section {
+    flex: 1 1 300px;
+    text-align: center;
+    margin: 10px;
+  }
+
+  .image-section img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .image-caption {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .text-section {
+    flex: 2 1 400px;
+    margin: 10px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  @media(max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+    }
+    .text-section, .image-section {
+      margin: 10px 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>Ticketing Services – Sukkur Division</header>
+
+<div class="container">
+  <div class="image-section">
+    <img src="your-image-path.jpg" alt="Ticketing Services">
+    <div class="image-caption">
+      Muhammad Ibrahim Balouch<br>
+      Divisional Commercial Officer<br>
+      Sukkur Division
+    </div>
+  </div>
+
+  <div class="text-section">
+    The Sukkur Division operates <strong>27 stations</strong>, providing <strong>24/7 ticketing and reservation services</strong>. Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>, offering convenient reservation options. All main line stations, as well as major branch line stations, are equipped for <strong>computerized ticketing</strong>, and work is underway to extend this facility to the remaining branch line stations.
+
+    Passengers can also make reservations through the <strong>RABTA mobile app</strong> and the <strong>Pakistan Railways website</strong>, ensuring flexibility and convenience.
+
+    A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed by IT personnel from <strong>8:00 AM to midnight</strong>, providing technical support for mobile and website users, as well as assisting remote stations with troubleshooting and ticketing issues.
+  </div>
+</div>
+
+</body>
+</html>
