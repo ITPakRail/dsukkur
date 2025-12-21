@@ -30,7 +30,8 @@ button {
   padding: 8px;
   width: 90%;
   max-width: 400px;
-  margin: 5px;
+  margin: 5px auto;
+  display: block;
 }
 
 table {
@@ -79,6 +80,13 @@ th {
 .choices__input {
   color: black !important;
 }
+
+/* Center the dropdown container */
+.dropdown-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
 </style>
 </head>
 
@@ -87,7 +95,9 @@ th {
 <header>Train Timing</header>
 
 <div class="panel">
-  <select id="trainSelect"></select><br>
+  <div class="dropdown-container">
+    <select id="trainSelect" placeholder="Select Train"></select>
+  </div>
   <button onclick="loadTiming()">Search</button>
 </div>
 
@@ -115,7 +125,7 @@ const sel = document.getElementById("trainSelect");
 fetch(API + "?action=trains")
   .then(r => r.json())
   .then(data => {
-    sel.innerHTML = `<option value="">Search Train...</option>`;
+    sel.innerHTML = `<option value="">Select Train...</option>`;
     data.forEach(t => {
       const opt = document.createElement("option");
       opt.value = t.id;
@@ -123,17 +133,19 @@ fetch(API + "?action=trains")
       sel.appendChild(opt);
     });
 
-    // Initialize Choices.js after options loaded
+    // Initialize Choices.js
     const choices = new Choices(sel, {
       searchEnabled: true,
       itemSelectText: '',
-      placeholderValue: "Search Train...",
+      placeholderValue: "Select Train...",
       shouldSort: false,
-      position: 'bottom'
+      position: 'bottom',
+      searchPlaceholderValue: "Type to search..."
     });
 
-    // Match width of dropdown to button
-    document.querySelector('.choices').style.width = document.querySelector('button').offsetWidth + 'px';
+    // Make Choices dropdown same width as button
+    const choicesDiv = sel.closest('.choices');
+    choicesDiv.style.width = document.querySelector('button').offsetWidth + 'px';
   });
 
 // 🔹 Load timing
