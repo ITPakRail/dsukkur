@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Choices.js CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
 <style>
 body { font-family: Arial; margin:0; background:#f2f2f2; }
@@ -26,7 +26,7 @@ header {
   text-align: center;
 }
 
-select, button {
+button {
   padding: 8px;
   width: 90%;
   max-width: 400px;
@@ -56,6 +56,29 @@ th {
   font-weight: bold;
   text-align: center;
 }
+
+/* Choices.js dropdown overrides */
+.choices__inner {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  min-height: 40px;
+}
+
+.choices__list--single .choices__item {
+  color: black !important;
+}
+
+.choices__list--dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.choices__input {
+  color: black !important;
+}
 </style>
 </head>
 
@@ -81,17 +104,17 @@ th {
   <tbody></tbody>
 </table>
 
-<!-- Choices.js Script -->
+<!-- Choices.js JS -->
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+const API = "YOUR_WEB_APP_URL_HERE"; // Replace with your GAS web app URL
+const sel = document.getElementById("trainSelect");
 
-/* 🔹 Load dropdown with searchable select */
+// 🔹 Load dropdown
 fetch(API + "?action=trains")
   .then(r => r.json())
   .then(data => {
-    const sel = document.getElementById("trainSelect");
     sel.innerHTML = `<option value="">Search Train...</option>`;
     data.forEach(t => {
       const opt = document.createElement("option");
@@ -100,18 +123,22 @@ fetch(API + "?action=trains")
       sel.appendChild(opt);
     });
 
-    // Initialize Choices.js for search functionality
-    new Choices(sel, {
+    // Initialize Choices.js after options loaded
+    const choices = new Choices(sel, {
       searchEnabled: true,
       itemSelectText: '',
-      placeholderValue: "Search Train..."
+      placeholderValue: "Search Train...",
+      shouldSort: false,
+      position: 'bottom'
     });
-  })
-  .catch(err => console.error("Failed to load train list:", err));
 
-/* 🔹 Load timing on button click */
+    // Match width of dropdown to button
+    document.querySelector('.choices').style.width = document.querySelector('button').offsetWidth + 'px';
+  });
+
+// 🔹 Load timing
 function loadTiming() {
-  const trainId = document.getElementById("trainSelect").value;
+  const trainId = sel.value;
   if (!trainId) return alert("Select a train");
 
   fetch(API + "?action=timing&trainid=" + trainId)
@@ -122,7 +149,7 @@ function loadTiming() {
       tbody.innerHTML = "";
 
       document.getElementById("trainTitle").innerText =
-        document.getElementById("trainSelect").selectedOptions[0].text;
+        sel.selectedOptions[0].text;
 
       rows.forEach(r => {
         const tr = document.createElement("tr");
@@ -133,10 +160,6 @@ function loadTiming() {
         `;
         tbody.appendChild(tr);
       });
-    })
-    .catch(err => {
-      console.error("Failed to load timing:", err);
-      alert("Failed to fetch train timing.");
     });
 }
 </script>
