@@ -5,6 +5,9 @@
 <title>Train Timing</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
 <style>
 body { font-family: Arial; margin:0; background:#f2f2f2; }
 
@@ -78,10 +81,13 @@ th {
   <tbody></tbody>
 </table>
 
+<!-- Choices.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 <script>
 const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
-/* 🔹 Load dropdown */
+/* 🔹 Load dropdown with searchable select */
 fetch(API + "?action=trains")
   .then(r => r.json())
   .then(data => {
@@ -93,9 +99,17 @@ fetch(API + "?action=trains")
       opt.textContent = `${t.id} - ${t.name}`;
       sel.appendChild(opt);
     });
-  });
 
-/* 🔹 Load timing */
+    // Initialize Choices.js for search functionality
+    new Choices(sel, {
+      searchEnabled: true,
+      itemSelectText: '',
+      placeholderValue: "Search Train..."
+    });
+  })
+  .catch(err => console.error("Failed to load train list:", err));
+
+/* 🔹 Load timing on button click */
 function loadTiming() {
   const trainId = document.getElementById("trainSelect").value;
   if (!trainId) return alert("Select a train");
@@ -104,7 +118,8 @@ function loadTiming() {
     .then(r => r.json())
     .then(rows => {
       document.getElementById("resultTable").style.display = "table";
-      document.querySelector("#resultTable tbody").innerHTML = "";
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
 
       document.getElementById("trainTitle").innerText =
         document.getElementById("trainSelect").selectedOptions[0].text;
@@ -116,8 +131,12 @@ function loadTiming() {
           <td>${r.arrival}</td>
           <td>${r.departure}</td>
         `;
-        document.querySelector("#resultTable tbody").appendChild(tr);
+        tbody.appendChild(tr);
       });
+    })
+    .catch(err => {
+      console.error("Failed to load timing:", err);
+      alert("Failed to fetch train timing.");
     });
 }
 </script>
