@@ -57,11 +57,10 @@ th {
   font-weight: bold;
   text-align: center;
 }
-
 /* Choices.js dropdown overrides */
 .choices__inner {
   background-color: white !important;
-  color: black !important;
+  color: black !important;       /* Selected item text */
   border-radius: 4px;
   border: 1px solid #ccc;
   padding: 5px 10px;
@@ -69,19 +68,22 @@ th {
 }
 
 .choices__list--single .choices__item {
-  color: black !important;
+  color: black !important;       /* Text of the selected item */
+}
+
+.choices__list--dropdown .choices__item {
+  color: black !important;       /* Text of items in the dropdown list */
 }
 
 .choices__list--dropdown {
   max-height: 200px;
   overflow-y: auto;
-  color: black;
+  background-color: white !important; /* Ensure dropdown background is white */
 }
 
 .choices__input {
-  color: black !important;
+  color: black !important;       /* Text when typing in search box */
 }
-
 /* Center the dropdown container */
 .dropdown-container {
   display: flex;
