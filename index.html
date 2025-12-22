@@ -6,14 +6,36 @@
 
   <style>
     /* ================= HEADER ================= */
-    header {
-      background-color: #2e7d32;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
+.main-header {
+  background-color: #2e7d32;
+  color: white;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left & Right logo */
+.header-left img,
+.header-right img {
+  height: 50px;
+  width: auto;
+}
+
+/* Center title */
+.header-center {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+}
+
+/* Keep logos aligned */
+.header-left,
+.header-right {
+  width: 60px;
+  text-align: center;
+}
 
     /* ================= NAVIGATION ================= */
     nav {
