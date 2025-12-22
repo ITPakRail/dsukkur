@@ -76,8 +76,7 @@
   <div class="image-section">
     <img src="your-image-path.jpg" alt="Ticketing Services">
     <div class="image-caption">
-     <color=blue> 
-      Muhammad Ibrahim Balouch<br></color>
+      <strong style="color: blue;">Muhammad Ibrahim Balouch</strong><br>
       Divisional Commercial Officer<br>
       Sukkur Division
     </div>
