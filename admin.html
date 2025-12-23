@@ -44,15 +44,16 @@ button:hover { opacity:0.9; }
 </table>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec"; // <-- Replace with your Web App URL
+// Replace this with your Web App URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
-// Fetch complaints JSON
+// GET complaints using your separate getComplaints.gs
 async function fetchComplaints() {
   const res = await fetch(`${WEB_APP_URL}?page=getComplaints`);
   return await res.json();
 }
 
-// Update a complaint
+// POST update
 async function updateComplaint(rowIndex, status, remarks) {
   const res = await fetch(WEB_APP_URL, {
     method: "POST",
@@ -92,7 +93,6 @@ function renderTable(complaints) {
     tbody.appendChild(tr);
   });
 
-  // Attach save button handlers
   document.querySelectorAll(".saveBtn").forEach(btn => {
     btn.onclick = async () => {
       const tr = btn.closest("tr");
