@@ -44,32 +44,25 @@ button:hover { opacity:0.9; }
 </table>
 
 <script>
-// Replace XXXX with your deployed Web App ID
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec"; // <-- Replace with your Web App URL
 
+// Fetch complaints JSON
 async function fetchComplaints() {
   const res = await fetch(`${WEB_APP_URL}?page=getComplaints`);
   return await res.json();
 }
 
+// Update a complaint
 async function updateComplaint(rowIndex, status, remarks) {
-  try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rowIndex, status, remarks })
-    });
-    const result = await res.json();
-    if(result.status==="success") {
-      alert("✅ Updated successfully");
-    } else {
-      alert("❌ " + result.message);
-    }
-  } catch(err) {
-    alert("❌ Update failed: " + err.message);
-  }
+  const res = await fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rowIndex, status, remarks })
+  });
+  return await res.json();
 }
 
+// Render complaints table
 function renderTable(complaints) {
   const tbody = document.querySelector("#complaintTable tbody");
   tbody.innerHTML = "";
@@ -99,17 +92,26 @@ function renderTable(complaints) {
     tbody.appendChild(tr);
   });
 
+  // Attach save button handlers
   document.querySelectorAll(".saveBtn").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const tr = btn.closest("tr");
       const rowIndex = btn.dataset.row;
       const status = tr.querySelector(".status").value;
       const remarks = tr.querySelector(".remarks").value;
-      updateComplaint(rowIndex, status, remarks);
+
+      try {
+        const result = await updateComplaint(rowIndex, status, remarks);
+        if(result.status === "success") alert("✅ Updated successfully");
+        else alert("❌ " + result.message);
+      } catch(err) {
+        alert("❌ Update failed: " + err.message);
+      }
     };
   });
 }
 
+// Filter change
 document.getElementById("statusFilter").addEventListener("change", async () => {
   const complaints = await fetchComplaints();
   renderTable(complaints);
