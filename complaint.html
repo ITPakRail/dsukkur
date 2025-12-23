@@ -10,18 +10,20 @@ main { padding:20px; max-width:600px; margin:auto; background:white; }
 input, select, textarea, button {
   width:100%; padding:10px; margin:8px 0;
 }
-button { background:#2e7d32; color:white; border:none; cursor:pointer; }
+button {
+  background:#2e7d32; color:white; border:none; cursor:pointer;
+}
 button:hover { opacity:0.9; }
 </style>
 </head>
 <body>
 
 <header>Register Complaint – Pakistan Railways (Sukkur Division)</header>
-
 <main>
 <form id="complaintForm">
   <input type="text" id="name" placeholder="Complainant Name" required>
   <input type="text" id="contact" placeholder="Contact Number" required>
+  
   <select id="type" required>
     <option value="">Select Complaint Type</option>
     <option>Station Facilities</option>
@@ -30,15 +32,17 @@ button:hover { opacity:0.9; }
     <option>Cleanliness</option>
     <option>Other</option>
   </select>
+  
   <textarea id="message" placeholder="Complaint Details" rows="4" required></textarea>
   <input type="file" id="image" accept="image/*">
   <button type="submit">Submit Complaint</button>
 </form>
+
 <p id="status"></p>
 </main>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
 document.getElementById("complaintForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -46,31 +50,45 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
   status.innerText = "Submitting complaint...";
 
   const fileInput = document.getElementById("image");
-  let imagePayload = {}; // Ignored for now
-
-  if(fileInput.files.length > 0){
-    // Keep input, ignore for now
+  let imagePayload = {};
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const base64 = await toBase64(file);
+    imagePayload = {
+      image: base64.split(",")[1],
+      imageName: file.name,
+      imageType: file.type
+    };
   }
 
   const payload = {
     name: document.getElementById("name").value,
     contact: document.getElementById("contact").value,
     type: document.getElementById("type").value,
-    message: document.getElementById("message").value
-    // image ignored
+    message: document.getElementById("message").value,
+    ...imagePayload
   };
 
-  // 🔴 Use no-cors to guarantee the POST works
+  /* 🔴 CRITICAL FIX */
   fetch(API_URL, {
     method: "POST",
-    mode: "no-cors",
+    mode: "no-cors",   // ✅ REQUIRED
     body: JSON.stringify(payload)
   });
 
-  // ✅ Show success immediately (cannot get real response)
+  // ✅ Assume success (GAS does not allow response reading)
   status.innerText = "✅ Complaint submitted successfully";
   document.getElementById("complaintForm").reset();
 });
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 </script>
 
 </body>
