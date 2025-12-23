@@ -2,23 +2,50 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Train Timing</title>
+<title>Train Timing – Sukkur Division</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Choices.js CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
 <style>
-body { font-family: Arial; margin:0; background:#f2f2f2; }
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f2f2f2;
+}
 
+/* ================= HEADER ================= */
 header {
-  background: green;
+  background: #2e7d32;
   color: white;
   padding: 15px;
   text-align: center;
   font-size: 22px;
 }
-  
+
+/* ================= NAVIGATION ================= */
+nav {
+  background-color: rgba(0, 0, 50, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+nav a {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+nav a:hover {
+  background-color: #1a237e;
+}
+
+/* ================= SEARCH PANEL ================= */
 .panel {
   background: navy;
   padding: 15px;
@@ -32,8 +59,10 @@ button {
   max-width: 400px;
   margin: 5px auto;
   display: block;
+  cursor: pointer;
 }
 
+/* ================= TABLE ================= */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -57,52 +86,63 @@ th {
   font-weight: bold;
   text-align: center;
 }
-/* Choices.js dropdown overrides */
+
+/* ================= Choices.js overrides ================= */
 .choices__inner {
   background-color: white !important;
-  color: black !important;       /* Selected item text */
+  color: black !important;
   border-radius: 4px;
   border: 1px solid #ccc;
   padding: 5px 10px;
   min-height: 40px;
 }
 
-.choices__list--single .choices__item {
-  color: black !important;       /* Text of the selected item */
-}
-
-.choices__list--dropdown .choices__item {
-  color: black !important;       /* Text of items in the dropdown list */
+.choices__list--single .choices__item,
+.choices__list--dropdown .choices__item,
+.choices__input {
+  color: black !important;
 }
 
 .choices__list--dropdown {
   max-height: 200px;
   overflow-y: auto;
-  background-color: white !important; /* Ensure dropdown background is white */
+  background-color: white !important;
 }
 
-.choices__input {
-  color: black !important;       /* Text when typing in search box */
-}
-/* Center the dropdown container */
 .dropdown-container {
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
 }
 
-
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<header>Train Timing</header>
+<!-- HEADER -->
+<header>Pakistan Railways – Sukkur Division (Train Timing)</header>
 
+<!-- MENU -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="stations.html">Stations</a>
+  <a href="timing.html">Train Timing</a>
+  <a href="ticketing.html">Ticketing</a>
+  <a href="complaint.html">Register Complaint</a>
+  <a href="contactus.html">Contact Us</a>
+</nav>
 
+<!-- SEARCH PANEL -->
 <div class="panel">
   <div class="dropdown-container">
-    <select id="trainSelect" placeholder="Select Train"></select>
+    <select id="trainSelect"></select>
   </div>
   <button onclick="loadTiming()">Search</button>
 </div>
@@ -124,10 +164,10 @@ th {
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec"; // Replace with your GAS web app URL
+const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 const sel = document.getElementById("trainSelect");
 
-// 🔹 Load dropdown
+/* Load trains */
 fetch(API + "?action=trains")
   .then(r => r.json())
   .then(data => {
@@ -139,7 +179,6 @@ fetch(API + "?action=trains")
       sel.appendChild(opt);
     });
 
-    // Initialize Choices.js
     const choices = new Choices(sel, {
       searchEnabled: true,
       itemSelectText: '',
@@ -149,12 +188,11 @@ fetch(API + "?action=trains")
       searchPlaceholderValue: "Type to search..."
     });
 
-    // Make Choices dropdown same width as button
     const choicesDiv = sel.closest('.choices');
     choicesDiv.style.width = document.querySelector('button').offsetWidth + 'px';
   });
 
-// 🔹 Load timing
+/* Load timing */
 function loadTiming() {
   const trainId = sel.value;
   if (!trainId) return alert("Select a train");
