@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Complaints</title>
+<style>
+body { font-family: Arial; margin: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+th { background: #2e7d32; color: white; }
+select, input { padding: 5px; }
+button { padding: 5px 10px; margin-left: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2>Complaint Admin</h2>
+<label>Filter Status:
+  <select id="filterStatus">
+    <option value="ALL">ALL</option>
+    <option value="OPEN">OPEN</option>
+    <option value="CLOSE">CLOSE</option>
+  </select>
+</label>
+
+<table id="complaintTable">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Complainant</th>
+      <th>Contact</th>
+      <th>Type</th>
+      <th>Message</th>
+      <th>Pic</th>
+      <th>Status</th>
+      <th>Remarks</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_ID/exec";
+
+async function loadComplaints() {
+  const filter = document.getElementById("filterStatus").value;
+  const res = await fetch(`${API_URL}?action=getComplaints`);
+  const data = await res.json();
+  const tbody = document.querySelector("#complaintTable tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(item => {
+    if(filter !== "ALL" && item.status !== filter) return;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.date}</td>
+      <td>${item.complainant}</td>
+      <td>${item.contact}</td>
+      <td>${item.type}</td>
+      <td>${item.message}</td>
+      <td>${item.pic ? `<a href="${item.pic}" target="_blank">View</a>` : ""}</td>
+      <td>
+        <select class="statusSelect">
+          <option value="OPEN" ${item.status=="OPEN"?"selected":""}>OPEN</option>
+          <option value="CLOSE" ${item.status=="CLOSE"?"selected":""}>CLOSE</option>
+        </select>
+      </td>
+      <td><input type="text" class="remarksInput" value="${item.remarks || ''}"></td>
+      <td><button onclick="saveComplaint(${item.rowIndex}, this)">Save</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function saveComplaint(rowIndex, btn) {
+  const tr = btn.closest("tr");
+  const status = tr.querySelector(".statusSelect").value;
+  const remarks = tr.querySelector(".remarksInput").value;
+
+  const payload = { rowIndex, status, remarks };
+  const res = await fetch(`${API_URL}?action=update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const result = await res.json();
+  if(result.status === "success") alert("Saved successfully!");
+  else alert("Error: " + result.message);
+}
+
+document.getElementById("filterStatus").addEventListener("change", loadComplaints);
+loadComplaints();
+</script>
+
+</body>
+</html>
