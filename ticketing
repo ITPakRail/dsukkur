@@ -66,6 +66,60 @@
       margin: 10px 0;
     }
   }
+/* ================= BOTTOM PANEL ================= */
+.bottom-panel {
+  background: #0d1b4c;
+  color: white;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.bottom-panel .panel-container {
+  max-width: 1000px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.panel-left, .panel-right {
+  flex: 1 1 300px;
+}
+
+.panel-left h4 {
+  margin: 0 0 10px;
+}
+
+.app-links img {
+  height: 40px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.panel-left a,
+.panel-right a {
+  color: #ffeb3b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.panel-left a:hover,
+.panel-right a:hover {
+  text-decoration: underline;
+}
+
+.panel-right {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .panel-right {
+    text-align: left;
+    margin-top: 15px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -88,6 +142,39 @@
     Passengers can also make reservations through the <strong>RABTA mobile app</strong> and the <strong>Pakistan Railways website</strong>, ensuring flexibility and convenience.
 
     A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed by IT personnel from <strong>8:00 AM to midnight</strong>, providing technical support for mobile and website users, as well as assisting remote stations with troubleshooting and ticketing issues.
+  </div>
+</div>
+<!-- ================= BOTTOM PANEL ================= -->
+<div class="bottom-panel">
+  <div class="panel-container">
+
+    <!-- LEFT SIDE -->
+    <div class="panel-left">
+      <h4>Download Apps</h4>
+
+      <div class="app-links">
+        <a href="https://play.google.com/store/apps/details?id=com.easyway.ticket.app&pli=1" target="_blank">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+        </a>
+
+        <a href="https://apps.apple.com/pk/app/rabta/id6446243993" target="_blank">
+          <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
+        </a>
+      </div>
+
+      <p style="margin-top:10px;">
+        Website for E-Ticketing:
+        <a href="https://www.pakrailways.gov.pk/home" target="_blank">
+          www.pakrailways.gov.pk
+        </a>
+      </p>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="panel-right">
+      <a href="faq.html">FAQs</a>
+    </div>
+
   </div>
 </div>
 
