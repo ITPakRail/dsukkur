@@ -44,8 +44,12 @@ button:hover { opacity:0.9; }
 </table>
 
 <script>
+// Replace these URLs with your actual deployed Web App URLs
+const GET_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?page=getComplaints";
+const UPDATE_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+
 async function fetchComplaints() {
-  const res = await fetch("getComplaints");
+  const res = await fetch(GET_URL);
   return await res.json();
 }
 
@@ -87,8 +91,9 @@ function renderTable(complaints) {
 
       const payload = { rowIndex, status, remarks };
       try {
-        const res = await fetch("updateComplaint", {
+        const res = await fetch(UPDATE_URL, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
         const result = await res.json();
