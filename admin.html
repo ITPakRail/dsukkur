@@ -44,24 +44,15 @@ button:hover { opacity:0.9; }
 </table>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
-// Fetch complaints JSON
+// Replace these URLs with your actual deployed Web App URLs
+const GET_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec/exec?page=getComplaints";
+const UPDATE_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+
 async function fetchComplaints() {
-  const res = await fetch(`${WEB_APP_URL}?page=getComplaints`);
+  const res = await fetch(GET_URL);
   return await res.json();
 }
 
-// Update a complaint
-async function updateComplaint(rowIndex, status, remarks) {
-  const res = await fetch(WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ rowIndex, status, remarks })
-  });
-  return await res.json();
-}
-
-// Render complaints table
 function renderTable(complaints) {
   const tbody = document.querySelector("#complaintTable tbody");
   tbody.innerHTML = "";
@@ -98,9 +89,15 @@ function renderTable(complaints) {
       const status = tr.querySelector(".status").value;
       const remarks = tr.querySelector(".remarks").value;
 
+      const payload = { rowIndex, status, remarks };
       try {
-        const result = await updateComplaint(rowIndex, status, remarks);
-        if(result.status === "success") alert("✅ Updated successfully");
+        const res = await fetch(UPDATE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if(result.status==="success") alert("✅ Updated successfully");
         else alert("❌ " + result.message);
       } catch(err) {
         alert("❌ Update failed: " + err.message);
@@ -109,7 +106,6 @@ function renderTable(complaints) {
   });
 }
 
-// Filter change
 document.getElementById("statusFilter").addEventListener("change", async () => {
   const complaints = await fetchComplaints();
   renderTable(complaints);
