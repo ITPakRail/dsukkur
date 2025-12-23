@@ -1,47 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact Us – Sukkur Division</title>
-<!-- Add this in <head> -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>Train Timing – Sukkur Division</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
 <style>
-/* ================= HEADER ================= */
 body {
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   margin: 0;
-  background: #f5f5f5;
-  color: #333;
+  background: #f2f2f2;
 }
 
-.main-header {
-  background-color: #2e7d32;
+/* ================= HEADER ================= */
+header {
+  background: #2e7d32;
   color: white;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-left img,
-.header-right img {
-  height: 50px;
-  width: auto;
-}
-
-.header-center {
+  padding: 15px;
+  text-align: center;
   font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  flex: 1;
-}
-
-.header-left,
-.header-right {
-  width: 60px;
-  text-align: center;
 }
 
 /* ================= NAVIGATION ================= */
@@ -65,97 +45,92 @@ nav a:hover {
   background-color: #1a237e;
 }
 
-nav button {
-  display: none;
-  background: none;
-  border: none;
+/* ================= SEARCH PANEL ================= */
+.panel {
+  background: navy;
+  padding: 15px;
   color: white;
-  font-size: 28px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-/* ================= MAIN CONTENT ================= */
-main {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  border-radius: 8px;
-}
-
-h2 {
   text-align: center;
-  color: #2e7d32;
-  margin-bottom: 20px;
 }
 
+button {
+  padding: 8px;
+  width: 90%;
+  max-width: 400px;
+  margin: 5px auto;
+  display: block;
+  cursor: pointer;
+}
+
+/* ================= TABLE ================= */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  background: white;
+  margin-top: 15px;
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 12px;
+  padding: 8px;
   text-align: left;
-  vertical-align: top;
 }
 
 th {
-  background-color: #e8f5e9;
+  background: #333;
+  color: white;
 }
 
-tfoot td {
+#trainTitle {
+  margin-top: 15px;
+  font-weight: bold;
   text-align: center;
-  font-size: 14px;
-  color: #555;
-  border: none;
-  padding: 15px 0 5px 0;
+}
+
+/* ================= Choices.js overrides ================= */
+.choices__inner {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  min-height: 40px;
+}
+
+.choices__list--single .choices__item,
+.choices__list--dropdown .choices__item,
+.choices__input {
+  color: black !important;
+}
+
+.choices__list--dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white !important;
+}
+
+.dropdown-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  main {
-    padding: 15px;
-  }
-
-  th, td {
-    padding: 8px;
-  }
-
-  nav a {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .header-center {
-    font-size: 18px;
+  nav {
+    flex-direction: column;
   }
 }
-
 </style>
 </head>
+
 <body>
 
-<header class="main-header">
-  <div class="header-left">
-    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
-  </div>
+<!-- HEADER -->
+<header>Pakistan Railways – Sukkur Division (Train Timing)</header>
 
-  <div class="header-center">
-    Contact Us – Sukkur Division
-  </div>
-
-  <div class="header-right">
-    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
-  </div>
-</header>
-
-<nav id="menu">
-  <button onclick="toggleMenu()">☰ Menu</button>
+<!-- MENU -->
+<nav>
   <a href="index.html">Home</a>
   <a href="stations.html">Stations</a>
   <a href="timing.html">Train Timing</a>
@@ -164,51 +139,85 @@ tfoot td {
   <a href="contactus.html">Contact Us</a>
 </nav>
 
-<main>
-  <h2>Contact Information</h2>
+<!-- SEARCH PANEL -->
+<div class="panel">
+  <div class="dropdown-container">
+    <select id="trainSelect"></select>
+  </div>
+  <button onclick="loadTiming()">Search</button>
+</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Phone</th>
-        <th>Email/WhatsApp</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Divisional Superintendent Office, Sukkur</td>
-        <td>(071) 9310067</td>
-        <td>dsukkur@gmail.com</td>
-      </tr>
-      <tr>
-        <td>Suggestion / Complaint</td>
-        <td>0314-0005834   </td>
-        <td><a href="https://wa.me/03140005834" target="_blank">
-    <i class="fab fa-whatsapp" style="font-size:24px; color:green;"></i>WhatsApp</a></td>
-      </tr>
-      <tr>
-        <td>E-Ticketing Support(IT/Server Room, Reservation Office Sukkur Station)</td>
-        <td>071-9310014</td>
-        <td>sukkurap@gmail.com</td>
-      </tr>
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="3">Copyright &copy; <span id="currentYear"></span> Divisional Superintendent, Pakistan Railways Sukkur</td>
-      </tr>
-    </tfoot>
-  </table>
-</main>
+<div id="trainTitle"></div>
+
+<table id="resultTable" style="display:none">
+  <thead>
+    <tr>
+      <th>Station</th>
+      <th>Arrival</th>
+      <th>Departure</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<!-- Choices.js JS -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
-function toggleMenu() {
-  const links = document.querySelectorAll('nav a');
-  links.forEach(link => link.classList.toggle('active'));
-}
+const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+const sel = document.getElementById("trainSelect");
 
-// Set current year in footer
-document.getElementById('currentYear').textContent = new Date().getFullYear();
+/* Load trains */
+fetch(API + "?action=trains")
+  .then(r => r.json())
+  .then(data => {
+    sel.innerHTML = `<option value="">Select Train...</option>`;
+    data.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = `${t.id} - ${t.name}`;
+      sel.appendChild(opt);
+    });
+
+    const choices = new Choices(sel, {
+      searchEnabled: true,
+      itemSelectText: '',
+      placeholderValue: "Select Train...",
+      shouldSort: false,
+      position: 'bottom',
+      searchPlaceholderValue: "Type to search..."
+    });
+
+    const choicesDiv = sel.closest('.choices');
+    choicesDiv.style.width = document.querySelector('button').offsetWidth + 'px';
+  });
+
+/* Load timing */
+function loadTiming() {
+  const trainId = sel.value;
+  if (!trainId) return alert("Select a train");
+
+  fetch(API + "?action=timing&trainid=" + trainId)
+    .then(r => r.json())
+    .then(rows => {
+      document.getElementById("resultTable").style.display = "table";
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
+
+      document.getElementById("trainTitle").innerText =
+        sel.selectedOptions[0].text;
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.station}</td>
+          <td>${r.arrival}</td>
+          <td>${r.departure}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
 </script>
 
 </body>
