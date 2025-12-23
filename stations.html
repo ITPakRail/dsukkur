@@ -18,14 +18,21 @@ header {
   font-size: 22px;
 }
 nav {
-  background: #0d1b4c;
-  padding: 10px;
-  text-align: center;
+  background-color: rgba(0, 0, 50, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 nav a {
   color: white;
-  margin: 0 10px;
+  padding: 12px 20px;
   text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  transition: background 0.3s;
+}
+nav a:hover {
+  background-color: #1a237e;
 }
 table {
   width: 100%;
@@ -36,44 +43,19 @@ th, td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: center;
+  vertical-align: top;
 }
 th {
   background: #e8f5e9;
 }
-button {
-  padding: 6px 10px;
-  cursor: pointer;
+ul {
+  margin: 0;
+  padding-left: 18px;
+  text-align: left;
 }
-     /* ================= NAVIGATION ================= */
-    nav {
-      background-color: rgba(0, 0, 50, 0.9);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    nav a {
-      color: white;
-      padding: 12px 20px;
-      text-decoration: none;
-      font-size: 16px;
-      text-align: center;
-      transition: background 0.3s;
-    }
-
-    nav a:hover {
-      background-color: #1a237e;
-    }
-
-    nav button {
-      display: none;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
+li {
+  margin-bottom: 4px;
+}
 </style>
 </head>
 
@@ -82,14 +64,12 @@ button {
 <header>Pakistan Railways – Sukkur Division (Stations)</header>
 
 <nav id="menu">
-  <button onclick="toggleMenu()">☰ Menu</button>
   <a href="index.html">Home</a>
   <a href="stations.html">Stations</a>
   <a href="timing.html">Train Timing</a>
   <a href="ticketing.html">Ticketing</a>
   <a href="complaint.html">Register Complaint</a>
 </nav>
-
 
 <main style="padding:20px;">
 <h3>Stations Information</h3>
@@ -100,9 +80,8 @@ button {
       <th>SNO</th>
       <th>Station</th>
       <th>Facilities</th>
-       <th>Pics</th>
+      <th>Pics</th>
       <th>Google Map</th>
-     
     </tr>
   </thead>
   <tbody></tbody>
@@ -111,6 +90,15 @@ button {
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=stations";
+
+// Convert facilities text into bullet list
+function formatFacilities(text) {
+  if (!text) return "";
+
+  const items = text.split(/,|\n/).map(i => i.trim()).filter(i => i);
+
+  return `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+}
 
 fetch(API_URL)
   .then(res => res.json())
@@ -123,10 +111,9 @@ fetch(API_URL)
         <tr>
           <td>${row.sno}</td>
           <td>${row.station}</td>
-          <td>${row.facilities}</td>
-           <td><a href="${row.pics}" target="_blank">🖼 View</a></td>
+          <td>${formatFacilities(row.facilities)}</td>
+          <td><a href="${row.pics}" target="_blank">🖼 View</a></td>
           <td><a href="${row.map}" target="_blank">📍 Map</a></td>
-         
         </tr>`;
     });
   })
@@ -138,4 +125,3 @@ fetch(API_URL)
 
 </body>
 </html>
-
