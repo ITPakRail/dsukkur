@@ -44,13 +44,9 @@ button:hover { opacity:0.9; }
 </table>
 
 <script>
-const GET_URL = "https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=getComplaints";
-const UPDATE_URL = "https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=update";
-
 async function fetchComplaints() {
-  const res = await fetch(GET_URL);
-  const data = await res.json();
-  return data; // assume array of complaints with columns: DATE, COMPLAINANT, CONTACT, TYPE, MESSAGE, PICS, STATUS, REMARKS
+  const res = await fetch("getComplaints");
+  return await res.json();
 }
 
 function renderTable(complaints) {
@@ -58,15 +54,13 @@ function renderTable(complaints) {
   tbody.innerHTML = "";
 
   const filter = document.getElementById("statusFilter").value;
-  let filtered = complaints;
-  if (filter !== "ALL") filtered = complaints.filter(c => c.STATUS === filter);
+  const filtered = filter === "ALL" ? complaints : complaints.filter(c => c.STATUS === filter);
 
   filtered.forEach((c, i) => {
     const tr = document.createElement("tr");
-
     tr.innerHTML = `
       <td>${i+1}</td>
-      <td>${c.DATE}</td>
+      <td>${new Date(c.DATE).toLocaleString()}</td>
       <td>${c.COMPLAINANT}</td>
       <td>${c.CONTACT}</td>
       <td>${c.TYPE}</td>
@@ -85,27 +79,25 @@ function renderTable(complaints) {
   });
 
   document.querySelectorAll(".saveBtn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const rowIndex = btn.dataset.row;
+    btn.onclick = async () => {
       const tr = btn.closest("tr");
+      const rowIndex = btn.dataset.row;
       const status = tr.querySelector(".status").value;
       const remarks = tr.querySelector(".remarks").value;
 
       const payload = { rowIndex, status, remarks };
-
       try {
-        const res = await fetch(UPDATE_URL, {
+        const res = await fetch("updateComplaint", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
         const result = await res.json();
-        if(result.status === "success") alert("✅ Updated successfully");
+        if(result.status==="success") alert("✅ Updated successfully");
         else alert("❌ " + result.message);
       } catch(err) {
         alert("❌ Update failed: " + err.message);
       }
-    });
+    };
   });
 }
 
