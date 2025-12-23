@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?!= include('style'); ?>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Railways – Sukkur Division</title>
 
-  <style>
-    /* ================= HEADER ================= */
+<style>
+/* ================= HEADER ================= */
 .main-header {
   background-color: #2e7d32;
   color: white;
@@ -15,7 +16,7 @@
   justify-content: space-between;
 }
 
-/* Left & Right logo */
+/* Left & Right logos */
 .header-left img,
 .header-right img {
   height: 50px;
@@ -30,116 +31,122 @@
   flex: 1;
 }
 
-/* Keep logos aligned */
+/* Logos alignment */
 .header-left,
 .header-right {
   width: 60px;
   text-align: center;
 }
 
-    /* ================= NAVIGATION ================= */
-    nav {
-      background-color: rgba(0, 0, 50, 0.9);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+/* ================= NAVIGATION ================= */
+nav {
+  background-color: rgba(0, 0, 50, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-    nav a {
-      color: white;
-      padding: 12px 20px;
-      text-decoration: none;
-      font-size: 16px;
-      text-align: center;
-      transition: background 0.3s;
-    }
+nav a {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  transition: background 0.3s;
+}
 
-    nav a:hover {
-      background-color: #1a237e;
-    }
+nav a:hover {
+  background-color: #1a237e;
+}
 
-    nav button {
-      display: none;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 28px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
+nav button {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  margin-left: 10px;
+}
 
-    /* ================= MAIN LAYOUT ================= */
-    main {
-      display: flex;
-      flex-direction: row;              /* side-by-side */
-      align-items: flex-start;          /* start from top */
-      justify-content: space-between;
-      gap: 30px;
-      padding: 25px;
-    }
+/* ================= MAIN LAYOUT ================= */
+main {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 25px;
+}
 
-    /* ================= LEFT SIDE (DS IMAGE) ================= */
-    .ds-pic {
-      flex: 0 0 300px;
-      max-width: 300px;
-      text-align: center;
-    }
+/* LEFT : DS IMAGE */
+.ds-pic {
+  flex: 0 0 300px;
+  text-align: center;
+}
 
-    .ds-pic img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
+.ds-pic img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
 
-    .ds-name {
-      margin-top: 10px;
-      font-size: 18px;
-      line-height: 1.4;
-    }
+.ds-name {
+  margin-top: 10px;
+  font-size: 18px;
+  line-height: 1.4;
+}
 
-    /* ================= RIGHT SIDE (MESSAGE) ================= */
-    .ds-message {
-      flex: 1;
-      text-align: justify;
-      font-size: 17px;
-      line-height: 1.7;
-    }
+/* CENTER : DS MESSAGE */
+.ds-message {
+  flex: 1;
+  text-align: justify;
+  font-size: 17px;
+  line-height: 1.7;
+}
 
-    .ds-heading {
-      margin-top: 0;
-      margin-bottom: 12px;
-      font-size: 20px;
-      color: #0b5c2d;
-      text-align: left;
-    }
+.ds-message h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #0b5c2d;
+}
 
-    .ds-message p {
-      margin-bottom: 14px;
-    }
+.ds-message p {
+  margin-bottom: 14px;
+}
 
-    /* ================= RESPONSIVE ================= */
-    @media (max-width: 768px) {
-      main {
-        flex-direction: column;
-      }
+/* RIGHT : SECOND IMAGE / LOGO */
+.ds-right {
+  flex: 0 0 200px;
+  text-align: center;
+}
 
-      nav {
-        flex-direction: column;
-      }
+.ds-right img {
+  width: 100%;
+  border-radius: 8px;
+}
 
-      nav button {
-        display: block;
-      }
+/* ================= RESPONSIVE ================= */
+@media (max-width: 992px) {
+  main {
+    flex-direction: column;
+    align-items: center;
+  }
 
-      nav a {
-        display: none;
-      }
+  .ds-pic,
+  .ds-message,
+  .ds-right {
+    flex: 1 1 100%;
+    max-width: 100%;
+    text-align: center;
+  }
 
-      nav a.active {
-        display: block;
-      }
-    }
-    @media (max-width: 600px) {
+  .ds-message {
+    text-align: justify;
+  }
+}
+
+@media (max-width: 600px) {
   .header-left img,
   .header-right img {
     height: 40px;
@@ -148,9 +155,13 @@
   .header-center {
     font-size: 18px;
   }
-}
 
-  </style>
+  nav a {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+</style>
 </head>
 
 <body>
@@ -179,25 +190,19 @@
 </nav>
 
 <main>
-
   <!-- LEFT : DS IMAGE & DETAILS -->
   <div class="ds-pic">
-    <img 
-      src="https://drive.google.com/thumbnail?id=1A5baIOAx2aMHuJRuyD6Ru77wEBttPSj8&sz=w400"
-      alt="Divisional Superintendent"
-    >
+    <img src="https://drive.google.com/thumbnail?id=1A5baIOAx2aMHuJRuyD6Ru77wEBttPSj8&sz=w400" alt="Divisional Superintendent">
     <div class="ds-name">
-      
-       <strong style="color: green;">Jamshaid Alam</strong><br>
+      <strong style="color: green;">Jamshaid Alam</strong><br>
       Divisional Superintendent<br>
       Pakistan Railways, Sukkur Division
     </div>
   </div>
 
-  <!-- RIGHT : MESSAGE -->
+  <!-- CENTER : DS MESSAGE -->
   <div class="ds-message">
-    <h3 class="ds-heading">Message from the Divisional Superintendent</h3>
-
+    <h3>Message from the Divisional Superintendent</h3>
     <p>
       Pakistan Railways, Sukkur Division is committed to continuously improving
       passenger services and station facilities to ensure a safe, comfortable,
@@ -205,30 +210,29 @@
       of infrastructure, cleanliness, information services, and passenger support
       systems across all stations of the division.
     </p>
-
     <p>
       This digital portal has been developed to provide easy access to station
       information, facilities, and important updates for the public. It also
       serves as a platform for passengers to share their concerns, suggestions,
       or complaints.
     </p>
-
     <p>
       If you experience any inconvenience during your journey or at any station,
       we encourage you to register your complaint through this portal. Your
       feedback is important to us and will be reviewed and addressed promptly by
       the concerned authorities.
     </p>
-
     <p>
       Together, we aim to build a more efficient, transparent, and
       passenger-friendly railway system.
     </p>
   </div>
 
+  <!-- RIGHT : SECOND IMAGE / LOGO -->
+  <div class="ds-right">
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+  </div>
 </main>
-
-<?!= include('script'); ?>
 
 <script>
 function toggleMenu() {
