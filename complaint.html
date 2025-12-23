@@ -58,7 +58,6 @@ function toBase64(file) {
     reader.readAsDataURL(file);
   });
 }
-
 document.getElementById("complaintForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   const status = document.getElementById("status");
