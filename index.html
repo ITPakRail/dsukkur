@@ -161,6 +161,54 @@ main {
     font-size: 14px;
   }
 }
+  <style>
+/* IMPORTANT LINKS PANEL */
+.important-links {
+  background: #f1f1f1;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+.links-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.links-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px; /* space between links */
+  flex-wrap: wrap;
+}
+
+.links-row a {
+  text-decoration: none;
+  color: #003366;
+  font-weight: 600;
+}
+
+.links-row a:hover {
+  text-decoration: underline;
+}
+
+/* FOOTER */
+.footer {
+  background: #003366;
+  color: white;
+  text-align: center;
+  padding: 12px 5px;
+  font-size: 14px;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 600px) {
+  .links-row {
+    gap: 15px;
+    font-size: 14px;
+  }
+}
+</style>
+
 </style>
 </head>
 
@@ -244,6 +292,20 @@ function toggleMenu() {
   links.forEach(link => link.classList.toggle('active'));
 }
 </script>
+<!-- IMPORTANT LINKS PANEL -->
+<div class="important-links">
+  <div class="links-title">Important Links</div>
+  <div class="links-row">
+    <a href="https://www.railways.gov.pk/" target="_blank">Ministry of Railways</a>
+    <a href="https://web.citizenportal.gov.pk/" target="_blank">Pakistan Citizen Portal</a>
+    <a href="https://pakrail.gov.pk/Downloads.aspx" target="_blank">Downloads</a>
+  </div>
+</div>
+<!-- FOOTER -->
+<footer class="footer">
+  <div>Pakistan Railways Sukkur Division</div>
+  <div>Developer &amp; Powered by IT Dept: Sukkur Division</div>
+</footer>
 
 </body>
 </html>
