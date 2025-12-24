@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pakistan Railways – Sukkur Division | Live Train Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+}
+
+header {
+  background: #2e7d32;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+select, button {
+  padding: 10px;
+  font-size: 15px;
+}
+
+select {
+  flex: 1;
+}
+
+button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #256628;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background: #e8f5e9;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+  color: #555;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Pakistan Railways – Sukkur Division</h2>
+  <p>Live Train Tracking System</p>
+</header>
+
+<div class="container">
+
+  <div class="search-bar">
+    <select id="trainSelect">
+      <option value="">Loading trains...</option>
+    </select>
+
+    <button onclick="searchTrain()">Search</button>
+  </div>
+
+  <table id="resultTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Train</th>
+        <th>Live Status</th>
+        <th>Next Station</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody id="resultBody"></tbody>
+  </table>
+
+</div>
+
+<footer>
+  © Pakistan Railways – Sukkur Division
+</footer>
+
+<script>
+const API_URL = "YOUR_WEB_APP_URL?action=liveTrains";
+let trains = [];
+
+// Load trains on page load
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+    if (!data.IsSuccess) return;
+
+    trains = data.Response;
+    const select = document.getElementById("trainSelect");
+    select.innerHTML = '<option value="">Select Train</option>';
+
+    trains.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t.TrainId;
+      opt.textContent = t.TrainName;
+      select.appendChild(opt);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("trainSelect").innerHTML =
+      '<option>Error loading trains</option>';
+  });
+
+function searchTrain() {
+  const trainId = document.getElementById("trainSelect").value;
+  if (!trainId) {
+    alert("Please select a train");
+    return;
+  }
+
+  const train = trains.find(t => t.TrainId == trainId);
+  if (!train) return;
+
+  const tbody = document.getElementById("resultBody");
+  tbody.innerHTML = "";
+
+  const row = `
+    <tr>
+      <td>${train.TrainName}</td>
+      <td>${train.IsLive ? "Live" : "Not Live"}</td>
+      <td>${train.NextStation || "N/A"}</td>
+      <td>${train.Remarks || "On Time"}</td>
+    </tr>
+  `;
+
+  tbody.innerHTML = row;
+  document.getElementById("resultTable").style.display = "table";
+}
+</script>
+
+</body>
+</html>
