@@ -14,6 +14,30 @@ button {
   background:#2e7d32; color:white; border:none; cursor:pointer;
 }
 button:hover { opacity:0.9; }
+  /* WhatsApp QR Section */
+.whatsapp-qr {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.qr-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #075e54; /* WhatsApp green */
+  margin-bottom: 12px;
+}
+
+.qr-title i {
+  margin-right: 8px;
+  font-size: 22px;
+}
+
+.whatsapp-qr img {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+}
+
 </style>
 </head>
 <body>
@@ -89,6 +113,18 @@ function toBase64(file) {
   });
 }
 </script>
+<!-- WhatsApp QR Complaint Section -->
+<div class="whatsapp-qr">
+  <div class="qr-title">
+    <i class="fab fa-whatsapp"></i>
+    Scan to Complaint on WhatsApp
+  </div>
+
+  <img 
+    src="https://drive.google.com/thumbnail?id=1pjRrMcTf5HXRtbyHZbfYzEywLTWElJCu&sz=w300"
+    alt="WhatsApp Complaint QR Code"
+  >
+</div>
 
 </body>
 </html>
