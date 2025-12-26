@@ -198,6 +198,26 @@ main {
   padding: 12px 5px;
   font-size: 14px;
 }
+<style>
+.footer {
+  background: #003366;
+  color: white;
+  padding: 12px 10px;
+  font-size: 14px;
+}
+
+/* Footer layout */
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.visitor-counter {
+  font-weight: bold;
+}
+</style>
 
 /* MOBILE RESPONSIVE */
 @media (max-width: 600px) {
@@ -302,9 +322,36 @@ function toggleMenu() {
 </div>
 <!-- FOOTER -->
 <footer class="footer">
-  <div>Pakistan Railways Sukkur Division</div>
-  <div>Developed &amp; Powered by IT Dept: Sukkur Division</div>
+  <div class="footer-container">
+    
+    <!-- LEFT : VISITOR COUNTER -->
+    <div class="visitor-counter">
+      Total Visitors: <span id="visitorCount">0</span>
+    </div>
+
+    <!-- RIGHT : FOOTER TEXT -->
+    <div style="text-align: right;">
+      <div>Pakistan Railways Sukkur Division</div>
+      <div>Developed &amp; Powered by IT Dept: Sukkur Division</div>
+    </div>
+
+  </div>
 </footer>
+
+
+  
+<script>
+let count = localStorage.getItem("visitorCount");
+
+if (!count) {
+  count = 1;
+} else {
+  count = parseInt(count) + 1;
+}
+
+localStorage.setItem("visitorCount", count);
+document.getElementById("visitorCount").innerText = count;
+</script>
 
 </body>
 </html>
