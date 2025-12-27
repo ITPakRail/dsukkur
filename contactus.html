@@ -144,6 +144,19 @@ th {
     font-size: 18px;
   }
 }
+  /* ===== Blinking Train Tracking menu ===== */
+.blink-tracking {
+  color: yellow !important;
+  font-weight: bold;
+  animation: blinkText 1s infinite;
+}
+
+@keyframes blinkText {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 </style>
 </head>
 
