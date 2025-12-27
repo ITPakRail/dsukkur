@@ -3,43 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Train Tracking – Under Construction</title>
+<title>Train Tracking – Sukkur Division</title>
 
 <style>
+/* ================= HEADER ================= */
+.main-header {
+  background-color: #2e7d32;
+  color: white;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left img,
+.header-right img {
+  height: 50px;
+}
+
+.header-center {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+}
+
+.header-left,
+.header-right {
+  width: 60px;
+  text-align: center;
+}
+
+/* ================= NAV ================= */
+nav {
+  background-color: rgba(0, 0, 50, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+nav a {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+nav a:hover {
+  background-color: #1a237e;
+}
+
+/* BLINKING MENU */
+.blink-tracking {
+  color: yellow !important;
+  font-weight: bold;
+  animation: blinkText 1s infinite;
+}
+
+@keyframes blinkText {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ================= BODY ================= */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(to bottom, #e8f5e9, #ffffff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }
 
-/* MAIN CONTAINER */
+/* CENTER CONTENT */
 .container {
   text-align: center;
-  padding: 30px;
+  padding: 60px 20px;
 }
 
-/* TITLE */
 .container h1 {
   color: #2e7d32;
   font-size: 32px;
-  margin-bottom: 10px;
 }
 
-/* SUBTEXT */
 .container p {
   font-size: 18px;
-  color: #333;
   margin-bottom: 30px;
 }
 
 /* TRACK */
 .track {
   position: relative;
-  width: 300px;
+  width: 320px;
   height: 6px;
   background: #555;
   margin: 0 auto;
@@ -56,28 +109,53 @@ body {
   animation: moveTrain 4s linear infinite;
 }
 
-/* TRAIN ANIMATION */
 @keyframes moveTrain {
   0% { left: -60px; }
-  100% { left: 320px; }
+  100% { left: 340px; }
 }
 
-/* FOOT NOTE */
 .note {
   margin-top: 25px;
   font-size: 14px;
-  color: #666;
+  color: #555;
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
+<header class="main-header">
+  <div class="header-left">
+    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80">
+  </div>
+
+  <div class="header-center">
+    Pakistan Railways – Sukkur Division
+  </div>
+
+  <div class="header-right">
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150">
+  </div>
+</header>
+
+<!-- MENU -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="stations.html">Stations</a>
+  <a href="timing.html">Train Timing</a>
+  <a href="ticketing.html">Ticketing</a>
+  <a href="complaint.html">Register Complaint</a>
+  <a href="contactus.html">Contact Us</a>
+  <a href="gallery.html">Gallery</a>
+  <a href="tracking.html" class="blink-tracking">Train Tracking</a>
+</nav>
+
+<!-- CONTENT -->
 <div class="container">
   <h1>🚆 Train Tracking</h1>
   <p><strong>Under Construction</strong></p>
 
-  <!-- TRACK & TRAIN -->
   <div class="track">
     <div class="train">🚆</div>
   </div>
