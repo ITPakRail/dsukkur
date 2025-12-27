@@ -227,6 +227,24 @@ main {
   50%  { opacity: 0; }
   100% { opacity: 1; }
 }
+/* ===== Blinking footer tracking link ===== */
+.footer-track {
+  color: yellow;
+  font-weight: bold;
+  text-decoration: none;
+  animation: blinkText 1.2s infinite;
+}
+
+.footer-track:hover {
+  text-decoration: underline;
+}
+
+/* reuse blink animation */
+@keyframes blinkText {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
 
 </style>
 
@@ -324,24 +342,32 @@ function toggleMenu() {
     <a href="https://mohtasib.gov.pk/" target="_blank">Wafaqi Mohtasib</a>
   </div>
 </div>
-<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-container">
-    
+
     <!-- LEFT : VISITOR COUNTER -->
     <div class="visitor-counter">
-      <a href="https://info.flagcounter.com/Nl4D"><img src="https://s01.flagcounter.com/count2/Nl4D/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_0/pageviews_0/flags_0/percent_0/" alt="Flag Counter" border="0"></a>
+      <a href="https://info.flagcounter.com/Nl4D">
+        <img src="https://s01.flagcounter.com/count2/Nl4D/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_0/pageviews_0/flags_0/percent_0/"
+             alt="Flag Counter" border="0">
+      </a>
+    </div>
+
+    <!-- CENTER : TRAIN TRACKING LINK -->
+    <div style="text-align:center;">
+      <a href="tracking.html" class="footer-track">
+        🚆 Train Tracking
+      </a>
     </div>
 
     <!-- RIGHT : FOOTER TEXT -->
-    <div style="text-align: right;">
+    <div style="text-align:right;">
       <div>Pakistan Railways Sukkur Division</div>
       <div>Developed &amp; Powered by IT Dept: Sukkur Division</div>
     </div>
 
   </div>
 </footer>
-
 
 </body>
 </html>
