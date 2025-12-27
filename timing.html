@@ -121,6 +121,36 @@ th {
     flex-direction: column;
   }
 }
+/* ===== Force vertical scrollbar in Choices dropdown ===== */
+.choices__list--dropdown {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+/* Show scrollbar clearly (Chrome, Edge, Brave) */
+.choices__list--dropdown::-webkit-scrollbar {
+  width: 10px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox scrollbar */
+.choices__list--dropdown {
+  scrollbar-width: auto;
+  scrollbar-color: #888 #f1f1f1;
+}
+
 </style>
 </head>
 
