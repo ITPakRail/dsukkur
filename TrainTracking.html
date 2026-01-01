@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Railways Live Train Status</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+  }
+
+  /* Header */
+  .header {
+    background-color: #2e7d32; /* Green */
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header img {
+    height: 50px;
+  }
+
+  .header h1 {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  /* Controls */
+  .controls {
+    margin: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  select, input[type="date"] {
+    padding: 5px;
+    font-size: 16px;
+  }
+
+  /* Status Table */
+  table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #2e7d32;
+    color: white;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="logo-left.png" alt="Left Logo">
+  <h1>Pakistan Railways Sukkur Division</h1>
+  <img src="logo-right.png" alt="Right Logo">
+</div>
+
+<div class="controls">
+  <div>
+    <label for="datePicker">Date:</label>
+    <input type="date" id="datePicker" value="">
+  </div>
+
+  <div>
+    <label for="trainSelect">Train:</label>
+    <select id="trainSelect">
+      <option value="">Select Train</option>
+    </select>
+  </div>
+
+  <button id="checkStatus">Check Status</button>
+</div>
+
+<div id="statusContainer">
+  <table id="statusTable">
+    <thead>
+      <tr>
+        <th>Train ID</th>
+        <th>Train Name</th>
+        <th>Previous Station</th>
+        <th>Current Location</th>
+        <th>Next Station</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="6">Select a train to see status</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+// Replace with your deployed Google Apps Script URL
+const GAS_API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+
+// Populate date picker with today's date
+document.getElementById('datePicker').valueAsDate = new Date();
+
+// Fetch live trains and populate dropdown
+fetch(`${GAS_API}?action=liveTrains`)
+  .then(r => r.json())
+  .then(trains => {
+    const select = document.getElementById('trainSelect');
+    trains.forEach(t => {
+      const option = document.createElement('option');
+      option.value = t.TrainId;
+      option.textContent = t.TrainNameWithNumber;
+      select.appendChild(option);
+    });
+  });
+
+// Check status on button click
+document.getElementById('checkStatus').addEventListener('click', () => {
+  const trainId = document.getElementById('trainSelect').value;
+  if (!trainId) {
+    alert("Please select a train!");
+    return;
+  }
+
+  fetch(`${GAS_API}?action=liveStatus&trainId=${trainId}`)
+    .then(r => r.json())
+    .then(data => {
+      const tbody = document.querySelector('#statusTable tbody');
+      tbody.innerHTML = ""; // Clear old rows
+
+      const prev = data.lastCrossed?.StationName || "N/A";
+      const next = data.nextStation?.StationName || "N/A";
+      const current = data.status === "NOT_STARTED" ? data.origin : "En Route";
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${trainId}</td>
+        <td>${document.getElementById('trainSelect').selectedOptions[0].text}</td>
+        <td>${prev}</td>
+        <td>${current}</td>
+        <td>${next}</td>
+        <td>${data.status}</td>
+      `;
+      tbody.appendChild(row);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Failed to fetch train status.");
+    });
+});
+</script>
+
+</body>
+</html>
