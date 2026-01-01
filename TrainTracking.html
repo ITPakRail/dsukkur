@@ -152,7 +152,8 @@ fetch(`${GAS_API}?action=liveTrains`)
       if (t.TrainNameWithNumber.endsWith(numberPart)) {
         option.textContent = t.TrainNameWithNumber;
       } else {
-        option.textContent = `${t.TrainNameWithNumber} ${numberPart}`;
+        option.textContent = `${t.TrainName} ${t.TrainNumber}${t.IsUp ? 'UP' : 'DN'}`;
+
       }
 
       select.appendChild(option);
