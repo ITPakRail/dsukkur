@@ -101,7 +101,7 @@
 <div class="controls">
   <div>
     <label for="datePicker">Date:</label>
-    <input type="date" id="datePicker" value="">
+    <input type="date" id="datePicker">
   </div>
 
   <div>
@@ -133,7 +133,6 @@
 </div>
 
 <script>
-// Your deployed Google Apps Script URL
 const GAS_API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
 // Set date picker to today
@@ -147,7 +146,15 @@ fetch(`${GAS_API}?action=liveTrains`)
     trains.forEach(t => {
       const option = document.createElement('option');
       option.value = t.TrainId;
-      option.textContent = `${t.TrainName} ${t.TrainNumber}${t.IsUp ? 'UP' : 'DN'}`; // Clean name
+
+      // Avoid repeating number if already included
+      const numberPart = t.TrainNumber + (t.IsUp ? 'UP' : 'DN');
+      if (t.TrainNameWithNumber.endsWith(numberPart)) {
+        option.textContent = t.TrainNameWithNumber;
+      } else {
+        option.textContent = `${t.TrainNameWithNumber} ${numberPart}`;
+      }
+
       select.appendChild(option);
     });
   })
@@ -164,10 +171,32 @@ document.getElementById('checkStatus').addEventListener('click', () => {
       const tbody = document.querySelector('#statusTable tbody');
       tbody.innerHTML = ""; // Clear old rows
 
+      // Determine Previous, Current, Next
       const prev = data.lastCrossed?.StationName || "N/A";
-      const next = data.nextStation?.StationName || "N/A";
-      const current = data.status === "RUNNING" ? data.nextStation?.StationName || "En Route" :
-                      data.status === "NOT_STARTED" ? data.origin : "N/A";
+      let next = data.nextStation?.StationName || "N/A";
+      let current = "N/A";
+      let status = data.status;
+
+      // Check if train departed origin but not crossed first station
+      if (!data.lastCrossed && status === "NOT_STARTED") {
+        const now = new Date();
+        const depTimeStr = data.scheduledDeparture;
+        const [hours, minutes] = depTimeStr.split(':').map(Number);
+        const depTime = new Date();
+        depTime.setHours(hours, minutes, 0, 0);
+
+        if (now >= depTime) {
+          status = "RUNNING";
+          current = data.origin;
+          next = data.nextStation?.StationName || "N/A";
+        } else {
+          current = data.origin;
+        }
+      } else if (status === "RUNNING") {
+        current = data.nextStation?.StationName || "En Route";
+      } else if (status === "NOT_STARTED") {
+        current = data.origin;
+      }
 
       const row = document.createElement('tr');
       row.innerHTML = `
@@ -176,7 +205,7 @@ document.getElementById('checkStatus').addEventListener('click', () => {
         <td>${prev}</td>
         <td>${current}</td>
         <td>${next}</td>
-        <td>${data.status}</td>
+        <td>${status}</td>
       `;
       tbody.appendChild(row);
     })
