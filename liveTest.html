@@ -4,80 +4,89 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pakistan Railways Live Train Status</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; padding:0; }
-    table { width: 95%; margin:20px auto; border-collapse: collapse; background: #fff; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #2e7d32; color: #fff; }
-    tr:nth-child(even) { background: #f2f2f2; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f4f4f4; }
   </style>
 </head>
 <body>
+  <h2>Pak Railways Live Train Status</h2>
+  <table id="trainTable">
+    <thead>
+      <tr>
+        <th>Train ID</th>
+        <th>Previous Station</th>
+        <th>Current Station</th>
+        <th>Next Station</th>
+        <th>Delay (min)</th>
+        <th>Next Station ETA</th>
+        <th>Speed (km/h)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="7">Waiting for live data...</td></tr>
+    </tbody>
+  </table>
 
-<h1 style="text-align:center; color:#2e7d32;">Pakistan Railways Live Train Status</h1>
+  <script>
+    const trainId = 41; // Change to any train ID
+    let stationsMap = {};
 
-<table id="statusTable">
-  <thead>
-    <tr>
-      <th>Train ID</th>
-      <th>Train Name</th>
-      <th>Previous Station</th>
-      <th>Current Location</th>
-      <th>Next Station</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td colspan="6">Waiting for live data...</td></tr>
-  </tbody>
-</table>
+    // 1️⃣ Fetch station list
+    fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.IsSuccess) {
+          data.Response.forEach(st => {
+            stationsMap[st.StationDetailsId] = st.StationName;
+          });
+        } else {
+          console.error("Station list fetch failed:", data.ErrorMessage);
+        }
+      });
 
-<!-- Include Socket.IO -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    // 2️⃣ Setup Socket.IO client
+    const socket = io("https://cotrolroomapi.pakraillive.com", {
+      transports: ["websocket"]
+    });
 
-<script>
-  // ID of train you want to track
-  const TRAIN_ID = 41;
+    socket.on("connect", () => {
+      console.log("Connected to live train socket:", socket.id);
+      socket.emit("subscribeTrain", { trainId }); // subscribe to live updates
+    });
 
-  // Connect to PakRail Socket.IO server
-  const socket = io("https://cotrolroomapi.pakraillive.com", {
-    path: "/socket.io",
-    transports: ["websocket", "polling"]
-  });
+    // 3️⃣ Handle live train updates
+    socket.on("trainUpdate", (msg) => {
+      // Example msg: { prev_st, next_st, lat, lon, late_by, sp, NextStationETA }
+      console.log("Live data:", msg);
 
-  socket.on("connect", () => {
-    console.log("Connected to PakRail Socket.IO server! Socket ID:", socket.id);
+      const tbody = document.querySelector("#trainTable tbody");
+      tbody.innerHTML = ""; // clear old row
 
-    // Ask server for live updates for this train
-    socket.emit("subscribeTrain", { trainId: TRAIN_ID });
-  });
+      const prevStation = stationsMap[msg.prev_st] || msg.prev_st;
+      const nextStation = stationsMap[msg.next_st] || msg.next_st;
+      const currentStation = prevStation; // approximate current station
 
-  // Listen for live train updates
-  socket.on("trainUpdate", (data) => {
-    console.log("Live update received:", data);
+      const row = `
+        <tr>
+          <td>${trainId}</td>
+          <td>${prevStation}</td>
+          <td>${currentStation}</td>
+          <td>${nextStation}</td>
+          <td>${msg.late_by || 0}</td>
+          <td>${msg.NextStationETA || ""}</td>
+          <td>${msg.sp || 0}</td>
+        </tr>
+      `;
+      tbody.innerHTML = row;
+    });
 
-    const tbody = document.querySelector("#statusTable tbody");
-    tbody.innerHTML = ""; // clear old row
-
-    const currentStation = data.nextStation?.StationName || "En Route";
-    const lastStation = data.lastStation?.StationName || "N/A";
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${TRAIN_ID}</td>
-      <td>${data.trainName || "N/A"}</td>
-      <td>${lastStation}</td>
-      <td>${currentStation}</td>
-      <td>${data.nextStation?.StationName || "N/A"}</td>
-      <td>${data.status || "N/A"}</td>
-    `;
-    tbody.appendChild(row);
-  });
-
-  socket.on("connect_error", (err) => {
-    console.error("Socket connection error:", err);
-  });
-</script>
-
+    socket.on("disconnect", () => {
+      console.log("Disconnected from live train socket");
+    });
+  </script>
 </body>
 </html>
