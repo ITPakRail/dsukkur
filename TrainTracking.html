@@ -29,6 +29,8 @@
   .header h1 {
     margin: 0;
     font-size: 22px;
+    text-align: center;
+    flex-grow: 1;
   }
 
   /* Controls */
@@ -37,15 +39,29 @@
     display: flex;
     gap: 20px;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   label {
     font-weight: bold;
+    margin-right: 5px;
   }
 
-  select, input[type="date"] {
-    padding: 5px;
+  select, input[type="date"], button {
+    padding: 5px 10px;
     font-size: 16px;
+  }
+
+  button {
+    cursor: pointer;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+
+  button:hover {
+    background-color: #1b5e20;
   }
 
   /* Status Table */
@@ -117,10 +133,10 @@
 </div>
 
 <script>
-// Replace with your deployed Google Apps Script URL
+// Your deployed Google Apps Script URL
 const GAS_API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
-// Populate date picker with today's date
+// Set date picker to today
 document.getElementById('datePicker').valueAsDate = new Date();
 
 // Fetch live trains and populate dropdown
@@ -131,18 +147,16 @@ fetch(`${GAS_API}?action=liveTrains`)
     trains.forEach(t => {
       const option = document.createElement('option');
       option.value = t.TrainId;
-      option.textContent = t.TrainNameWithNumber;
+      option.textContent = `${t.TrainName} ${t.TrainNumber}${t.IsUp ? 'UP' : 'DN'}`; // Clean name
       select.appendChild(option);
     });
-  });
+  })
+  .catch(err => console.error("Failed to fetch live trains:", err));
 
-// Check status on button click
+// Check status button click
 document.getElementById('checkStatus').addEventListener('click', () => {
   const trainId = document.getElementById('trainSelect').value;
-  if (!trainId) {
-    alert("Please select a train!");
-    return;
-  }
+  if (!trainId) return alert("Please select a train!");
 
   fetch(`${GAS_API}?action=liveStatus&trainId=${trainId}`)
     .then(r => r.json())
@@ -152,7 +166,8 @@ document.getElementById('checkStatus').addEventListener('click', () => {
 
       const prev = data.lastCrossed?.StationName || "N/A";
       const next = data.nextStation?.StationName || "N/A";
-      const current = data.status === "NOT_STARTED" ? data.origin : "En Route";
+      const current = data.status === "RUNNING" ? data.nextStation?.StationName || "En Route" :
+                      data.status === "NOT_STARTED" ? data.origin : "N/A";
 
       const row = document.createElement('tr');
       row.innerHTML = `
