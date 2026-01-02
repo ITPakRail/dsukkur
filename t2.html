@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pakistan Railways – Current Train Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    pre {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 5px;
+      max-height: 400px;
+      overflow: auto;
+    }
+    .train-info {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pakistan Railways – Current Train Status</h1>
+
+  <div class="train-info">
+    <h2>Train 27 Info:</h2>
+    <pre id="train27">Loading...</pre>
+  </div>
+
+  <div class="train-info">
+    <h2>All Trains JSON:</h2>
+    <pre id="allTrains">Loading...</pre>
+  </div>
+
+  <script>
+    // Replace with your Google Apps Script Web App URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzqrn55jeph6COoWngxILxt1zdvXS4zbemorrUe8szE8jJvQp9INssXnj1BnZQZBbou/exec";
+
+    fetch(GAS_URL)
+      .then(res => res.json())
+      .then(data => {
+        console.log("All Trains:", data);
+
+        // Show all trains
+        document.getElementById("allTrains").textContent = JSON.stringify(data, null, 2);
+
+        // Show Train 27 info if available
+        const train27 = data["27"];
+        if (train27) {
+          document.getElementById("train27").textContent = JSON.stringify(train27, null, 2);
+        } else {
+          document.getElementById("train27").textContent = "Train 27 data not found";
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch all trains:", err);
+        document.getElementById("allTrains").textContent = "Failed to fetch data";
+        document.getElementById("train27").textContent = "Failed to fetch data";
+      });
+  </script>
+</body>
+</html>
