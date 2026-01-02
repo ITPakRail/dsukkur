@@ -3,18 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>Pakistan Railways – Current Train Status</title>
+  <style>
+    #map {
+      width: 100%;
+      height: 400px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
 <h3>Pakistan Railways – Current Train Status</h3>
 <pre id="output">Loading current status…</pre>
+<div id="map"></div>
 
 <script>
 const TRAIN_ID = "27"; // change train here
 const output = document.getElementById("output");
 
 let stationMap = {};
-let snapshotTaken = false;
 
 // 1️⃣ Load station list
 async function loadStations() {
@@ -22,14 +29,28 @@ async function loadStations() {
     `https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`
   );
   const json = await res.json();
-
-  json.Response.forEach(st => {
+  (json.Response || []).forEach(st => {
     stationMap[String(st.StationDetailsId)] = st.StationName;
+  });
+  console.log("Station map loaded:", stationMap);
+}
+
+// 2️⃣ Initialize Google Map
+let map, marker;
+function initMap(lat = 0, lon = 0) {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat, lng: lon },
+    zoom: 6,
+  });
+  marker = new google.maps.Marker({
+    position: { lat, lng: lon },
+    map,
+    title: "Train location",
   });
 }
 
-// 2️⃣ Start WebSocket
-async function start() {
+// 3️⃣ Start WebSocket
+async function startWebSocket() {
   await loadStations();
 
   const ws = new WebSocket(
@@ -37,21 +58,27 @@ async function start() {
   );
 
   ws.onopen = () => {
-    ws.send("40");
-    ws.send(`42["joinTrain","${TRAIN_ID}"]`);
+    ws.send("40"); // socket.io handshake
+    ws.send(`42["joinTrain","${TRAIN_ID}"]`); // subscribe
+    output.textContent = "Connected & waiting for live data…";
   };
 
-  ws.onmessage = e => {
-    if (!e.data.startsWith("42") || snapshotTaken) return;
+  ws.onmessage = (e) => {
+    if (!e.data.startsWith("42")) return;
 
     const payload = JSON.parse(e.data.slice(2));
     const live = payload[1];
 
-    // Build snapshot
+    if (!live || live.loc === undefined) return;
+
+    // Map station IDs to names
+    const lastCrossed = stationMap[live.prev_st] || live.prev_st;
+    const nextStation = stationMap[live.next_st] || live.next_st;
+
     const result = {
       trainId: TRAIN_ID,
-      lastCrossedStation: stationMap[live.prev_st] || live.prev_st,
-      nextStation: stationMap[live.next_st] || live.next_st,
+      lastCrossedStation: lastCrossed,
+      nextStation: nextStation,
       currentLocation: live.sp > 0 ? "Between stations" : "At station",
       latitude: live.lat,
       longitude: live.lon,
@@ -63,17 +90,26 @@ async function start() {
 
     output.textContent = JSON.stringify(result, null, 2);
 
-    snapshotTaken = true;
-    ws.close(); // 🔴 STOP after first snapshot
+    // Update marker on Google Map
+    if (!map) initMap(live.lat, live.lon);
+    marker.setPosition({ lat: live.lat, lng: live.lon });
+    map.panTo({ lat: live.lat, lng: live.lon });
   };
 
   ws.onerror = () => {
     output.textContent = "Failed to load live status.";
   };
+
+  ws.onclose = () => {
+    console.warn("WebSocket closed");
+  };
 }
 
-start();
+// 4️⃣ Start everything
+startWebSocket();
 </script>
 
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
 </body>
 </html>
