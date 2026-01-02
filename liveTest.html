@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pakistan Railways Live Train Status</title>
 <style>
-  body { font-family: Arial, sans-serif; }
-  pre { background:#111; color:#0f0; padding:10px; overflow:auto; }
+body { font-family: Arial; }
+pre { background:#111; color:#0f0; padding:10px; }
 </style>
 </head>
 
@@ -15,98 +15,90 @@
 <h2>Pak Railways Live Train Status</h2>
 
 <label>Enter Train ID:</label>
-<input type="text" id="trainId" value="41">
+<input id="trainId" value="41">
 <button id="startBtn">Start Tracking</button>
 
 <pre id="output">Waiting for live data...</pre>
 
 <script>
-const outputEl = document.getElementById("output");
-let ws = null;
+const output = document.getElementById("output");
 let stationMap = {};
+let ws;
 
 document.getElementById("startBtn").onclick = async () => {
   const trainId = document.getElementById("trainId").value.trim();
-  if (!trainId) {
-    alert("Enter Train ID");
-    return;
-  }
+  if (!trainId) return alert("Enter Train ID");
 
-  outputEl.textContent = "Fetching station list...";
+  output.textContent = "Fetching station list...";
 
-  /* 1️⃣ Fetch stations */
-  try {
-    const res = await fetch(
-      `https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`
-    );
-    const json = await res.json();
+  /* 1️⃣ Stations */
+  const res = await fetch(
+    `https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`
+  );
+  const json = await res.json();
 
-    (json.Response || []).forEach(s => {
-      stationMap[s.StationDetailsId] = s.StationName;
-    });
-  } catch (e) {
-    outputEl.textContent = "Failed to fetch station data";
-    return;
-  }
+  stationMap = {};
+  (json.Response || []).forEach(s => {
+    stationMap[s.StationDetailsId] = s.StationName;
+  });
 
-  outputEl.textContent = "Connecting to live server...";
+  output.textContent = "Connecting to live server...";
 
-  /* 2️⃣ Open WebSocket */
+  /* 2️⃣ WebSocket */
   ws = new WebSocket(
     "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
   );
 
   ws.onopen = () => {
-    outputEl.textContent = "Connected. Waiting for train updates...";
+    console.log("WS open");
+
+    /* 🔑 REQUIRED Socket.IO CONNECT */
+    ws.send("40");
+
+    output.textContent = "Connected. Waiting for train updates...";
   };
 
-  ws.onmessage = (event) => {
-    const msg = event.data;
+  ws.onmessage = (e) => {
+    const msg = e.data;
 
-    /* 🔁 Socket.IO ping → pong */
+    /* 🔁 Ping → Pong */
     if (msg === "2") {
       ws.send("3");
       return;
     }
 
-    /* 🎯 Actual data packets start with 42 */
+    /* 🎯 Train data */
     if (!msg.startsWith("42")) return;
 
-    try {
-      const payload = JSON.parse(msg.substring(2));
-      const msgTrainId = payload[0];
-      const d = payload[1];
+    const payload = JSON.parse(msg.slice(2));
+    const msgTrainId = payload[0];
+    const d = payload[1];
 
-      if (msgTrainId != trainId) return;
+    if (msgTrainId != trainId) return;
 
-      const liveJSON = {
-        trainId: msgTrainId,
-        previousStation: stationMap[d.prev_st] || d.prev_st,
-        currentStation: stationMap[d.loc] || d.loc,
-        nextStation: stationMap[d.next_st] || d.next_st,
-        delayMinutes: d.late_by,
-        nextStationETA: d.NextStationETA,
-        speedKmh: d.sp,
-        latitude: d.lat,
-        longitude: d.lon,
-        status: d.st,
-        lastUpdated: new Date(d.last_updated * 1000).toLocaleString()
-      };
+    const live = {
+      trainId: msgTrainId,
+      previousStation: stationMap[d.prev_st] || d.prev_st,
+      currentStation: stationMap[d.loc] || d.loc,
+      nextStation: stationMap[d.next_st] || d.next_st,
+      delayMinutes: d.late_by,
+      nextStationETA: d.NextStationETA,
+      speedKmh: d.sp,
+      latitude: d.lat,
+      longitude: d.lon,
+      status: d.st
+    };
 
-      outputEl.textContent = JSON.stringify(liveJSON, null, 2);
-
-    } catch (err) {
-      console.error("Parse error:", err, msg);
-    }
-  };
-
-  ws.onerror = (e) => {
-    console.error("WebSocket error", e);
-    outputEl.textContent = "WebSocket error (see console)";
+    output.textContent = JSON.stringify(live, null, 2);
   };
 
   ws.onclose = () => {
-    outputEl.textContent += "\nConnection closed.";
+    output.textContent += "\nConnection closed.";
+  };
+
+  ws.onerror = err => {
+    console.error(err);
+    output.textContent = "WebSocket error";
   };
 };
 </script>
