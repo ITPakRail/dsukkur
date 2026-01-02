@@ -23,70 +23,75 @@
 <script>
 const output = document.getElementById("output");
 
-document.getElementById("getStatus").addEventListener("click", () => {
+document.getElementById("getStatus").addEventListener("click", async () => {
   const TRAIN_ID = document.getElementById("trainId").value.trim();
   if (!TRAIN_ID) return alert("Please enter a Train ID");
 
   output.textContent = "Connecting to live feed…";
 
-  let snapshotTaken = false;
   let stationMap = {};
+  let latestLive = null;
+  let timeout = null;
 
-  // Load stations for this train
-  fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`)
-    .then(res => res.json())
-    .then(json => {
-      (json.Response || []).forEach(st => {
-        stationMap[String(st.StationDetailsId)] = st.StationName;
-      });
-
-      // Start WebSocket
-      const ws = new WebSocket(
-        "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
-      );
-
-      ws.onopen = () => {
-        ws.send("40"); // handshake
-        ws.send(`42["joinTrain","${TRAIN_ID}"]`); // subscribe
-      };
-
-      ws.onmessage = e => {
-        if (!e.data.startsWith("42") || snapshotTaken) return;
-
-        const payload = JSON.parse(e.data.slice(2));
-        const live = payload[1];
-
-        if (!live) return;
-
-        const result = {
-          trainId: TRAIN_ID,
-          trainName: live.TrainName || "Shalimar Express " + TRAIN_ID, // fallback
-          lastCrossedStation: stationMap[live.prev_st] || live.prev_st,
-          nextStation: stationMap[live.next_st] || live.next_st,
-          currentLocation: live.sp > 0 ? "Between stations" : "At station",
-          latitude: live.lat,
-          longitude: live.lon,
-          delayMinutes: live.late_by,
-          speedKmh: live.sp,
-          nextStationETA: live.NextStationETA,
-          status: live.st === "A" ? "RUNNING" : "STOPPED"
-        };
-
-        output.textContent = JSON.stringify(result, null, 2);
-
-        snapshotTaken = true;
-        ws.close(); // stop after first snapshot
-      };
-
-      ws.onerror = () => {
-        output.textContent = "Failed to fetch live status.";
-      };
-
-    })
-    .catch(err => {
-      console.error(err);
-      output.textContent = "Failed to load station list.";
+  // 1️⃣ Load stations for this train
+  try {
+    const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`);
+    const json = await res.json();
+    (json.Response || []).forEach(st => {
+      stationMap[String(st.StationDetailsId)] = st.StationName;
     });
+  } catch (err) {
+    console.error(err);
+    output.textContent = "Failed to load station list.";
+    return;
+  }
+
+  // 2️⃣ Connect WebSocket
+  const ws = new WebSocket("wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket");
+
+  ws.onopen = () => {
+    ws.send("40"); // handshake
+    ws.send(`42["joinTrain","${TRAIN_ID}"]`); // subscribe
+  };
+
+  ws.onmessage = e => {
+    if (!e.data.startsWith("42")) return;
+
+    const payload = JSON.parse(e.data.slice(2));
+    const live = payload[1];
+    if (!live) return;
+
+    latestLive = live;
+
+    // Wait 1 second to make sure we have the most recent message
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const result = {
+        trainId: TRAIN_ID,
+        trainName: live.TrainName || `Train ${TRAIN_ID}`,
+        lastCrossedStation: stationMap[live.prev_st] || live.prev_st,
+        nextStation: stationMap[live.next_st] || live.next_st,
+        currentLocation: live.sp > 0 ? "Between stations" : "At station",
+        latitude: live.lat,
+        longitude: live.lon,
+        delayMinutes: live.late_by,
+        speedKmh: live.sp,
+        nextStationETA: live.NextStationETA,
+        status: live.st === "A" ? "RUNNING" : "STOPPED"
+      };
+
+      output.textContent = JSON.stringify(result, null, 2);
+      ws.close(); // stop after latest snapshot
+    }, 1000);
+  };
+
+  ws.onerror = () => {
+    output.textContent = "Failed to fetch live status.";
+  };
+
+  ws.onclose = () => {
+    console.log("WebSocket closed");
+  };
 });
 </script>
 
