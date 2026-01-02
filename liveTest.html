@@ -4,61 +4,99 @@
   <meta charset="UTF-8">
   <title>Pakistan Railways – Current Train Status</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    pre { background: #f4f4f4; padding: 15px; border-radius: 6px; }
+    body { font-family: Arial; margin: 20px; }
+    label { font-weight: bold; }
+    input { width: 60px; margin-right: 10px; }
+    button { padding: 5px 10px; }
+    pre { background: #f4f4f4; padding: 12px; border-radius: 5px; }
   </style>
 </head>
 <body>
 
 <h3>Pakistan Railways – Current Train Status</h3>
+
+<label for="trainId">Train ID:</label>
+<input type="text" id="trainId" value="27">
+<button id="getStatus">Get Current Status</button>
+
 <pre id="output">Waiting for live data…</pre>
 
 <script>
-const TRAIN_ID = "27";
-const output = document.getElementById("output");
+document.getElementById("getStatus").addEventListener("click", async () => {
+  const trainId = document.getElementById("trainId").value.trim();
+  const output = document.getElementById("output");
 
-const ws = new WebSocket(
-  "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
-);
+  if (!trainId) {
+    alert("Please enter a Train ID");
+    return;
+  }
 
-ws.onopen = () => {
-  ws.send("40"); // handshake
-};
+  output.textContent = "Fetching live data…";
 
-ws.onmessage = (e) => {
-  if (!e.data.startsWith("42")) return;
+  try {
+    // 1️⃣ Fetch all trains current positions
+    const allTrainsRes = await fetch(
+      "https://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=polling&t=" +
+      Date.now()
+    );
+    const text = await allTrainsRes.text();
 
-  const payload = JSON.parse(e.data.slice(2));
-  if (payload[0] !== "all-trains") return;
+    // strip Socket.io polling prefix
+    const jsonText = text.replace(/^\\d+/, "").replace(/^40/, "").trim();
+    const parsed = JSON.parse(jsonText);
 
-  const allTrains = payload[1];
-  if (!allTrains[TRAIN_ID]) return;
+    // find the "all-trains" object
+    const allTrains = parsed[1] && parsed[1]["all-trains"];
+    if (!allTrains) throw new Error("No live all-trains data");
 
-  // Each train has ONE runtime object
-  const runtimeId = Object.keys(allTrains[TRAIN_ID])[0];
-  const live = allTrains[TRAIN_ID][runtimeId];
+    // 2️⃣ Find the train in the all-trains data
+    let trainLive = null;
 
-  const result = {
-    trainId: TRAIN_ID,
-    lastCrossedStationId: live.prev_st,
-    nextStationId: live.next_st,
-    latitude: live.lat,
-    longitude: live.lon,
-    delayMinutes: live.late_by,
-    speedKmh: live.sp,
-    nextStationETA: live.NextStationETA,
-    status: live.st === "A" ? "RUNNING" : "STOPPED",
-    lastUpdated: new Date(live.last_updated * 1000).toLocaleString()
-  };
+    Object.values(allTrains).forEach(group => {
+      Object.values(group).forEach(trainObj => {
+        // match by locomotiveNo or pattern
+        // locomotiveNo often matches the trainId mapping
+        if (String(trainObj.locomitiveNo).startsWith(String(trainId))) {
+          trainLive = trainObj;
+        }
+      });
+    });
 
-  output.textContent = JSON.stringify(result, null, 2);
+    if (!trainLive) {
+      output.textContent = "Train not found in live feed";
+      return;
+    }
 
-  ws.close(); // 🔴 ONE snapshot = correct
-};
+    // 3️⃣ Fetch station list for name lookup
+    const stationsRes = await fetch(
+      `https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`
+    );
+    const stationsJson = await stationsRes.json();
+    const stationMap = {};
+    (stationsJson.Response || []).forEach(st => {
+      stationMap[String(st.StationDetailsId)] = st.StationName;
+    });
 
-ws.onerror = () => {
-  output.textContent = "Connection failed.";
-};
+    // Build final status
+    const status = {
+      trainId: trainId,
+      lastCrossedStation: stationMap[trainLive.prev_st] || trainLive.prev_st,
+      nextStation: stationMap[trainLive.next_st] || trainLive.next_st,
+      latitude: trainLive.lat,
+      longitude: trainLive.lon,
+      delayMinutes: trainLive.late_by,
+      speedKmh: trainLive.sp,
+      nextStationETA: trainLive.NextStationETA,
+      status: trainLive.st === "A" ? "RUNNING" : "STOPPED"
+    };
+
+    output.textContent = JSON.stringify(status, null, 2);
+
+  } catch (err) {
+    console.error(err);
+    output.textContent = "Failed to fetch live status.";
+  }
+});
 </script>
 
 </body>
