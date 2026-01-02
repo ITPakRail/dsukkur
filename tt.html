@@ -10,7 +10,25 @@
 
 <script>
 const log = document.getElementById("log");
+const TRAIN_ID = "27"; // change as needed
 
+let stationMap = {}; // map of StationDetailsId -> StationName
+
+// 1️⃣ Load stations for this train once
+async function loadStations() {
+  try {
+    const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`);
+    const json = await res.json();
+    (json.Response || []).forEach(st => {
+      stationMap[String(st.StationDetailsId)] = st.StationName;
+    });
+    console.log("Station map loaded:", stationMap);
+  } catch (err) {
+    console.error("Failed to load stations:", err);
+  }
+}
+
+// 2️⃣ Start WebSocket
 const ws = new WebSocket(
   "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
 );
@@ -21,8 +39,8 @@ ws.onopen = () => {
   // Socket.IO handshake
   ws.send("40");
 
-  // 👇 THIS IS CRITICAL — subscribe
-  ws.send('42["joinTrain","41"]');
+  // Subscribe to this train
+  ws.send(`42["joinTrain","${TRAIN_ID}"]`);
 
   log.textContent = "Connected & subscribed…";
 };
@@ -33,25 +51,33 @@ ws.onmessage = (e) => {
   if (!raw.startsWith("42")) return;
 
   const payload = JSON.parse(raw.slice(2));
-
   const runtimeTrainId = payload[0];
   const live = payload[1];
 
+  // map IDs to station names if available
+  const prevStation = stationMap[live.prev_st] || live.prev_st;
+  const nextStation = stationMap[live.next_st] || live.next_st;
+  const currentStation = stationMap[live.loc] || live.loc;
+
   log.textContent = JSON.stringify({
     runtimeTrainId,
+    previousStation: prevStation,
+    currentStation: currentStation,
+    nextStation: nextStation,
     latitude: live.lat,
     longitude: live.lon,
     delayMin: live.late_by,
     speed: live.sp,
     status: live.st,
-    prevStationId: live.prev_st,
-    nextStationId: live.next_st,
     nextETA: live.NextStationETA
   }, null, 2);
 };
 
 ws.onerror = e => console.error("WS error", e);
 ws.onclose = () => console.warn("WS closed");
+
+// load stations once before listening
+loadStations();
 </script>
 
 </body>
