@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PR Live Test</title>
+</head>
+<body>
+
+<pre id="log">Waiting…</pre>
+
+<script>
+const log = document.getElementById("log");
+
+const ws = new WebSocket(
+  "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
+);
+
+ws.onopen = () => {
+  console.log("WS open");
+
+  // Socket.IO handshake
+  ws.send("40");
+
+  // 👇 THIS IS CRITICAL — subscribe
+  ws.send('42["joinTrain","41"]');
+
+  log.textContent = "Connected & subscribed…";
+};
+
+ws.onmessage = (e) => {
+  const raw = e.data;
+
+  if (!raw.startsWith("42")) return;
+
+  const payload = JSON.parse(raw.slice(2));
+
+  const runtimeTrainId = payload[0];
+  const live = payload[1];
+
+  log.textContent = JSON.stringify({
+    runtimeTrainId,
+    latitude: live.lat,
+    longitude: live.lon,
+    delayMin: live.late_by,
+    speed: live.sp,
+    status: live.st,
+    prevStationId: live.prev_st,
+    nextStationId: live.next_st,
+    nextETA: live.NextStationETA
+  }, null, 2);
+};
+
+ws.onerror = e => console.error("WS error", e);
+ws.onclose = () => console.warn("WS closed");
+</script>
+
+</body>
+</html>
