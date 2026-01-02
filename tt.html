@@ -1,126 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Pakistan Railways – Live Train Tracker</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f0f0f0; }
-    input, button { padding: 6px; margin-right: 5px; }
-  </style>
+  <title>PR Live Test</title>
 </head>
 <body>
 
-<h2>Pakistan Railways – Live Train Tracker</h2>
-<label for="trainId">Train ID:</label>
-<input type="text" id="trainId" value="27">
-<button id="startBtn">Start Tracking</button>
-
-<h3>Live Train Data</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Previous Station</th>
-      <th>Current Station</th>
-      <th>Next Station</th>
-      <th>Delay (min)</th>
-      <th>Next Station ETA</th>
-      <th>Speed (km/h)</th>
-      <th>Status</th>
-      <th>Latitude</th>
-      <th>Longitude</th>
-    </tr>
-  </thead>
-  <tbody id="trainData">
-    <tr><td colspan="9">Waiting for live data…</td></tr>
-  </tbody>
-</table>
-
-<pre id="jsonOutput"></pre>
+<pre id="log">Waiting…</pre>
 
 <script>
-const startBtn = document.getElementById("startBtn");
-const trainDataBody = document.getElementById("trainData");
-const jsonOutput = document.getElementById("jsonOutput");
+const log = document.getElementById("log");
 
-startBtn.addEventListener("click", async () => {
-  const TRAIN_ID = document.getElementById("trainId").value.trim();
-  if (!TRAIN_ID) return alert("Please enter a Train ID");
+const ws = new WebSocket(
+  "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
+);
 
-  // 1️⃣ Fetch station map
-  let stationMap = {};
-  try {
-    const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`);
-    const json = await res.json();
-    (json.Response || []).forEach(st => stationMap[String(st.StationDetailsId)] = st.StationName);
-  } catch (err) {
-    console.error("Failed to fetch station data:", err);
-    trainDataBody.innerHTML = `<tr><td colspan="9">Failed to fetch station data</td></tr>`;
-    return;
-  }
+ws.onopen = () => {
+  console.log("WS open");
 
-  // 2️⃣ Connect WebSocket
-  const ws = new WebSocket("wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket");
+  // Socket.IO handshake
+  ws.send("40");
 
-  ws.onopen = () => {
-    ws.send("40");                    // socket.io handshake
-    ws.send(`42["joinTrain","${TRAIN_ID}"]`);  // subscribe to live updates
-    trainDataBody.innerHTML = `<tr><td colspan="9">Connected & waiting for data…</td></tr>`;
-  };
+  // 👇 THIS IS CRITICAL — subscribe
+  ws.send('42["joinTrain","41"]');
 
-  ws.onmessage = e => {
-    if (!e.data.startsWith("42")) return;
-    try {
-      const payload = JSON.parse(e.data.slice(2));
-      const msgTrainId = payload[0];
-      const live = payload[1];
+  log.textContent = "Connected & subscribed…";
+};
 
-      if (msgTrainId != TRAIN_ID) return;
+ws.onmessage = (e) => {
+  const raw = e.data;
 
-      const prevStation = stationMap[live.prev_st] || live.prev_st;
-      const currentStation = stationMap[live.loc] || live.loc;
-      const nextStation = stationMap[live.next_st] || live.next_st;
+  if (!raw.startsWith("42")) return;
 
-      const output = {
-        previousStation: prevStation,
-        currentStation: currentStation,
-        nextStation: nextStation,
-        delayMin: live.late_by,
-        nextETA: live.NextStationETA,
-        speedKmh: live.sp,
-        status: live.st,
-        latitude: live.lat,
-        longitude: live.lon
-      };
+  const payload = JSON.parse(raw.slice(2));
 
-      // Update HTML table
-      trainDataBody.innerHTML = `
-        <tr>
-          <td>${output.previousStation}</td>
-          <td>${output.currentStation}</td>
-          <td>${output.nextStation}</td>
-          <td>${output.delayMin}</td>
-          <td>${output.nextETA}</td>
-          <td>${output.speedKmh}</td>
-          <td>${output.status}</td>
-          <td>${output.latitude}</td>
-          <td>${output.longitude}</td>
-        </tr>
-      `;
+  const runtimeTrainId = payload[0];
+  const live = payload[1];
 
-      // Show JSON output for debugging
-      jsonOutput.textContent = JSON.stringify(output, null, 2);
+  log.textContent = JSON.stringify({
+    runtimeTrainId,
+    latitude: live.lat,
+    longitude: live.lon,
+    delayMin: live.late_by,
+    speed: live.sp,
+    status: live.st,
+    prevStationId: live.prev_st,
+    nextStationId: live.next_st,
+    nextETA: live.NextStationETA
+  }, null, 2);
+};
 
-    } catch (err) {
-      console.error("Failed to parse live data:", err);
-    }
-  };
-
-  ws.onerror = err => console.error("WS error:", err);
-  ws.onclose = () => console.warn("WebSocket closed");
-});
+ws.onerror = e => console.error("WS error", e);
+ws.onclose = () => console.warn("WS closed");
 </script>
 
 </body>
