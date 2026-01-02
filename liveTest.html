@@ -1,81 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Pakistan Railways – Current Train Status</title>
-<style>
-body { font-family: Arial; margin: 20px; }
-pre { background: #f4f4f4; padding: 15px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Pakistan Railways – Current Train Status</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 6px; }
+  </style>
 </head>
 <body>
 
 <h3>Pakistan Railways – Current Train Status</h3>
-<pre id="output">Loading…</pre>
+<pre id="output">Waiting for live data…</pre>
 
 <script>
 const TRAIN_ID = "27";
 const output = document.getElementById("output");
 
-let stationMap = {};
-let bestLive = null;
-let startTime = Date.now();
+const ws = new WebSocket(
+  "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
+);
 
-// Load stations
-fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`)
-.then(r => r.json())
-.then(j => {
-  (j.Response || []).forEach(s => {
-    stationMap[String(s.StationDetailsId)] = s.StationName;
-  });
-  startSocket();
-});
+ws.onopen = () => {
+  ws.send("40"); // handshake
+};
 
-function startSocket() {
-  const ws = new WebSocket(
-    "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
-  );
+ws.onmessage = (e) => {
+  if (!e.data.startsWith("42")) return;
 
-  ws.onopen = () => {
-    ws.send("40");
-    ws.send(`42["joinTrain","${TRAIN_ID}"]`);
-  };
+  const payload = JSON.parse(e.data.slice(2));
+  if (payload[0] !== "all-trains") return;
 
-  ws.onmessage = e => {
-    if (!e.data.startsWith("42")) return;
+  const allTrains = payload[1];
+  if (!allTrains[TRAIN_ID]) return;
 
-    const live = JSON.parse(e.data.slice(2))[1];
-    if (!live || !live.lat) return;
+  // Each train has ONE runtime object
+  const runtimeId = Object.keys(allTrains[TRAIN_ID])[0];
+  const live = allTrains[TRAIN_ID][runtimeId];
 
-    if (!bestLive || live.lastUpdate > bestLive.lastUpdate) {
-      bestLive = live;
-    }
-
-    // After 15 seconds → finalize
-    if (Date.now() - startTime > 15000) {
-      ws.close();
-      render(bestLive);
-    }
-  };
-
-  ws.onerror = () => {
-    output.textContent = "Live feed error.";
-  };
-}
-
-function render(live) {
-  output.textContent = JSON.stringify({
+  const result = {
     trainId: TRAIN_ID,
-    lastCrossedStation: stationMap[live.prev_st] || live.prev_st,
-    nextStation: stationMap[live.next_st] || live.next_st,
+    lastCrossedStationId: live.prev_st,
+    nextStationId: live.next_st,
     latitude: live.lat,
     longitude: live.lon,
     delayMinutes: live.late_by,
     speedKmh: live.sp,
+    nextStationETA: live.NextStationETA,
     status: live.st === "A" ? "RUNNING" : "STOPPED",
-    note: "Best-effort snapshot (WebSocket is not authoritative)"
-  }, null, 2);
-}
+    lastUpdated: new Date(live.last_updated * 1000).toLocaleString()
+  };
+
+  output.textContent = JSON.stringify(result, null, 2);
+
+  ws.close(); // 🔴 ONE snapshot = correct
+};
+
+ws.onerror = () => {
+  output.textContent = "Connection failed.";
+};
 </script>
 
 </body>
