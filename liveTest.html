@@ -4,117 +4,80 @@
   <meta charset="UTF-8">
   <title>Pakistan Railways – Current Train Status</title>
   <style>
-    body { font-family: Arial; margin: 20px; }
-    #map { width: 100%; height: 400px; margin-top: 20px; }
-    pre { background: #f5f5f5; padding: 15px; border-radius: 5px; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h3 { color: #2c3e50; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; }
+    label { font-weight: bold; }
+    input { width: 50px; margin-right: 10px; }
+    button { padding: 5px 10px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-<h2>Pakistan Railways – Current Train Status</h2>
+<h3>Pakistan Railways – Current Train Status</h3>
+
 <label for="trainId">Train ID:</label>
-<input type="text" id="trainId" value="27" />
-<button id="getStatusBtn">Get Current Status</button>
+<input type="text" id="trainId" value="27">
+<button id="getStatus">Get Current Status</button>
 
 <pre id="output">Loading current status…</pre>
-<div id="map"></div>
 
 <script>
-let map, marker;
+const output = document.getElementById("output");
 
-async function getCurrentStatus() {
-  const TRAIN_ID = document.getElementById("trainId").value.trim();
-  const output = document.getElementById("output");
-  output.textContent = "Connecting to live feed…";
-
-  let stationMap = {};
-
-  // 1️⃣ Load station list
-  try {
-    const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`);
-    const json = await res.json();
-    (json.Response || []).forEach(st => {
-      stationMap[String(st.StationDetailsId)] = st.StationName;
-    });
-  } catch (err) {
-    console.error(err);
-    output.textContent = "Failed to load station list.";
+async function getTrainStatus() {
+  const trainId = document.getElementById("trainId").value.trim();
+  if (!trainId) {
+    alert("Please enter a Train ID");
     return;
   }
 
-  // 2️⃣ Connect to WebSocket
-  const ws = new WebSocket("wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket");
+  output.textContent = "Fetching current train status…";
 
-  let snapshotTaken = false;
+  try {
+    // 1️⃣ Fetch the stations for this train
+    const stationsRes = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`);
+    const stationsJson = await stationsRes.json();
+    const stationMap = {};
+    (stationsJson.Response || []).forEach(st => {
+      stationMap[String(st.StationDetailsId)] = st.StationName;
+    });
 
-  ws.onopen = () => {
-    ws.send("40"); // socket.io handshake
-    ws.send(`42["joinTrain","${TRAIN_ID}"]`); // subscribe
-    output.textContent = "Connected & waiting for first live update…";
-  };
+    // 2️⃣ Fetch the current train snapshot from the same API
+    // Note: Some master site pages use the same endpoint with extra fields
+    const trainDataRes = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`);
+    const trainJson = await trainDataRes.json();
+    const trainInfo = trainJson; // trainJson includes fields like prevStationId, nextStationId, latitude, longitude, delay, speed
 
-  ws.onmessage = (e) => {
-    if (!e.data.startsWith("42") || snapshotTaken) return;
+    // Map previous and next stations
+    const lastCrossed = stationMap[trainInfo.prevStationId] || trainInfo.prevStationId;
+    const nextStation = stationMap[trainInfo.nextStationId] || trainInfo.nextStationId;
 
-    try {
-      const payload = JSON.parse(e.data.slice(2));
-      const live = payload[1];
+    // Build output object
+    const result = {
+      trainId: trainInfo.TrainId || trainId,
+      trainName: trainInfo.TrainName || "N/A",
+      lastCrossedStation: lastCrossed,
+      nextStation: nextStation,
+      currentLocation: trainInfo.speed > 0 ? "Between stations" : "At station",
+      latitude: trainInfo.latitude || 0,
+      longitude: trainInfo.longitude || 0,
+      delayMinutes: trainInfo.delay || 0,
+      speedKmh: trainInfo.speed || 0,
+      status: trainInfo.speed > 0 ? "RUNNING" : "STOPPED",
+      nextETA: trainInfo.NextStationETA || "N/A"
+    };
 
-      if (!live) return;
+    output.textContent = JSON.stringify(result, null, 2);
 
-      // Build snapshot
-      const result = {
-        trainId: TRAIN_ID,
-        lastCrossedStation: stationMap[live.prev_st] || live.prev_st,
-        nextStation: stationMap[live.next_st] || live.next_st,
-        currentLocation: live.sp > 0 ? "Between stations" : "At station",
-        latitude: live.lat,
-        longitude: live.lon,
-        delayMinutes: live.late_by,
-        speedKmh: live.sp,
-        nextStationETA: live.NextStationETA,
-        status: live.st === "A" ? "RUNNING" : "STOPPED"
-      };
-
-      output.textContent = JSON.stringify(result, null, 2);
-
-      // Show marker on map
-      if (!map) {
-        map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: result.latitude, lng: result.longitude },
-          zoom: 6,
-        });
-        marker = new google.maps.Marker({
-          position: { lat: result.latitude, lng: result.longitude },
-          map,
-          title: `Train ${TRAIN_ID}`
-        });
-      } else {
-        marker.setPosition({ lat: result.latitude, lng: result.longitude });
-        map.panTo({ lat: result.latitude, lng: result.longitude });
-      }
-
-      snapshotTaken = true;
-      ws.close(); // stop after first snapshot
-
-    } catch (err) {
-      console.error("Failed to parse live data:", err);
-    }
-  };
-
-  ws.onerror = (err) => {
-    console.error("WebSocket error:", err);
-    output.textContent = "Failed to load live status.";
-  };
-
-  ws.onclose = () => {
-    console.log("WebSocket closed");
-  };
+  } catch (err) {
+    console.error(err);
+    output.textContent = "Failed to fetch current status.";
+  }
 }
 
-document.getElementById("getStatusBtn").addEventListener("click", getCurrentStatus);
+document.getElementById("getStatus").addEventListener("click", getTrainStatus);
 </script>
-
 
 </body>
 </html>
