@@ -3,45 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pakistan Railways Live Train Status</title>
+  <title>Pakistan Railways – Live Train Status</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    input, button {
-      padding: 6px 10px;
-      font-size: 16px;
-      margin-right: 5px;
-    }
-    #status {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    input, button { padding: 6px; margin-right: 5px; }
   </style>
 </head>
 <body>
 
 <h2>Pakistan Railways – Live Train Status</h2>
-
-<label for="trainId">Enter Train ID:</label>
-<input type="text" id="trainId" value="27">
+<label for="trainId">Train ID:</label>
+<input type="text" id="trainId" value="41">
 <button id="startBtn">Start Tracking</button>
-
-<div id="status">Waiting for live data…</div>
 
 <table>
   <thead>
@@ -58,71 +34,72 @@
       <th>Status</th>
     </tr>
   </thead>
-  <tbody>
-    <tr id="trainRow">
-      <td colspan="10">Waiting for live data…</td>
-    </tr>
+  <tbody id="trainData">
+    <tr><td colspan="10">Waiting for live data…</td></tr>
   </tbody>
 </table>
 
+<!-- Socket.IO client -->
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
 <script>
 document.getElementById("startBtn").addEventListener("click", async () => {
   const trainId = document.getElementById("trainId").value.trim();
-  if (!trainId) return alert("Please enter a Train ID");
+  if (!trainId) return alert("Enter Train ID");
 
-  const statusEl = document.getElementById("status");
-  const row = document.getElementById("trainRow");
+  const tbody = document.getElementById("trainData");
+  tbody.innerHTML = `<tr><td colspan="10">Connecting…</td></tr>`;
 
-  statusEl.textContent = "Fetching station data…";
-
-  // 1️⃣ Fetch stations for this train
-  let stations = [];
+  // 1️⃣ Fetch station data for this train
   let stationMap = {};
   try {
     const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${trainId}`);
     const data = await res.json();
-    stations = data.Response || [];
-    stations.forEach(s => stationMap[s.StationDetailsId] = s.StationName);
-  } catch (e) {
-    console.error("Error fetching stations:", e);
-    statusEl.textContent = "Failed to fetch stations.";
+    const stations = data.Response || [];
+
+    stations.forEach(s => {
+      stationMap[s.StationDetailsId] = s.StationName;
+    });
+  } catch (err) {
+    console.error("Failed to fetch stations:", err);
+    tbody.innerHTML = `<tr><td colspan="10">Error fetching station data</td></tr>`;
     return;
   }
 
-  statusEl.textContent = "Connecting to WebSocket…";
+  // 2️⃣ Connect to Socket.IO
+  const socket = io("https://cotrolroomapi.pakraillive.com", {
+    path: "/socket.io",
+    transports: ["websocket"],
+  });
 
-  // 2️⃣ Connect WebSocket
-  const ws = new WebSocket("wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket");
+  socket.on("connect", () => {
+    console.log("Socket.IO connected");
+    tbody.innerHTML = `<tr><td colspan="10">Connected. Waiting for train updates…</td></tr>`;
 
-  ws.onopen = () => {
-    console.log("WS connected");
-    statusEl.textContent = "Connected. Waiting for train updates…";
+    // Subscribe to train updates
+    socket.emit("joinTrain", trainId);
+  });
 
-    // Socket.IO handshake
-    ws.send("40");
+  socket.on("disconnect", () => {
+    console.warn("Socket.IO disconnected");
+    tbody.innerHTML = `<tr><td colspan="10">Disconnected from server</td></tr>`;
+  });
 
-    // Subscribe to train
-    ws.send(`42["joinTrain","${trainId}"]`);
-  };
+  // 3️⃣ Listen for live train updates
+  socket.onAny((event, data) => {
+    // data can be array [trainId, liveData]
+    if (!Array.isArray(data) || data.length < 2) return;
 
-  ws.onmessage = (e) => {
-    const raw = e.data;
-    if (!raw.startsWith("42")) return;
+    const msgTrainId = data[0];
+    const live = data[1];
 
-    try {
-      const payload = JSON.parse(raw.slice(2));
-      const msgTrainId = payload[0];
-      const live = payload[1];
+    if (msgTrainId != trainId) return;
 
-      if (msgTrainId != trainId) return; // ignore other trains
+    const prevStation = stationMap[live.prev_st] || live.prev_st;
+    const currentStation = stationMap[live.loc] || live.loc;
+    const nextStation = stationMap[live.next_st] || live.next_st;
 
-      // Map station IDs to names
-      const prevStation = stationMap[live.prev_st] || live.prev_st;
-      const currentStation = stationMap[live.loc] || live.loc;
-      const nextStation = stationMap[live.next_st] || live.next_st;
-
-      // Update table row
-      row.innerHTML = `
+    tbody.innerHTML = `
+      <tr>
         <td>${msgTrainId}</td>
         <td>${prevStation}</td>
         <td>${currentStation}</td>
@@ -133,21 +110,14 @@ document.getElementById("startBtn").addEventListener("click", async () => {
         <td>${live.lon}</td>
         <td>${live.sp}</td>
         <td>${live.st}</td>
-      `;
-    } catch (err) {
-      console.error("Failed to parse WS message:", err);
-    }
-  };
+      </tr>
+    `;
+  });
 
-  ws.onerror = (err) => {
-    console.error("WebSocket error:", err);
-    statusEl.textContent = "WebSocket error. Check console.";
-  };
-
-  ws.onclose = () => {
-    console.warn("WebSocket closed");
-    statusEl.textContent += " Connection closed.";
-  };
+  socket.on("connect_error", err => {
+    console.error("Connection error:", err);
+    tbody.innerHTML = `<tr><td colspan="10">Connection error</td></tr>`;
+  });
 });
 </script>
 
