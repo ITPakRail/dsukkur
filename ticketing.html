@@ -233,11 +233,12 @@ fetch(STATION_API)
 /* Search trains */
 function searchSeats() {
 
-  const payload = {
-    departureStationCode: fromStation.value,
-    destinationStationCode: toStation.value,
-    departureDate: journeyDate.value
-  };
+ const payload = {
+  departureStationCode: fromStation.value,
+  destinationStationCode: toStation.value,
+  startDate: journeyDate.value  // PR API expects startDate
+};
+
 
   if (!payload.departureStationCode || !payload.destinationStationCode || !payload.departureDate) {
     alert("Please select From, To and Date");
