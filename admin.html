@@ -2,23 +2,120 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin - Complaint List</title>
+<title>Complaint Admin Panel – Pakistan Railways Sukkur Division</title>
+
 <style>
-body { font-family: Arial; background:#f5f5f5; margin:0; padding:20px; }
-h2 { color:#2e7d32; }
-table { width:100%; border-collapse: collapse; margin-top:10px; }
-th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-th { background:#2e7d32; color:white; }
-select, input[type=text] { padding:5px; width:100%; box-sizing:border-box; }
-button { padding:5px 10px; background:#2e7d32; color:white; border:none; cursor:pointer; }
-button:hover { opacity:0.9; }
+/* ===== BASIC ===== */
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:0;
+}
+
+/* ===== HEADER PANEL ===== */
+.admin-header {
+  background:#2e7d32;
+  height:72px; /* approx 1 inch */
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+}
+
+.admin-header img {
+  height:55px;
+}
+
+.header-title {
+  background:white;
+  padding:6px 20px;
+  border-radius:4px;
+  text-align:center;
+  line-height:1.2;
+}
+
+.header-title .main {
+  font-size:18px;
+  font-weight:bold;
+  color:#2e7d32;
+}
+
+.header-title .sub {
+  font-size:14px;
+  color:#000;
+}
+
+/* ===== PAGE CONTENT ===== */
+.page-wrap {
+  padding:20px;
+}
+
+h2 {
+  color:#2e7d32;
+  margin-top:0;
+}
+
+/* ===== TABLE ===== */
+table {
+  width:100%;
+  border-collapse: collapse;
+  margin-top:10px;
+  background:white;
+}
+
+th, td {
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:left;
+  vertical-align:top;
+}
+
+th {
+  background:#2e7d32;
+  color:white;
+}
+
+select, input[type=text] {
+  padding:5px;
+  width:100%;
+  box-sizing:border-box;
+}
+
+button {
+  padding:6px 12px;
+  background:#2e7d32;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+button:hover {
+  opacity:0.9;
+}
 </style>
 </head>
+
 <body>
+
+<!-- ===== HEADER ===== -->
+<div class="admin-header">
+  <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways">
+
+  <div class="header-title">
+    <div class="main">Pakistan Railways Sukkur Division</div>
+    <div class="sub">Complaint Admin Panel</div>
+  </div>
+
+  <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w120" alt="Division Logo">
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="page-wrap">
 
 <h2>Complaint List</h2>
 
-<label for="statusFilter">Filter by Status:</label>
+<label for="statusFilter"><b>Filter by Status:</b></label>
 <select id="statusFilter">
   <option value="ALL">ALL</option>
   <option value="OPEN">OPEN</option>
@@ -43,8 +140,9 @@ button:hover { opacity:0.9; }
   <tbody></tbody>
 </table>
 
+</div>
+
 <script>
-// Replace these URLs with your actual deployed Web App URLs
 const GET_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=getComplaints";
 const UPDATE_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
@@ -65,7 +163,7 @@ function renderTable(complaints) {
     tr.innerHTML = `
       <td>${i+1}</td>
       <td>${new Date(c.DATE).toLocaleString()}</td>
-      <td>${c.COMPLAINANT}</td>
+      <td>${c.COMPLAINANT || ""}</td>
       <td>${c.CONTACT}</td>
       <td>${c.TYPE}</td>
       <td>${c.MESSAGE}</td>
@@ -85,11 +183,12 @@ function renderTable(complaints) {
   document.querySelectorAll(".saveBtn").forEach(btn => {
     btn.onclick = async () => {
       const tr = btn.closest("tr");
-      const rowIndex = btn.dataset.row;
-      const status = tr.querySelector(".status").value;
-      const remarks = tr.querySelector(".remarks").value;
+      const payload = {
+        rowIndex: btn.dataset.row,
+        status: tr.querySelector(".status").value,
+        remarks: tr.querySelector(".remarks").value
+      };
 
-      const payload = { rowIndex, status, remarks };
       try {
         const res = await fetch(UPDATE_URL, {
           method: "POST",
@@ -97,9 +196,8 @@ function renderTable(complaints) {
           body: JSON.stringify(payload)
         });
         const result = await res.json();
-        if(result.status==="success") alert("✅ Updated successfully");
-        else alert("❌ " + result.message);
-      } catch(err) {
+        alert(result.status === "success" ? "✅ Updated successfully" : "❌ " + result.message);
+      } catch (err) {
         alert("❌ Update failed: " + err.message);
       }
     };
@@ -107,11 +205,9 @@ function renderTable(complaints) {
 }
 
 document.getElementById("statusFilter").addEventListener("change", async () => {
-  const complaints = await fetchComplaints();
-  renderTable(complaints);
+  renderTable(await fetchComplaints());
 });
 
-// Initial load
 fetchComplaints().then(renderTable);
 </script>
 
