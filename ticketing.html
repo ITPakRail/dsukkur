@@ -154,6 +154,84 @@
   50%  { opacity: 0; }
   100% { opacity: 1; }
 }
+/* ================= TICKETING SEARCH PANEL ================= */
+.ticket-search {
+  background: #e8f5e9;
+  padding: 15px;
+  border-bottom: 3px solid #2e7d32;
+}
+
+.ticket-search .row {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ticket-search select,
+.ticket-search input,
+.ticket-search button {
+  padding: 10px;
+  font-size: 15px;
+  flex: 1;
+}
+
+.ticket-search button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.ticket-search button:hover {
+  background: #256628;
+}
+
+/* ================= MODAL ================= */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 999;
+}
+
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #2e7d32;
+}
+
+.close {
+  float: right;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.modal table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal th,
+.modal td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.modal th {
+  background: #e8f5e9;
+}
 
 </style>
 </head>
@@ -170,6 +248,22 @@
   <a href="contactus.html">Contact Us</a>
   <a href="tracking1.html" class="blink-tracking">Train Tracking</a>
 </nav>
+<!-- ================= TICKET SEARCH PANEL ================= -->
+<div class="ticket-search">
+  <div class="row">
+    <select id="fromStation">
+      <option value="">From Station</option>
+    </select>
+
+    <select id="toStation">
+      <option value="">To Station</option>
+    </select>
+
+    <input type="date" id="journeyDate">
+
+    <button onclick="searchSeats()">Search</button>
+  </div>
+</div>
 
 <div class="container">
   <div class="image-section">
@@ -215,6 +309,77 @@
     </div>
   </div>
 </div>
+  <!-- ================= SEAT MODAL ================= -->
+<div id="seatModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">×</span>
+    <h3>Available Seat Classes</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Class Name</th>
+          <th>Code</th>
+          <th>Availability</th>
+        </tr>
+      </thead>
+      <tbody id="seatBody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const STATION_API = "https://isapi.pakrailways.gov.pk/v1/ticket/getStations";
+const SEAT_API = "https://isapi.pakrailways.gov.pk/v1/basic/getSeatType";
+
+/* Load stations */
+fetch(STATION_API)
+.then(res => res.json())
+.then(data => {
+  const from = document.getElementById("fromStation");
+  const to = document.getElementById("toStation");
+
+  data.rows.forEach(s => {
+    from.add(new Option(s.stationNameEn, s.stationCode));
+    to.add(new Option(s.stationNameEn, s.stationCode));
+  });
+});
+
+/* Search seats */
+function searchSeats() {
+  const from = fromStation.value;
+  const to = toStation.value;
+  const date = journeyDate.value;
+
+  if (!from || !to || !date) {
+    alert("Please select From, To and Journey Date");
+    return;
+  }
+
+  fetch(SEAT_API)
+  .then(res => res.json())
+  .then(data => {
+    const body = document.getElementById("seatBody");
+    body.innerHTML = "";
+
+    data.rows.forEach(s => {
+      body.innerHTML += `
+        <tr>
+          <td>${s.seatTypeCn}</td>
+          <td>${s.seatTypeEn}</td>
+          <td>N/A</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("seatModal").style.display = "block";
+  });
+}
+
+function closeModal() {
+  document.getElementById("seatModal").style.display = "none";
+}
+</script>
+
 </body>
 </html>
 
