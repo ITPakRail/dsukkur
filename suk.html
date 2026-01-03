@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Railways Sukkur Division</title>
+<style>
+    /* Reset and basic styles */
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        height: 100%;
+    }
+
+    /* Top Panel with logos */
+    .top-panel {
+        background-color: #2e7d32; /* Green */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+    }
+
+    .top-panel img {
+        height: 50px; /* Adjust logo height */
+        width: auto;
+    }
+
+    .top-panel h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    /* Center container */
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 140px); /* Adjust for top + bottom panel */
+        padding: 20px;
+    }
+
+    /* Vertical Menu */
+    .menu {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .menu a {
+        text-decoration: none;
+        color: #2e7d32;           /* Default green text */
+        background-color: #e8f5e9; /* Light green background */
+        padding: 15px 25px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 18px;
+        transition: all 0.3s ease; /* Smooth hover effect */
+    }
+
+    .menu a:hover {
+        background-color: #add8e6; /* Light blue */
+        color: white;
+        transform: scale(1.05);    /* Slight zoom */
+    }
+
+    /* Bottom Footer */
+    .footer {
+        background-color: #9e9e9e; /* Gray */
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 14px;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 600px) {
+        .center-container {
+            height: auto;
+            padding: 20px 10px;
+        }
+
+        .menu a {
+            font-size: 16px;
+            padding: 12px 20px;
+        }
+
+        .top-panel h1 {
+            font-size: 18px;
+        }
+
+        .top-panel img {
+            height: 40px;
+        }
+
+        .footer {
+            font-size: 12px;
+            padding: 10px 0;
+        }
+    }
+
+</style>
+</head>
+<body>
+
+    <!-- Top Panel with Logos -->
+    <div class="top-panel">
+          <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
+
+        <h1>Pakistan Railways Sukkur Division</h1>
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+    </div>
+
+    <!-- Center Vertical Menu -->
+    <div class="center-container">
+        <div class="menu">
+            <a href="https://lookerstudio.google.com/reporting/ab5881ca-3bf5-49c5-9af9-748d00b66dad" target="_blank">Commercial Revenue BI Dashboard</a>
+            <a href="https://lookerstudio.google.com/reporting/80622fbd-98b8-48f0-8af1-982f849a8639" target="_blank">Stations Infrastructure Info</a>
+            <a href="#">Operation Dashboard</a>
+            <a href="#">Engineering</a>
+        </div>
+    </div>
+
+    <!-- Bottom Footer -->
+    <div class="footer">
+        A Digital & BI Transformation Initiative by: Hon. Jamshaid Alam (Divisional Superintendent)
+    </div>
+
+</body>
+</html>
