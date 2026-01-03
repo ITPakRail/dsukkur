@@ -253,12 +253,13 @@ document.getElementById("complaintForm").addEventListener("submit", async functi
   }
 
   const payload = {
-    name: name.value,
-    contact: contact.value,
-    type: type.value,
-    message: message.value,
-    ...imagePayload
-  };
+  name: document.getElementById("name").value,
+  contact: document.getElementById("contact").value,
+  type: document.getElementById("type").value,
+  message: document.getElementById("message").value,
+  ...imagePayload
+};
+
 
   fetch(API_URL, {
     method: "POST",
