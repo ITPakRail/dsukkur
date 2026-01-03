@@ -270,6 +270,26 @@ function searchSeats() {
 function closeModal() {
   seatModal.style.display = "none";
 }
+
+  function searchSeats() {
+  const payload = {
+    departureStationCode: fromStation.value,
+    destinationStationCode: toStation.value,
+    departureDate: journeyDate.value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbwvjftpdcbdYh8UTQe4xTdllqYIdEE5ZSzFE7FZSUOj6_CcbktuIF9EmL6qTOcH8ECw8g/exec", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+     console.log(data);
+     alert("API working – check console");
+  })
+  .catch(err => alert("Error"));
+}
+
 </script>
 
 </body>
