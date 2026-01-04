@@ -1,170 +1,277 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pakistan Railways – Sukkur Division | Live Train Tracking</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticketing Services - Sukkur Division</title>
+<title>Ticketing Services – Sukkur Division</title>
 
 <style>
 body {
 font-family: Arial, sans-serif;
-background: #f4f6f8;
 margin: 0;
+background: #f2f2f2;
+  color: #333;
 }
 
+/* HEADER */
 header {
-background: #2e7d32;
+  background: green;
+  background: #2e7d32;
 color: white;
 padding: 15px;
 text-align: center;
+font-size: 22px;
 }
 
-.container {
-max-width: 1000px;
-margin: 30px auto;
-background: white;
-padding: 20px;
-border-radius: 6px;
-}
-
-.search-bar {
+/* ================= NAVIGATION ================= */
+/* NAV */
+nav {
+  background-color: rgba(0, 0, 50, 0.9);
+  background: rgba(0,0,50,0.9);
 display: flex;
-gap: 10px;
-margin-bottom: 20px;
+flex-wrap: wrap;
+justify-content: center;
 }
 
-select, button {
-padding: 10px;
-font-size: 15px;
-}
-
-select {
-flex: 1;
-}
-
-button {
-background: #2e7d32;
+nav a {
 color: white;
-border: none;
-cursor: pointer;
+  padding: 12px 20px;
+  padding: 12px 18px;
+text-decoration: none;
+  font-size: 16px;
 }
 
-button:hover {
+nav a:hover {
+  background-color: #1a237e;
+  background: #1a237e;
+}
+
+.blink-tracking {
+  color: yellow !important;
+  color: yellow;
+font-weight: bold;
+  animation: blinkText 1s infinite;
+}
+
+@keyframes blinkText {
+  50% { opacity: 0; }
+  animation: blink 1s infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ================= SEARCH PANEL ================= */
+/* SEARCH PANEL */
+.ticket-search {
+background: #e8f5e9;
+padding: 15px;
+@@ -84,14 +80,14 @@
 background: #256628;
 }
 
+/* ================= CONTAINER ================= */
+/* CONTENT */
+.container {
+max-width: 1000px;
+margin: 20px auto;
+  padding: 15px;
+background: white;
+  padding: 15px;
+border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+display: flex;
+flex-wrap: wrap;
+}
+@@ -109,9 +105,10 @@
+.text-section {
+flex: 2;
+padding: 15px;
+  line-height: 1.6;
+}
+
+/* ================= MODAL ================= */
+/* MODAL */
+.modal {
+display: none;
+position: fixed;
+@@ -122,8 +119,8 @@
+
+.modal-content {
+background: white;
+  width: 90%;
+  max-width: 700px;
+  width: 95%;
+  max-width: 800px;
+margin: 60px auto;
+padding: 20px;
+border-radius: 8px;
+@@ -138,6 +135,7 @@
 table {
 width: 100%;
 border-collapse: collapse;
+  margin-top: 10px;
 }
 
 th, td {
-border: 1px solid #ccc;
-padding: 10px;
-text-align: center;
-}
+@@ -166,11 +164,15 @@
+<a href="tracking1.html" class="blink-tracking">Train Tracking</a>
+</nav>
 
-th {
-background: #e8f5e9;
-}
-
-footer {
-text-align: center;
-padding: 10px;
-font-size: 13px;
-color: #555;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-<h2>Pakistan Railways – Sukkur Division</h2>
-<p>Live Train Tracking System</p>
-</header>
-
+<!-- ================= SEARCH PANEL ================= -->
+<!-- SEARCH -->
+<div class="ticket-search">
+<div class="row">
+    <select id="fromStation"><option value="">From Station</option></select>
+    <select id="toStation"><option value="">To Station</option></select>
+    <select id="fromStation">
+      <option value="">From Station</option>
+    </select>
+    <select id="toStation">
+      <option value="">To Station</option>
+    </select>
+<input type="date" id="journeyDate">
+<button onclick="searchSeats()">Search</button>
+</div>
+@@ -179,14 +181,23 @@
 <div class="container">
-
-<div class="search-bar">
-<select id="trainSelect">
-<option value="">Loading trains...</option>
-</select>
-
-<button onclick="searchTrain()">Search</button>
+<div class="image-section">
+<img src="https://drive.google.com/thumbnail?id=1aJcf0ApyrGA72EFnl1SzHmeq49KT_igf&sz=w400">
+    <p><strong style="color:blue">Muhammad Ibrahim Balouch</strong><br>
+    Divisional Commercial Officer<br>
+    Pakistan Railways, Sukkur Division</p>
+    <p>
+      <strong style="color:blue">Muhammad Ibrahim Balouch</strong><br>
+      Divisional Commercial Officer<br>
+      Pakistan Railways, Sukkur Division
+    </p>
 </div>
 
-<table id="resultTable" style="display:none;">
-<thead>
-<tr>
-<th>Train</th>
-<th>Live Status</th>
-<th>Next Station</th>
-<th>Remarks</th>
-</tr>
-</thead>
-<tbody id="resultBody"></tbody>
-</table>
-
+ <div class="text-section"> The Sukkur Division operates <strong>27 POS stations</strong>, providing <strong>24/7 ticketing and reservation services</strong>. Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>, offering convenient reservation options. <p>All main line stations, as well as major branch line stations, are equipped for <strong>computerized ticketing</strong>, and work is underway to extend this facility to the remaining branch line stations.</p> <p>Passengers can also make reservations through the <strong>RABTA mobile app</strong> and the <strong>Pakistan Railways website</strong>, ensuring flexibility and convenience.</p> <p> A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed by IT personnel from <strong>8:00 AM to midnight</strong>, providing technical support for mobile and website users, as well as assisting remote stations with troubleshooting and ticketing issues.</p> </div></div>
+  <div class="text-section">
+    The Sukkur Division operates <strong>27 POS stations</strong>, providing
+    <strong>24/7 ticketing services</strong>. TVMs are installed at
+    <strong>Rohri & Rahimyar Khan</strong>.
+    <p>All major stations are computerized, and branch line expansion is underway.</p>
+    <p>Reservations are available via <strong>RABTA App</strong> and official website.</p>
+  </div>
 </div>
 
-<footer>
-© Pakistan Railways – Sukkur Division
-</footer>
+<!-- ================= MODAL ================= -->
+<!-- MODAL -->
+<div id="seatModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">×</span>
+@@ -205,92 +216,75 @@ <h3>Available Trains & Seats</h3>
+</div>
 
 <script>
-const API_URL = "YOUR_WEB_APP_URL?action=liveTrains";
-const API_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=liveTrains";
-let trains = [];
+/* APIs */
+const STATION_API = "https://isapi.pakrailways.gov.pk/v1/ticket/getStations";
+const SEARCH_API = "https://isapi.pakrailways.gov.pk/v1/ticket/searchAvailableTrains";
+const GAS_API = "https://script.google.com/macros/s/AKfycbwvjftpdcbdYh8UTQe4xTdllqYIdEE5ZSzFE7FZSUOj6_CcbktuIF9EmL6qTOcH8ECw8g/exec";
 
-// Load trains on page load
-fetch(API_URL)
+/* Load stations */
+fetch(STATION_API)
 .then(res => res.json())
 .then(data => {
-if (!data.IsSuccess) return;
-
-trains = data.Response;
-const select = document.getElementById("trainSelect");
-select.innerHTML = '<option value="">Select Train</option>';
-
-trains.forEach(t => {
-const opt = document.createElement("option");
-opt.value = t.TrainId;
-opt.textContent = t.TrainName;
-select.appendChild(opt);
+  data.rows.forEach(s => {
+.then(r => r.json())
+.then(d => {
+  d.rows.forEach(s => {
+fromStation.add(new Option(s.stationNameEn, s.stationCode));
+toStation.add(new Option(s.stationNameEn, s.stationCode));
 });
-})
-.catch(err => {
-console.error(err);
-document.getElementById("trainSelect").innerHTML =
-'<option>Error loading trains</option>';
 });
 
-function searchTrain() {
-const trainId = document.getElementById("trainSelect").value;
-if (!trainId) {
-alert("Please select a train");
+/* Search availability */
+/* Search trains */
+function searchSeats() {
+
+const payload = {
+departureStationCode: fromStation.value,
+destinationStationCode: toStation.value,
+    startDate: journeyDate.value
+    departureDate: journeyDate.value
+};
+
+  if (!payload.departureStationCode || !payload.destinationStationCode || !payload.startDate) {
+  if (!payload.departureStationCode || !payload.destinationStationCode || !payload.departureDate) {
+alert("Please select From, To and Date");
 return;
 }
 
-const train = trains.find(t => t.TrainId == trainId);
-if (!train) return;
+  fetch(SEARCH_API, {
+  fetch(GAS_API, {
+method: "POST",
+    headers: { "Content-Type": "application/json" },
+body: JSON.stringify(payload)
+})
+  .then(res => res.json())
+  .then(r => r.json())
+.then(data => {
+const body = seatBody;
+body.innerHTML = "";
 
-const tbody = document.getElementById("resultBody");
-tbody.innerHTML = "";
+    data.rows.forEach(train => {
+    if (!data.rows || data.rows.length === 0) {
+      body.innerHTML = "<tr><td colspan='3'>No trains found</td></tr>";
+    }
 
-const row = `
-   <tr>
-     <td>${train.TrainName}</td>
-     <td>${train.IsLive ? "Live" : "Not Live"}</td>
-     <td>${train.NextStation || "N/A"}</td>
-     <td>${train.Remarks || "On Time"}</td>
-   </tr>
- `;
+    data.rows.forEach(t => {
+body.innerHTML += `
+       <tr style="background:#f1f8e9;font-weight:bold">
+         <td colspan="3">
+            🚆 ${train.trainClassName.trim()} (${train.trainTimes})<br>
+            ${train.departureNameEn} → ${train.destinationNameEn}<br>
+            🕒 ${train.departureTime} → ${train.arrivalTime}
+            🚆 ${t.trainClassName.trim()} (${t.trainTimes})<br>
+            ${t.departureNameEn} → ${t.destinationNameEn}<br>
+            🕒 ${t.departureTime} → ${t.arrivalTime}
+         </td>
+       </tr>
+     `;
 
-tbody.innerHTML = row;
-document.getElementById("resultTable").style.display = "table";
+      train.seatTypeList.forEach(s => {
+      t.seatTypeList.forEach(s => {
+body.innerHTML += `
+         <tr>
+           <td>${s.seatTypeNameEn}</td>
+           <td>${s.surplus}</td>
+            <td>${s.price ? s.price : "-"}</td>
+            <td>${s.price ?? "-"}</td>
+         </tr>
+       `;
+});
+});
+
+seatModal.style.display = "block";
+  });
+  })
+  .catch(() => alert("API Error"));
 }
+
+function closeModal() {
+seatModal.style.display = "none";
+}
+
+  function searchSeats() {
+  const payload = {
+    departureStationCode: fromStation.value,
+    destinationStationCode: toStation.value,
+    departureDate: journeyDate.value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbwvjftpdcbdYh8UTQe4xTdllqYIdEE5ZSzFE7FZSUOj6_CcbktuIF9EmL6qTOcH8ECw8g/exec", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+     console.log(data);
+     alert("API working – check console");
+  })
+  .catch(err => alert("Error"));
+}
+
 </script>
 
 </body>
