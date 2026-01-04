@@ -10,23 +10,36 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   background: #f2f2f2;
+  color: #333;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 header {
   background: #2e7d32;
   color: white;
   padding: 15px;
-  text-align: center;
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* NAV */
+header img {
+  height: 55px;
+}
+
+header h2 {
+  margin: 0;
+  font-size: 22px;
+  text-align: center;
+  flex: 1;
+}
+
+/* ================= NAV ================= */
 nav {
   background: rgba(0,0,50,0.9);
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 nav a {
@@ -44,9 +57,12 @@ nav a:hover {
   font-weight: bold;
   animation: blink 1s infinite;
 }
-@keyframes blink { 50% { opacity: 0; } }
 
-/* SEARCH PANEL */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ================= SEARCH PANEL ================= */
 .ticket-search {
   background: #e8f5e9;
   padding: 15px;
@@ -80,16 +96,16 @@ nav a:hover {
   background: #256628;
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
 .container {
   max-width: 1000px;
   margin: 20px auto;
   background: white;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
   display: flex;
-  flex-wrap: wrap;
+  gap: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .image-section {
@@ -104,11 +120,36 @@ nav a:hover {
 
 .text-section {
   flex: 2;
-  padding: 15px;
   line-height: 1.6;
 }
 
-/* MODAL */
+/* ================= FOOTER PANEL ================= */
+.download-panel {
+  background: #e8f5e9;
+  padding: 20px 10px;
+  margin-top: 30px;
+  border-top: 3px solid #2e7d32;
+}
+
+.panel-row {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  gap: 20px;
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.panel-row div {
+  flex: 1;
+}
+
+.apps img {
+  height: 40px;
+  margin: 5px;
+}
+
+/* ================= MODAL ================= */
 .modal {
   display: none;
   position: fixed;
@@ -119,7 +160,6 @@ nav a:hover {
 
 .modal-content {
   background: white;
-  width: 95%;
   max-width: 800px;
   margin: 60px auto;
   padding: 20px;
@@ -135,7 +175,6 @@ nav a:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 th, td {
@@ -152,8 +191,14 @@ th {
 
 <body>
 
-<header>Ticketing Services – Sukkur Division</header>
+<!-- ================= HEADER ================= -->
+<header>
+  <img src="logo-left.png" alt="Pakistan Railways">
+  <h2>Ticketing Services – Sukkur Division</h2>
+  <img src="logo-right.png" alt="Sukkur Division">
+</header>
 
+<!-- ================= NAV ================= -->
 <nav>
   <a href="index.html">Home</a>
   <a href="stations.html">Stations</a>
@@ -164,50 +209,70 @@ th {
   <a href="tracking1.html" class="blink-tracking">Train Tracking</a>
 </nav>
 
-<!-- SEARCH -->
+<!-- ================= SEARCH ================= -->
 <div class="ticket-search">
   <div class="row">
-    <select id="fromStation">
-      <option value="">From Station</option>
-    </select>
-    <select id="toStation">
-      <option value="">To Station</option>
-    </select>
+    <select id="fromStation"><option value="">From Station</option></select>
+    <select id="toStation"><option value="">To Station</option></select>
     <input type="date" id="journeyDate">
-    <button onclick="searchSeats()">Search</button>
+    <button onclick="searchTrains()">Search</button>
   </div>
 </div>
 
+<!-- ================= CONTENT ================= -->
 <div class="container">
   <div class="image-section">
     <img src="https://drive.google.com/thumbnail?id=1aJcf0ApyrGA72EFnl1SzHmeq49KT_igf&sz=w400">
-    <p>
-      <strong style="color:blue">Muhammad Ibrahim Balouch</strong><br>
-      Divisional Commercial Officer<br>
-      Pakistan Railways, Sukkur Division
-    </p>
+    <p><strong style="color:blue">Muhammad Ibrahim Balouch</strong><br>
+    Divisional Commercial Officer<br>
+    Pakistan Railways, Sukkur Division</p>
   </div>
 
   <div class="text-section">
     The Sukkur Division operates <strong>27 POS stations</strong>, providing
-    <strong>24/7 ticketing services</strong>. TVMs are installed at
-    <strong>Rohri & Rahimyar Khan</strong>.
-    <p>All major stations are computerized, and branch line expansion is underway.</p>
-    <p>Reservations are available via <strong>RABTA App</strong> and official website.</p>
+    <strong>24/7 ticketing and reservation services</strong>.
+    <p>TVMs are installed at Rohri and Rahimyar Khan.</p>
+    <p>Reservations available via RABTA app and official website.</p>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- ================= FOOTER ================= -->
+<div class="download-panel">
+  <div class="panel-row">
+    <div class="apps">
+      <strong>Download Apps</strong><br>
+      <a href="https://play.google.com/store/apps/details?id=com.easyway.ticket.app" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg">
+      </a>
+      <a href="https://apps.apple.com/pk/app/rabta/id6446243993" target="_blank">
+        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg">
+      </a>
+    </div>
+
+    <div>
+      <strong>E-Ticketing Website</strong><br>
+      <a href="https://www.pakrailways.gov.pk/home" target="_blank">
+        www.pakrailways.gov.pk
+      </a>
+    </div>
+
+    <div>
+      <a href="faq.html"><strong>FAQs</strong></a>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL ================= -->
 <div id="seatModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeModal()">×</span>
+    <span class="close" onclick="seatModal.style.display='none'">×</span>
     <h3>Available Trains & Seats</h3>
     <table>
       <thead>
         <tr>
           <th>Class</th>
           <th>Seats</th>
-          <th>Fare (Rs)</th>
+          <th>Fare</th>
         </tr>
       </thead>
       <tbody id="seatBody"></tbody>
@@ -216,76 +281,46 @@ th {
 </div>
 
 <script>
-/* APIs */
 const STATION_API = "https://isapi.pakrailways.gov.pk/v1/ticket/getStations";
-const GAS_API = "https://script.google.com/macros/s/AKfycbwvjftpdcbdYh8UTQe4xTdllqYIdEE5ZSzFE7FZSUOj6_CcbktuIF9EmL6qTOcH8ECw8g/exec";
+const GAS_API = "YOUR_GAS_WEBAPP_URL";
 
 /* Load stations */
 fetch(STATION_API)
 .then(r => r.json())
-.then(d => {
-  d.rows.forEach(s => {
-    fromStation.add(new Option(s.stationNameEn, s.stationCode));
-    toStation.add(new Option(s.stationNameEn, s.stationCode));
-  });
-});
+.then(d => d.rows.forEach(s => {
+  fromStation.add(new Option(s.stationNameEn, s.stationCode));
+  toStation.add(new Option(s.stationNameEn, s.stationCode));
+}));
 
-/* Search trains */
-function searchSeats() {
-
- const payload = {
-  departureStationCode: fromStation.value,
-  destinationStationCode: toStation.value,
-  startDate: journeyDate.value  // PR API expects startDate
-};
-
-
-  if (!payload.departureStationCode || !payload.destinationStationCode || !payload.departureDate) {
+function searchTrains() {
+  if (!fromStation.value || !toStation.value || !journeyDate.value) {
     alert("Please select From, To and Date");
     return;
   }
 
   fetch(GAS_API, {
     method: "POST",
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      departureStationCode: fromStation.value,
+      destinationStationCode: toStation.value,
+      startDate: journeyDate.value
+    })
   })
   .then(r => r.json())
-  .then(data => {
-    const body = seatBody;
-    body.innerHTML = "";
-
-    if (!data.rows || data.rows.length === 0) {
-      body.innerHTML = "<tr><td colspan='3'>No trains found</td></tr>";
-    }
-
-    data.rows.forEach(t => {
-      body.innerHTML += `
-        <tr style="background:#f1f8e9;font-weight:bold">
-          <td colspan="3">
-            🚆 ${t.trainClassName.trim()} (${t.trainTimes})<br>
-            ${t.departureNameEn} → ${t.destinationNameEn}<br>
-            🕒 ${t.departureTime} → ${t.arrivalTime}
-          </td>
-        </tr>
-      `;
-
+  .then(d => {
+    seatBody.innerHTML = "";
+    d.rows.forEach(t => {
+      seatBody.innerHTML += `
+        <tr><td colspan="3"><b>${t.trainClassName}</b></td></tr>`;
       t.seatTypeList.forEach(s => {
-        body.innerHTML += `
-          <tr>
-            <td>${s.seatTypeNameEn}</td>
-            <td>${s.surplus}</td>
-            <td>${s.price ?? "-"}</td>
-          </tr>
-        `;
+        seatBody.innerHTML += `
+          <tr><td>${s.seatTypeNameEn}</td><td>${s.surplus}</td><td>${s.price||"-"}</td></tr>`;
       });
     });
-
     seatModal.style.display = "block";
-  })
-  .catch(() => alert("API Error"));
-}
-
-function closeModal() {
-  seatModal.style.display = "none";
+  });
 }
 </script>
+
+</body>
+</html>
