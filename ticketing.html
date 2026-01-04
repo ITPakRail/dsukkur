@@ -14,25 +14,38 @@ body {
 }
 
 /* ================= HEADER ================= */
-header {
-  background: #2e7d32;
+
+.main-header {
+  background-color: #2e7d32;
   color: white;
-  padding: 15px;
+  padding: 5px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-header img {
-  height: 55px;
+/* Left & Right logos */
+.header-left img,
+.header-right img {
+  height: 50px;
+  width: auto;
 }
 
-header h2 {
-  margin: 0;
+/* Center title */
+.header-center {
   font-size: 22px;
+  font-weight: bold;
   text-align: center;
   flex: 1;
 }
+
+/* Logos alignment */
+.header-left,
+.header-right {
+  width: 60px;
+  text-align: center;
+}
+
 
 /* ================= NAV ================= */
 nav {
@@ -62,37 +75,29 @@ nav a:hover {
   50% { opacity: 0; }
 }
 
-/* ================= SEARCH PANEL ================= */
-.ticket-search {
+/* ================= ONLINE BOOKING PANEL ================= */
+.booking-panel {
   background: #e8f5e9;
-  padding: 15px;
+  padding: 40px 15px;
+  text-align: center;
   border-bottom: 3px solid #2e7d32;
 }
 
-.ticket-search .row {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.booking-panel h3 {
+  margin-bottom: 15px;
 }
 
-.ticket-search select,
-.ticket-search input,
-.ticket-search button {
-  padding: 10px;
-  font-size: 15px;
-  flex: 1;
-}
-
-.ticket-search button {
+.booking-panel button {
+  padding: 16px 40px;
+  font-size: 18px;
   background: #2e7d32;
   color: white;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.ticket-search button:hover {
+.booking-panel button:hover {
   background: #256628;
 }
 
@@ -149,55 +154,58 @@ nav a:hover {
   margin: 5px;
 }
 
-/* ================= MODAL ================= */
+/* ================= FULLSCREEN MODAL ================= */
 .modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 999;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
 }
 
 .modal-content {
-  background: white;
-  max-width: 800px;
-  margin: 60px auto;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.close {
-  float: right;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-table {
   width: 100%;
-  border-collapse: collapse;
+  height: 100%;
+  background: white;
+  position: relative;
 }
 
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 10000;
+  font-size: 28px;
+  cursor: pointer;
+  background: red;
+  color: white;
+  padding: 4px 14px;
+  border-radius: 5px;
 }
 
-th {
-  background: #e8f5e9;
+.modal iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header>
-  <img src="logo-left.png" alt="Pakistan Railways">
-  <h2>Ticketing Services – Sukkur Division</h2>
-  <img src="logo-right.png" alt="Sukkur Division">
-</header>
+<header class="main-header">
+  <div class="header-left">
+    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
+  </div>
 
+  <div class="header-center">
+    Pakistan Railways – Sukkur Division
+  </div>
+
+  <div class="header-right">
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+  </div>
+</header>
 <!-- ================= NAV ================= -->
 <nav>
   <a href="index.html">Home</a>
@@ -209,14 +217,10 @@ th {
   <a href="tracking1.html" class="blink-tracking">Train Tracking</a>
 </nav>
 
-<!-- ================= SEARCH ================= -->
-<div class="ticket-search">
-  <div class="row">
-    <select id="fromStation"><option value="">From Station</option></select>
-    <select id="toStation"><option value="">To Station</option></select>
-    <input type="date" id="journeyDate">
-    <button onclick="searchTrains()">Search</button>
-  </div>
+<!-- ================= ONLINE BOOKING BUTTON ================= -->
+<div class="booking-panel">
+  <h3>Online Ticket Booking (Official)</h3>
+   <button onclick="openTicketing()">Book Tickets Online</button>
 </div>
 
 <!-- ================= CONTENT ================= -->
@@ -228,15 +232,22 @@ th {
     Pakistan Railways, Sukkur Division</p>
   </div>
 
-  <div class="text-section"> The Sukkur Division operates <strong>27 POS stations</strong>,
+  <div class="text-section">
+    The Sukkur Division operates <strong>27 POS stations</strong>,
     providing <strong>24/7 ticketing and reservation services</strong>.
-    Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>, offering convenient reservation options.
-    <p>All main line stations, as well as major branch line stations, are equipped for <strong>computerized ticketing</strong>,
-      and work is underway to extend this facility to the remaining branch line stations.</p> 
-    <p>Passengers can also make reservations through the <strong>RABTA mobile app</strong> and the <strong>Pakistan Railways website</strong>,
-    ensuring flexibility and convenience.</p> 
-    <p> A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed by IT personnel from <strong>8:00 AM to midnight</strong>, providing technical support for mobile and website users, 
-      as well as assisting remote stations with troubleshooting and ticketing issues.</p> </div>
+    Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>,
+    offering convenient reservation options.
+
+    <p>All main line stations, as well as major branch line stations, are equipped for
+    <strong>computerized ticketing</strong>, and work is underway to extend this facility
+    to the remaining branch line stations.</p>
+
+    <p>Passengers can also make reservations through the <strong>RABTA mobile app</strong>
+    and the <strong>Pakistan Railways website</strong>.</p>
+
+    <p>A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed
+    by IT personnel from <strong>8:00 AM to midnight</strong>.</p>
+  </div>
 </div>
 
 <!-- ================= FOOTER ================= -->
@@ -244,8 +255,9 @@ th {
   <div class="panel-row">
     <div class="apps">
       <strong>Download Apps</strong><br>
-   <a href="https://play.google.com/store/apps/details?id=com.easyway.ticket.app&pcampaignid=web_share" target="_blank"> 
-     <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play"> </a>
+      <a href="https://play.google.com/store/apps/details?id=com.easyway.ticket.app" target="_blank">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg">
+      </a>
       <a href="https://apps.apple.com/pk/app/rabta/id6446243993" target="_blank">
         <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg">
       </a>
@@ -264,64 +276,23 @@ th {
   </div>
 </div>
 
-  
-<!-- ================= MODAL ================= -->
-<div id="seatModal" class="modal">
+<!-- ================= FULLSCREEN MODAL ================= -->
+<div id="ticketModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="seatModal.style.display='none'">×</span>
-    <h3>Available Trains & Seats</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Class</th>
-          <th>Seats</th>
-          <th>Fare</th>
-        </tr>
-      </thead>
-      <tbody id="seatBody"></tbody>
-    </table>
+    <span class="close-btn" onclick="closeTicketing()">✖</span>
+    <iframe src="https://www.pakrailways.gov.pk/buy"></iframe>
   </div>
 </div>
 
 <script>
-const STATION_API = "https://isapi.pakrailways.gov.pk/v1/ticket/getStations";
-const GAS_API = "YOUR_GAS_WEBAPP_URL";
+function openTicketing() {
+  document.getElementById("ticketModal").style.display = "block";
+  document.body.style.overflow = "hidden";
+}
 
-/* Load stations */
-fetch(STATION_API)
-.then(r => r.json())
-.then(d => d.rows.forEach(s => {
-  fromStation.add(new Option(s.stationNameEn, s.stationCode));
-  toStation.add(new Option(s.stationNameEn, s.stationCode));
-}));
-
-function searchTrains() {
-  if (!fromStation.value || !toStation.value || !journeyDate.value) {
-    alert("Please select From, To and Date");
-    return;
-  }
-
-  fetch(GAS_API, {
-    method: "POST",
-    body: JSON.stringify({
-      departureStationCode: fromStation.value,
-      destinationStationCode: toStation.value,
-      startDate: journeyDate.value
-    })
-  })
-  .then(r => r.json())
-  .then(d => {
-    seatBody.innerHTML = "";
-    d.rows.forEach(t => {
-      seatBody.innerHTML += `
-        <tr><td colspan="3"><b>${t.trainClassName}</b></td></tr>`;
-      t.seatTypeList.forEach(s => {
-        seatBody.innerHTML += `
-          <tr><td>${s.seatTypeNameEn}</td><td>${s.surplus}</td><td>${s.price||"-"}</td></tr>`;
-      });
-    });
-    seatModal.style.display = "block";
-  });
+function closeTicketing() {
+  document.getElementById("ticketModal").style.display = "none";
+  document.body.style.overflow = "auto";
 }
 </script>
 
