@@ -23,21 +23,35 @@ async function loadTrain() {
 
   const data = await res.json();
 
-  // ✅ THIS IS THE FIX
-  stations = data.Data;
+  // ✅ NORMALIZE station fields
+  stations = data.Data.map(s => ({
+    name: s.StationName,
+    lat: Number(s.Latitude),
+    lng: Number(s.Longitude),
+    order: s.OrderNumber,
+    schArrival: s.ArrivalTime
+  }));
 
   connectSocket(trainId);
 }
 
-function connectSocket(trainId) {
-  const socket = io("https://cotrolroomapi.pakraillive.com");
 
-  socket.on("connect", () => {
-    socket.emit("join", trainId);
+function connectSocket(trainId) {
+  const socket = io("https://cotrolroomapi.pakraillive.com", {
+    transports: ["websocket"]
   });
 
-  socket.on(trainId, payload => {
-    updateStatus(payload);
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  socket.onAny((event, payload) => {
+    console.log("Socket event:", event, payload);
+
+    // payload must contain lat/lon
+    if (payload && payload.lat && payload.lon) {
+      updateStatus(payload);
+    }
   });
 }
 
