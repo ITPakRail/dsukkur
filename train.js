@@ -20,11 +20,15 @@ async function loadTrain() {
   const res = await fetch(
     "https://script.google.com/macros/s/AKfycbxKJDzHI3cPTLrpePiU5ZS3FWgGCcnfSKRzPEtXqjIEKhH-C91RmyOI9oyyTDz0BoW-YQ/exec?trainId=" + trainId
   );
+
   const data = await res.json();
-  stations = data.stations;
+
+  // ✅ THIS IS THE FIX
+  stations = data.Data;
 
   connectSocket(trainId);
 }
+
 function connectSocket(trainId) {
   const socket = io("https://cotrolroomapi.pakraillive.com");
 
