@@ -8,6 +8,7 @@
       border: 1px solid #ccc;
       padding: 15px;
       width: 350px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -19,9 +20,10 @@
 
 <button onclick="loadTrain()">Show Status</button>
 
-<div class="card" id="status"></div>
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<div class="card" id="status">Waiting...</div>
 
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script src="train.js"></script>
+
 </body>
 </html>
