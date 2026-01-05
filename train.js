@@ -11,6 +11,7 @@ function haversine(lat1, lon1, lat2, lon2) {
 
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
 let stations = [];
 let prevPoint = null;
 
@@ -23,33 +24,27 @@ async function loadTrain() {
 
   const data = await res.json();
 
-  // ✅ NORMALIZE station fields
-  stations = data.Data.map(s => ({
-    name: s.StationName,
-    lat: Number(s.Latitude),
-    lng: Number(s.Longitude),
-    order: s.OrderNumber,
-    schArrival: s.ArrivalTime
-  }));
+  stations = data.Response
+    .map(s => ({
+      name: s.StationName,
+      lat: Number(s.Latitude),
+      lng: Number(s.Longitude),
+      order: s.OrderNumber,
+      schArrival: s.ArrivalTime,
+      dayCount: s.DayCount || 0
+    }))
+    .sort((a, b) => a.order - b.order);
 
   connectSocket(trainId);
 }
-
 
 function connectSocket(trainId) {
   const socket = io("https://cotrolroomapi.pakraillive.com", {
     transports: ["websocket"]
   });
 
-  socket.on("connect", () => {
-    console.log("Socket connected:", socket.id);
-  });
-
   socket.onAny((event, payload) => {
-    console.log("Socket event:", event, payload);
-
-    // payload must contain lat/lon
-    if (payload && payload.lat && payload.lon) {
+    if (payload?.lat && payload?.lon) {
       updateStatus(payload);
     }
   });
@@ -60,22 +55,30 @@ function updateStatus(live) {
   const lng = live.lon;
   const now = new Date(live.last_updated || Date.now());
 
-  // 1️⃣ Find nearest station
-  let nearest = null;
-  let minDist = Infinity;
-  stations.forEach(s => {
-    const d = haversine(lat, lng, s.lat, s.lng);
-    if (d < minDist) {
-      minDist = d;
-      nearest = s;
+  // 🔹 Find last crossed station
+  let lastIdx = -1;
+
+  for (let i = 0; i < stations.length - 1; i++) {
+    const dCurrent = haversine(lat, lng, stations[i].lat, stations[i].lng);
+    const dNext = haversine(lat, lng, stations[i + 1].lat, stations[i + 1].lng);
+
+    // Train has moved closer to next station → current is crossed
+    if (dNext < dCurrent || dCurrent > 10) {
+      lastIdx = i;
+    } else {
+      break;
     }
-  });
+  }
 
-  const idx = stations.findIndex(s => s.OrderNumber === nearest.OrderNumber);
-  const lastStation = idx > 0 ? stations[idx - 1].StationName : "N/A";
-  const nextStation = idx + 1 < stations.length ? stations[idx + 1].StationName : "End";
+  const lastStation =
+    lastIdx >= 0 ? stations[lastIdx].name : "Start";
 
-  // 2️⃣ Speed
+  const nextStation =
+    lastIdx + 1 < stations.length
+      ? stations[lastIdx + 1].name
+      : "End";
+
+  // 🔹 Speed
   let speed = "Calculating...";
   if (prevPoint) {
     const dist = haversine(prevPoint.lat, prevPoint.lng, lat, lng);
@@ -84,16 +87,17 @@ function updateStatus(live) {
   }
   prevPoint = { lat, lng, time: now };
 
-  // 3️⃣ Delay
+  // 🔹 Delay (based on NEXT station)
   let delay = "N/A";
-  if (nearest.ArrivalTime) {
-    const [h, m, s] = nearest.ArrivalTime.split(":").map(Number);
-    const schDate = new Date();
-    schDate.setHours(h, m, s, 0);
-    if (nearest.DayCount) schDate.setDate(schDate.getDate() + nearest.DayCount);
+  const next = stations[lastIdx + 1];
+  if (next?.schArrival) {
+    const [h, m, s] = next.schArrival.split(":").map(Number);
+    const sch = new Date();
+    sch.setHours(h, m, s, 0);
+    sch.setDate(sch.getDate() + next.dayCount);
 
-    const diffMin = Math.max(0, (now - schDate) / 60000);
-    delay = `${Math.floor(diffMin / 60)} hr ${Math.floor(diffMin % 60)} min`;
+    const diff = Math.max(0, (now - sch) / 60000);
+    delay = `${Math.floor(diff / 60)} hr ${Math.floor(diff % 60)} min`;
   }
 
   document.getElementById("status").innerHTML = `
