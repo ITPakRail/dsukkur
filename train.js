@@ -58,12 +58,11 @@ function connectSocket(trainId) {
 function updateStatus(live) {
   const lat = live.lat;
   const lng = live.lon;
-  const now = new Date(live.last_updated);
+  const now = new Date(live.last_updated || Date.now());
 
   // Find nearest station
   let nearest = null;
   let minDist = Infinity;
-
   stations.forEach(s => {
     const d = haversine(lat, lng, s.lat, s.lng);
     if (d < minDist) {
@@ -73,42 +72,42 @@ function updateStatus(live) {
   });
 
   const idx = stations.findIndex(s => s.order === nearest.order);
-
   const lastStation = idx > 0 ? stations[idx - 1].name : "N/A";
-  const nextStation = stations[idx + 1]?.name || "End";
+  const nextStation = idx + 1 < stations.length ? stations[idx + 1].name : "End";
 
   // Speed
   let speed = "Calculating...";
   if (prevPoint) {
-    const dist = haversine(
-      prevPoint.lat,
-      prevPoint.lng,
-      lat,
-      lng
-    );
+    const dist = haversine(prevPoint.lat, prevPoint.lng, lat, lng);
     const timeHr = (now - prevPoint.time) / 3600000;
-    speed = (dist / timeHr).toFixed(0) + " km/hr";
+    if (timeHr > 0) speed = (dist / timeHr).toFixed(0) + " km/hr";
   }
-
   prevPoint = { lat, lng, time: now };
 
-  // Delay (simple)
- let delay = "N/A";
+  // Delay
+  let delay = "N/A";
+  if (stations[idx]?.schArrival) {
+    const parts = stations[idx].schArrival.split(":");
+    let schDate = new Date();
+    schDate.setHours(Number(parts[0]));
+    schDate.setMinutes(Number(parts[1]));
+    schDate.setSeconds(Number(parts[2]));
+    schDate.setMilliseconds(0);
 
-if (stations[idx]?.schArrival) {
-  const schTime = new Date(stations[idx].schArrival);
-  const delayMin = Math.max(0, (now - schTime) / 60000);
+    if (stations[idx].DayCount) {
+      schDate.setDate(schDate.getDate() + stations[idx].DayCount);
+    }
 
-  delay = `${Math.floor(delayMin / 60)} hr ${Math.floor(delayMin % 60)} min`;
-}
-
+    const delayMin = Math.max(0, (now - schDate) / 60000);
+    delay = `${Math.floor(delayMin / 60)} hr ${Math.floor(delayMin % 60)} min`;
+  }
 
   document.getElementById("status").innerHTML = `
     <b>Last Station:</b> ${lastStation}<br>
     <b>Next Station:</b> ${nextStation}<br>
     <b>Speed:</b> ${speed}<br>
     <b>Delay:</b> ${delay}<br>
-    <b>Lat/Lng:</b> ${lat}, ${lng}<br>
+    <b>Lat/Lng:</b> ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
     <b>Updated:</b> ${now.toLocaleTimeString()}
   `;
 }
