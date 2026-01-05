@@ -60,7 +60,7 @@ function updateStatus(live) {
   const lng = live.lon;
   const now = new Date(live.last_updated || Date.now());
 
-  // Find nearest station
+  // 1️⃣ Find nearest station
   let nearest = null;
   let minDist = Infinity;
   stations.forEach(s => {
@@ -71,11 +71,11 @@ function updateStatus(live) {
     }
   });
 
-  const idx = stations.findIndex(s => s.order === nearest.order);
-  const lastStation = idx > 0 ? stations[idx - 1].name : "N/A";
-  const nextStation = idx + 1 < stations.length ? stations[idx + 1].name : "End";
+  const idx = stations.findIndex(s => s.OrderNumber === nearest.OrderNumber);
+  const lastStation = idx > 0 ? stations[idx - 1].StationName : "N/A";
+  const nextStation = idx + 1 < stations.length ? stations[idx + 1].StationName : "End";
 
-  // Speed
+  // 2️⃣ Speed
   let speed = "Calculating...";
   if (prevPoint) {
     const dist = haversine(prevPoint.lat, prevPoint.lng, lat, lng);
@@ -84,22 +84,16 @@ function updateStatus(live) {
   }
   prevPoint = { lat, lng, time: now };
 
-  // Delay
+  // 3️⃣ Delay
   let delay = "N/A";
-  if (stations[idx]?.schArrival) {
-    const parts = stations[idx].schArrival.split(":");
-    let schDate = new Date();
-    schDate.setHours(Number(parts[0]));
-    schDate.setMinutes(Number(parts[1]));
-    schDate.setSeconds(Number(parts[2]));
-    schDate.setMilliseconds(0);
+  if (nearest.ArrivalTime) {
+    const [h, m, s] = nearest.ArrivalTime.split(":").map(Number);
+    const schDate = new Date();
+    schDate.setHours(h, m, s, 0);
+    if (nearest.DayCount) schDate.setDate(schDate.getDate() + nearest.DayCount);
 
-    if (stations[idx].DayCount) {
-      schDate.setDate(schDate.getDate() + stations[idx].DayCount);
-    }
-
-    const delayMin = Math.max(0, (now - schDate) / 60000);
-    delay = `${Math.floor(delayMin / 60)} hr ${Math.floor(delayMin % 60)} min`;
+    const diffMin = Math.max(0, (now - schDate) / 60000);
+    delay = `${Math.floor(diffMin / 60)} hr ${Math.floor(diffMin % 60)} min`;
   }
 
   document.getElementById("status").innerHTML = `
