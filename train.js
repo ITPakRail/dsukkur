@@ -55,18 +55,25 @@ function updateStatus(live) {
   const lng = live.lon;
   const now = new Date(live.last_updated || Date.now());
 
-  // 🔹 Find last crossed station
   let lastIdx = -1;
 
   for (let i = 0; i < stations.length - 1; i++) {
-    const dCurrent = haversine(lat, lng, stations[i].lat, stations[i].lng);
-    const dNext = haversine(lat, lng, stations[i + 1].lat, stations[i + 1].lng);
+    const A = stations[i];
+    const B = stations[i + 1];
 
-    // Train has moved closer to next station → current is crossed
-    if (dNext < dCurrent || dCurrent > 10) {
+    const dAT = haversine(lat, lng, A.lat, A.lng);
+    const dTB = haversine(lat, lng, B.lat, B.lng);
+    const dAB = haversine(A.lat, A.lng, B.lat, B.lng);
+
+    // Train lies between A and B (with 5 km tolerance)
+    if (Math.abs((dAT + dTB) - dAB) < 5) {
       lastIdx = i;
-    } else {
       break;
+    }
+
+    // Train already beyond station B
+    if (dAT > dAB && dTB < dAT) {
+      lastIdx = i + 1;
     }
   }
 
@@ -87,14 +94,14 @@ function updateStatus(live) {
   }
   prevPoint = { lat, lng, time: now };
 
-  // 🔹 Delay (based on NEXT station)
+  // 🔹 Delay (NEXT station based)
   let delay = "N/A";
   const next = stations[lastIdx + 1];
   if (next?.schArrival) {
     const [h, m, s] = next.schArrival.split(":").map(Number);
     const sch = new Date();
     sch.setHours(h, m, s, 0);
-    sch.setDate(sch.getDate() + next.dayCount);
+    sch.setDate(sch.getDate() + (next.dayCount || 0));
 
     const diff = Math.max(0, (now - sch) / 60000);
     delay = `${Math.floor(diff / 60)} hr ${Math.floor(diff % 60)} min`;
