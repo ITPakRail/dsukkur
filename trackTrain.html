@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Train Live Status</title>
+  <style>
+    body { font-family: Arial; }
+    .card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      width: 350px;
+    }
+  </style>
+</head>
+<body>
+
+<select id="trainSelect">
+  <option value="27">Shalimar Express (27UP)</option>
+</select>
+
+<button onclick="loadTrain()">Show Status</button>
+
+<div class="card" id="status"></div>
+
+<script src="train.js"></script>
+</body>
+</html>
