@@ -55,30 +55,27 @@ function updateStatus(live) {
   const lng = live.lon;
   const now = new Date(live.last_updated || Date.now());
 
-  // 🔹 Find last crossed station
-  let lastIdx = -1;
+  // 🔒 Progress forward only
+  for (let i = currentStationIndex; i < stations.length; i++) {
+    const s = stations[i];
+    const d = haversine(lat, lng, s.lat, s.lng);
 
-  for (let i = 0; i < stations.length - 1; i++) {
-    const dCurrent = haversine(lat, lng, stations[i].lat, stations[i].lng);
-    const dNext = haversine(lat, lng, stations[i + 1].lat, stations[i + 1].lng);
-
-    // Train has moved closer to next station → current is crossed
-    if (dNext < dCurrent || dCurrent > 10) {
-      lastIdx = i;
+    if (d <= STATION_RADIUS_KM) {
+      crossedStations.add(i);
+      currentStationIndex = i + 1;
     } else {
       break;
     }
   }
 
-  const lastStation =
-    lastIdx >= 0 ? stations[lastIdx].name : "Start";
-
+  const lastIdx = currentStationIndex - 1;
+  const lastStation = lastIdx >= 0 ? stations[lastIdx].name : "N/A";
   const nextStation =
-    lastIdx + 1 < stations.length
-      ? stations[lastIdx + 1].name
-      : "End";
+    currentStationIndex < stations.length
+      ? stations[currentStationIndex].name
+      : "Destination";
 
-  // 🔹 Speed
+  // 🚄 Speed
   let speed = "Calculating...";
   if (prevPoint) {
     const dist = haversine(prevPoint.lat, prevPoint.lng, lat, lng);
@@ -87,17 +84,17 @@ function updateStatus(live) {
   }
   prevPoint = { lat, lng, time: now };
 
-  // 🔹 Delay (based on NEXT station)
+  // ⏱ Delay (estimate using next station arrival)
   let delay = "N/A";
-  const next = stations[lastIdx + 1];
-  if (next?.schArrival) {
+  const next = stations[currentStationIndex];
+  if (next && next.schArrival) {
     const [h, m, s] = next.schArrival.split(":").map(Number);
     const sch = new Date();
     sch.setHours(h, m, s, 0);
-    sch.setDate(sch.getDate() + next.dayCount);
+    if (next.dayCount) sch.setDate(sch.getDate() + next.dayCount);
 
-    const diff = Math.max(0, (now - sch) / 60000);
-    delay = `${Math.floor(diff / 60)} hr ${Math.floor(diff % 60)} min`;
+    const diffMin = Math.max(0, (now - sch) / 60000);
+    delay = `${Math.floor(diffMin / 60)} hr ${Math.floor(diffMin % 60)} min`;
   }
 
   document.getElementById("status").innerHTML = `
