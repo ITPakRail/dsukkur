@@ -93,9 +93,15 @@ function updateStatus(live) {
   prevPoint = { lat, lng, time: now };
 
   // Delay (simple)
-  const sch = new Date(stations[idx].schArrival);
-  const delayMin = Math.max(0, (now - sch) / 60000);
-  const delay = `${Math.floor(delayMin / 60)} hr ${Math.floor(delayMin % 60)} min`;
+ let delay = "N/A";
+
+if (stations[idx]?.schArrival) {
+  const schTime = new Date(stations[idx].schArrival);
+  const delayMin = Math.max(0, (now - schTime) / 60000);
+
+  delay = `${Math.floor(delayMin / 60)} hr ${Math.floor(delayMin % 60)} min`;
+}
+
 
   document.getElementById("status").innerHTML = `
     <b>Last Station:</b> ${lastStation}<br>
