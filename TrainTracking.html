@@ -4,108 +4,106 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pakistan Railways Live Train Status</title>
+
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f5f5f5;
-  }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+}
 
-  /* Header */
-  .header {
-    background-color: #2e7d32; /* Green */
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+/* Header */
+.header {
+  background-color: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+}
 
-  .header img {
-    height: 50px;
-  }
+.header img {
+  height: 45px;
+}
 
-  .header h1 {
-    margin: 0;
-    font-size: 22px;
-    text-align: center;
-    flex-grow: 1;
-  }
+.header h1 {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 22px;
+}
 
-  /* Controls */
-  .controls {
-    margin: 20px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
+/* Controls */
+.controls {
+  margin: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
-  label {
-    font-weight: bold;
-    margin-right: 5px;
-  }
+label {
+  font-weight: bold;
+}
 
-  select, input[type="date"], button {
-    padding: 5px 10px;
-    font-size: 16px;
-  }
+select, input[type="date"], button {
+  padding: 6px 10px;
+  font-size: 16px;
+}
 
-  button {
-    cursor: pointer;
-    background-color: #2e7d32;
-    color: white;
-    border: none;
-    border-radius: 4px;
-  }
+button {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
-  button:hover {
-    background-color: #1b5e20;
-  }
+button:hover {
+  background-color: #1b5e20;
+}
 
-  /* Status Table */
-  table {
-    width: 95%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  }
+/* Table */
+table {
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
 
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
 
-  th {
-    background-color: #2e7d32;
-    color: white;
-  }
+th {
+  background-color: #2e7d32;
+  color: white;
+}
 
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 </style>
 </head>
+
 <body>
 
 <div class="header">
-  <img src="logo-left.png" alt="Left Logo">
-  <h1>Pakistan Railways Sukkur Division</h1>
-  <img src="logo-right.png" alt="Right Logo">
+  <img src="logo-left.png" alt="">
+  <h1>Pakistan Railways – Sukkur Division</h1>
+  <img src="logo-right.png" alt="">
 </div>
 
 <div class="controls">
   <div>
-    <label for="datePicker">Date:</label>
+    <label>Date:</label>
     <input type="date" id="datePicker">
   </div>
 
   <div>
-    <label for="trainSelect">Train:</label>
+    <label>Train:</label>
     <select id="trainSelect">
       <option value="">Select Train</option>
     </select>
@@ -114,105 +112,112 @@
   <button id="checkStatus">Check Status</button>
 </div>
 
-<div id="statusContainer">
-  <table id="statusTable">
-    <thead>
-      <tr>
-        <th>Train ID</th>
-        <th>Train Name</th>
-        <th>Previous Station</th>
-        <th>Current Location</th>
-        <th>Next Station</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="6">Select a train to see status</td></tr>
-    </tbody>
-  </table>
-</div>
+<table id="statusTable">
+  <thead>
+    <tr>
+      <th>Train ID</th>
+      <th>Train Name</th>
+      <th>Previous Station</th>
+      <th>Current Location</th>
+      <th>Next Station</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="6">Select a train to see status</td></tr>
+  </tbody>
+</table>
 
 <script>
 const GAS_API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 
-// Set date picker to today
-document.getElementById('datePicker').valueAsDate = new Date();
+// Set today
+document.getElementById("datePicker").valueAsDate = new Date();
 
-// Fetch live trains and populate dropdown
+/* ================= LOAD LIVE TRAINS ================= */
 fetch(`${GAS_API}?action=liveTrains`)
   .then(r => r.json())
   .then(trains => {
-    const select = document.getElementById('trainSelect');
+    const select = document.getElementById("trainSelect");
+
     trains.forEach(t => {
-      const option = document.createElement('option');
-      option.value = t.TrainId;
+      const opt = document.createElement("option");
+      opt.value = t.TrainId;
 
-      // Avoid repeating number if already included
-      const numberPart = t.TrainNumber + (t.IsUp ? 'UP' : 'DN');
-      if (t.TrainNameWithNumber.endsWith(numberPart)) {
-        option.textContent = t.TrainNameWithNumber;
-      } else {
-        option.textContent = `${t.TrainName} ${t.TrainNumber}${t.IsUp ? 'UP' : 'DN'}`;
+      const suffix = t.TrainNumber + (t.IsUp ? "UP" : "DN");
+      opt.textContent = t.TrainNameWithNumber?.includes(suffix)
+        ? t.TrainNameWithNumber
+        : `${t.TrainName} ${suffix}`;
 
-      }
-
-      select.appendChild(option);
+      select.appendChild(opt);
     });
   })
-  .catch(err => console.error("Failed to fetch live trains:", err));
+  .catch(err => console.error("Train list error:", err));
 
-// Check status button click
-document.getElementById('checkStatus').addEventListener('click', () => {
-  const trainId = document.getElementById('trainSelect').value;
-  if (!trainId) return alert("Please select a train!");
+/* ================= CHECK STATUS ================= */
+document.getElementById("checkStatus").addEventListener("click", () => {
+
+  const trainId = document.getElementById("trainSelect").value;
+  if (!trainId) {
+    alert("Please select a train");
+    return;
+  }
 
   fetch(`${GAS_API}?action=liveStatus&trainId=${trainId}`)
     .then(r => r.json())
-    .then(data => {
-      const tbody = document.querySelector('#statusTable tbody');
-      tbody.innerHTML = ""; // Clear old rows
+    .then(raw => {
 
-      // Determine Previous, Current, Next
+      // FIX 1: API may return array or object
+      const data = Array.isArray(raw) ? raw[0] : raw;
+      if (!data) {
+        alert("No live data found.");
+        return;
+      }
+
+      const tbody = document.querySelector("#statusTable tbody");
+      tbody.innerHTML = "";
+
       const prev = data.lastCrossed?.StationName || "N/A";
       let next = data.nextStation?.StationName || "N/A";
       let current = "N/A";
-      let status = data.status;
+      let status = data.status || "UNKNOWN";
 
-      // Check if train departed origin but not crossed first station
-      if (!data.lastCrossed && status === "NOT_STARTED") {
-        const now = new Date();
-        const depTimeStr = data.scheduledDeparture;
-        const [hours, minutes] = depTimeStr.split(':').map(Number);
-        const depTime = new Date();
-        depTime.setHours(hours, minutes, 0, 0);
+      /* ===== STATUS LOGIC ===== */
+      if (status === "NOT_STARTED") {
+        current = data.origin || "N/A";
 
-        if (now >= depTime) {
-          status = "RUNNING";
-          current = data.origin;
-          next = data.nextStation?.StationName || "N/A";
-        } else {
-          current = data.origin;
+        if (data.scheduledDeparture) {
+          const parts = data.scheduledDeparture.split(":").map(Number);
+          const dep = new Date();
+          dep.setHours(parts[0], parts[1], 0, 0);
+
+          if (new Date() >= dep) {
+            status = "RUNNING";
+          }
         }
-      } else if (status === "RUNNING") {
-        current = data.nextStation?.StationName || "En Route";
-      } else if (status === "NOT_STARTED") {
-        current = data.origin;
       }
 
-      const row = document.createElement('tr');
+      if (status === "RUNNING") {
+        current = data.lastCrossed
+          ? data.lastCrossed.StationName
+          : "En Route";
+      }
+
+      const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${trainId}</td>
-        <td>${document.getElementById('trainSelect').selectedOptions[0].text}</td>
+        <td>${data.TrainId || trainId}</td>
+        <td>${document.getElementById("trainSelect").selectedOptions[0].text}</td>
         <td>${prev}</td>
         <td>${current}</td>
         <td>${next}</td>
         <td>${status}</td>
       `;
+
       tbody.appendChild(row);
     })
     .catch(err => {
       console.error(err);
-      alert("Failed to fetch train status.");
+      alert("Failed to fetch train status");
     });
 });
 </script>
