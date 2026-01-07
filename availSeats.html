@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Train Seat Availability</title>
+<style>
+body { font-family: Arial; }
+.card { border:1px solid #ccc; padding:10px; margin:10px 0; }
+.seat { padding:4px; }
+</style>
+</head>
+<body>
+
+<h2>Pakistan Railways – Seat Availability</h2>
+
+From:
+<select id="from"></select>
+
+To:
+<select id="to"></select>
+
+Date:
+<input type="date" id="date">
+
+<button onclick="search()">Search</button>
+
+<hr>
+<div id="results"></div>
+
+<script>
+const GAS_URL = "YOUR_GAS_WEBAPP_URL";
+
+// ---------- Load Stations ----------
+fetch(`${GAS_URL}?action=stations`)
+  .then(r => r.json())
+  .then(d => {
+    const from = document.getElementById("from");
+    const to = document.getElementById("to");
+
+    d.rows.forEach(s => {
+      const opt1 = new Option(s.stationNameEn, s.stationCode);
+      const opt2 = new Option(s.stationNameEn, s.stationCode);
+      from.add(opt1);
+      to.add(opt2);
+    });
+  });
+
+// ---------- Search ----------
+function search() {
+  const payload = {
+    boardStationCode: from.value,
+    arrivalStationCode: to.value,
+    travelDate: date.value + " 00:00:00",
+    travelPeriod: "00:00-24:00",
+    searchType: 0
+  };
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "searchTrains",
+      payload: payload
+    })
+  })
+  .then(r => r.json())
+  .then(showResults);
+}
+
+// ---------- Render ----------
+function showResults(data) {
+  const box = document.getElementById("results");
+  box.innerHTML = "";
+
+  data.rows.forEach(t => {
+    let html = `
+      <div class="card">
+        <b>${t.trainClassName}</b><br>
+        ${t.departureNameEn} → ${t.destinationNameEn}<br>
+        ${t.departureTime} → ${t.arrivalTime}<br><br>
+    `;
+
+    t.seatTypeList.forEach(s => {
+      html += `
+        <div class="seat">
+          ${s.seatTypeNameEn} :
+          <b>${s.surplus}</b> seats
+          (${s.price ?? "N/A"})
+        </div>
+      `;
+    });
+
+    html += "</div>";
+    box.innerHTML += html;
+  });
+}
+</script>
+
+</body>
+</html>
