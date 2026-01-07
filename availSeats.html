@@ -104,17 +104,45 @@ td {
 /* ====== TRAIN CARD ====== */
 .card {
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 12px;
   background: white;
-  border-radius: 6px;
-  box-shadow: 0 0 4px #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #ddd;
 }
 
-.card b {
-  font-size: 16px;
+.train-name {
+  font-size: 17px;
+  font-weight: bold;
   color: #1b7f3b;
+  margin-bottom: 6px;
 }
 
+/* From / To styling */
+.route {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.from {
+  color: #0d47a1;
+  font-weight: bold;
+}
+
+.to {
+  color: #b71c1c;
+  font-weight: bold;
+}
+
+/* Time line */
+.time-line {
+  font-size: 13px;
+  background: #f1f8e9;
+  padding: 6px;
+  border-radius: 4px;
+  margin: 6px 0;
+}
+
+/* Seats */
 .seat {
   padding: 3px 0;
   font-size: 13px;
@@ -200,7 +228,7 @@ function search() {
   .then(showResults);
 }
 
-// ---------- Render (2-column table) ----------
+// ---------- Render ----------
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
@@ -208,16 +236,24 @@ function showResults(data) {
   let row;
 
   data.rows.forEach((t, index) => {
-    if (index % 2 === 0) {
-      row = table.insertRow();
-    }
+    if (index % 2 === 0) row = table.insertRow();
 
     const cell = row.insertCell();
+
     let html = `
       <div class="card">
-        <b>${t.trainClassName}</b><br>
-        ${t.departureNameEn} → ${t.destinationNameEn}<br>
-        ${t.departureTime} → ${t.arrivalTime}<br><br>
+        <div class="train-name">${t.trainClassName}</div>
+
+        <div class="route">
+          From: <span class="from">${t.departureStationCode}</span>
+          &nbsp; → &nbsp;
+          To: <span class="to">${t.destinationStationCode}</span>
+        </div>
+
+        <div class="time-line">
+          Departure from <b>${t.departureStationCode}</b>: ${t.departureTime}<br>
+          Arrival at <b>${t.destinationStationCode}</b>: ${t.arrivalTime}
+        </div>
     `;
 
     t.seatTypeList.forEach(s => {
@@ -230,7 +266,7 @@ function showResults(data) {
       `;
     });
 
-    html += "</div>";
+    html += `</div>`;
     cell.innerHTML = html;
   });
 }
