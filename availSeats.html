@@ -45,7 +45,6 @@ body {
 
 .title div {
   font-size: 14px;
-  margin-top: 4px;
 }
 
 /* ====== SEARCH PANEL ====== */
@@ -53,20 +52,24 @@ body {
   background: white;
   padding: 15px;
   margin: 15px auto;
-  width: fit-content;
   border-radius: 6px;
   box-shadow: 0 0 6px #ccc;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  align-items: center;
+  justify-content: center;
 }
 
 .search-panel input,
+.search-panel select,
 .search-panel button {
-  padding: 7px;
-  min-width: 140px;
+  padding: 8px;
+  min-width: 160px;
 }
+
+/* Desktop / Mobile toggle */
+.desktop-only { display: block; }
+.mobile-only { display: none; }
 
 /* ====== LAYOUT ====== */
 .main-layout {
@@ -74,20 +77,15 @@ body {
   justify-content: center;
 }
 
-/* Ads panels */
+/* Ads */
 .ads {
   width: 3in;
   min-height: 500px;
   background: #e9ecef;
   margin: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  font-size: 14px;
 }
 
-/* Results center */
+/* Results */
 .results-center {
   width: 900px;
   margin: 10px;
@@ -106,10 +104,9 @@ td {
 
 /* ====== TRAIN CARD ====== */
 .card {
-  border: 1px solid #ccc;
-  padding: 12px;
   background: white;
   border-radius: 8px;
+  padding: 12px;
   box-shadow: 0 2px 6px #ddd;
 }
 
@@ -117,26 +114,16 @@ td {
   font-size: 17px;
   font-weight: bold;
   color: #1b7f3b;
-  margin-bottom: 6px;
 }
 
-/* Route */
 .route {
   margin: 6px 0;
   font-size: 14px;
 }
 
-.from {
-  color: #0d47a1;
-  font-weight: bold;
-}
+.from { color: #0d47a1; font-weight: bold; }
+.to { color: #b71c1c; font-weight: bold; }
 
-.to {
-  color: #b71c1c;
-  font-weight: bold;
-}
-
-/* Timeline */
 .time-line {
   font-size: 13px;
   background: #f1f8e9;
@@ -145,27 +132,28 @@ td {
   margin: 6px 0;
 }
 
-/* Seats */
 .seat {
-  padding: 3px 0;
   font-size: 13px;
+  margin-top: 2px;
 }
 
-.seat-count {
-  color: #2e7d32;
-  font-weight: bold;
-}
+.seat-count { color: #2e7d32; font-weight: bold; }
+.seat-fare { color: #1565c0; font-weight: bold; }
 
-.seat-fare {
-  color: #1565c0;
-  font-weight: bold;
-}
+/* ====== MOBILE ====== */
+@media (max-width: 768px) {
 
-/* ====== MOBILE RESPONSIVE ====== */
-@media (max-width: 900px) {
-  .main-layout {
-    flex-direction: column;
-    align-items: center;
+  .desktop-only { display: none; }
+  .mobile-only { display: block; }
+
+  .search-panel {
+    width: 100%;
+  }
+
+  .search-panel input,
+  .search-panel select,
+  .search-panel button {
+    width: 100%;
   }
 
   .ads {
@@ -181,18 +169,9 @@ td {
     display: block;
   }
 
-  table {
-    border-spacing: 0;
-  }
-
-  .card {
-    margin-bottom: 12px;
-  }
-
   .top-panel {
     flex-direction: column;
     height: auto;
-    padding: 10px;
   }
 
   .logo {
@@ -218,13 +197,26 @@ td {
 
 <!-- ===== SEARCH PANEL ===== -->
 <div class="search-panel">
-  From:
-  <input list="stationsFrom" id="fromInput" placeholder="Type station">
-  <datalist id="stationsFrom"></datalist>
 
-  To:
-  <input list="stationsTo" id="toInput" placeholder="Type station">
-  <datalist id="stationsTo"></datalist>
+  <!-- DESKTOP -->
+  <div class="desktop-only">
+    From:
+    <input list="stationsFrom" id="fromInput" placeholder="Type station">
+    <datalist id="stationsFrom"></datalist>
+
+    To:
+    <input list="stationsTo" id="toInput" placeholder="Type station">
+    <datalist id="stationsTo"></datalist>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="mobile-only">
+    From:
+    <select id="fromMobile"></select>
+
+    To:
+    <select id="toMobile"></select>
+  </div>
 
   Date:
   <input type="date" id="date">
@@ -232,44 +224,52 @@ td {
   <button onclick="search()">Search</button>
 </div>
 
-<!-- ===== MAIN LAYOUT ===== -->
+<!-- ===== MAIN ===== -->
 <div class="main-layout">
-
-  <div class="ads">.</div>
+  <div class="ads"></div>
 
   <div class="results-center">
     <table id="resultsTable"></table>
   </div>
 
-  <div class="ads">.</div>
-
+  <div class="ads"></div>
 </div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
-
 let stationMap = {};
 
-/* -------- Load Stations -------- */
+/* ---- Load Stations ---- */
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
     const fromList = document.getElementById("stationsFrom");
     const toList = document.getElementById("stationsTo");
+    const fromMobile = document.getElementById("fromMobile");
+    const toMobile = document.getElementById("toMobile");
 
     d.rows.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
-
       fromList.innerHTML += `<option value="${s.stationNameEn}">`;
       toList.innerHTML += `<option value="${s.stationNameEn}">`;
+      fromMobile.add(new Option(s.stationNameEn, s.stationCode));
+      toMobile.add(new Option(s.stationNameEn, s.stationCode));
     });
   });
 
-/* -------- Search -------- */
+/* ---- Search ---- */
 function search() {
+  const isMobile = window.innerWidth <= 768;
+
   const payload = {
-    boardStationCode: stationMap[fromInput.value],
-    arrivalStationCode: stationMap[toInput.value],
+    boardStationCode: isMobile
+      ? fromMobile.value
+      : stationMap[fromInput.value],
+
+    arrivalStationCode: isMobile
+      ? toMobile.value
+      : stationMap[toInput.value],
+
     travelDate: date.value + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
@@ -277,36 +277,29 @@ function search() {
 
   fetch(GAS_URL, {
     method: "POST",
-    body: JSON.stringify({
-      action: "searchTrains",
-      payload: payload
-    })
+    body: JSON.stringify({ action: "searchTrains", payload })
   })
   .then(r => r.json())
   .then(showResults);
 }
 
-/* -------- Render -------- */
+/* ---- Render ---- */
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
 
   let row;
-
-  data.rows.forEach((t, index) => {
-    if (index % 2 === 0) row = table.insertRow();
-
+  data.rows.forEach((t, i) => {
+    if (i % 2 === 0) row = table.insertRow();
     const cell = row.insertCell();
 
     let html = `
       <div class="card">
         <div class="train-name">${t.trainClassName}</div>
-
         <div class="route">
-          From: <span class="from">${t.departureStationCode}</span>
-          → To: <span class="to">${t.destinationStationCode}</span>
+          From <span class="from">${t.departureStationCode}</span>
+          → To <span class="to">${t.destinationStationCode}</span>
         </div>
-
         <div class="time-line">
           ${t.departureTime} → ${t.arrivalTime}
         </div>
