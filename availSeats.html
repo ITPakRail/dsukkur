@@ -3,8 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Pakistan Railways – Seat Availability</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Choices.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
 <style>
-/* ===== GLOBAL ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -15,17 +19,14 @@ body {
 .top-panel {
   background: #1b7f3b;
   color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 20px;
+  text-align: center;
+  padding: 15px;
 }
-
-.title h1 {
+.top-panel h1 {
   margin: 0;
   font-size: 24px;
 }
-.title div {
+.top-panel div {
   font-size: 14px;
   margin-top: 4px;
 }
@@ -38,41 +39,33 @@ body {
   border-radius: 6px;
   box-shadow: 0 0 6px #ccc;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
   align-items: flex-end;
-  flex-wrap: wrap;
   max-width: 1000px;
-}
-
-.search-panel label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 2px;
 }
 
 .search-panel .field {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 180px;
 }
 
-/* Inputs and button */
-.search-panel input,
-.search-panel select,
 .search-panel button {
   padding: 8px;
-  min-width: 160px;
-  box-sizing: border-box;
+  min-width: 120px;
+  cursor: pointer;
 }
 
-/* Layout main */
+/* Main Layout */
 .main-layout {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-/* Ads */
 .ads {
   width: 300px;
   min-height: 500px;
@@ -84,24 +77,23 @@ body {
   color: #888;
 }
 
-/* Results */
 .results-center {
   flex: 1;
   min-width: 300px;
   margin: 10px;
 }
 
-/* Table */
+/* Table / Cards */
 table {
   width: 100%;
   border-spacing: 10px;
 }
+
 td {
   width: 50%;
   vertical-align: top;
 }
 
-/* Train card */
 .card {
   background: white;
   border-radius: 8px;
@@ -148,28 +140,52 @@ td {
   td { width: 100%; display: block; }
   table { border-spacing: 0; }
 }
+
+/* Choices.js overrides */
+.choices__inner {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-height: 40px;
+}
+.choices__list--dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.choices__list--dropdown::-webkit-scrollbar {
+  width: 10px;
+}
+.choices__list--dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.choices__list--dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+.choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 </style>
 </head>
 <body>
 
 <!-- TOP PANEL -->
 <div class="top-panel">
-  <div class="title">
-    <h1>Pakistan Railways</h1>
-    <div>Check Seat / Berth Availability</div>
-  </div>
+  <h1>Pakistan Railways</h1>
+  <div>Check Seat / Berth Availability</div>
 </div>
 
 <!-- SEARCH PANEL -->
 <div class="search-panel">
   <div class="field">
-    <label for="fromInput">From</label>
-    <input list="stationsList" id="fromInput" placeholder="Type station">
+    <label for="fromSelect">From</label>
+    <select id="fromSelect" placeholder="Type to search..."></select>
   </div>
 
   <div class="field">
-    <label for="toInput">To</label>
-    <input list="stationsList" id="toInput" placeholder="Type station">
+    <label for="toSelect">To</label>
+    <select id="toSelect" placeholder="Type to search..."></select>
   </div>
 
   <div class="field">
@@ -180,56 +196,73 @@ td {
   <div class="field">
     <button onclick="search()">Search</button>
   </div>
-
-  <datalist id="stationsList"></datalist>
 </div>
 
 <!-- MAIN LAYOUT -->
 <div class="main-layout">
-  <div class="ads">.</div>
+  <div class="ads">Ads</div>
 
   <div class="results-center">
     <table id="resultsTable"></table>
   </div>
 
-  <div class="ads">.</div>
+  <div class="ads">Ads</div>
 </div>
+
+<!-- Choices.js -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
 
-// Load stations
+// Load stations and initialize Choices.js
+const fromSelect = document.getElementById("fromSelect");
+const toSelect = document.getElementById("toSelect");
+
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
-    const datalist = document.getElementById("stationsList");
+    fromSelect.innerHTML = `<option value="">Select station...</option>`;
+    toSelect.innerHTML = `<option value="">Select station...</option>`;
     d.rows.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
-      datalist.innerHTML += `<option value="${s.stationNameEn}">`;
+      const opt1 = document.createElement("option");
+      opt1.value = s.stationNameEn;
+      fromSelect.appendChild(opt1);
+
+      const opt2 = document.createElement("option");
+      opt2.value = s.stationNameEn;
+      toSelect.appendChild(opt2);
+    });
+
+    new Choices(fromSelect, {
+      searchEnabled: true,
+      itemSelectText: '',
+      placeholderValue: 'From station...',
+      shouldSort: false
+    });
+
+    new Choices(toSelect, {
+      searchEnabled: true,
+      itemSelectText: '',
+      placeholderValue: 'To station...',
+      shouldSort: false
     });
   });
 
-// Search
+// Search function
 function search() {
-  let fromCode = stationMap[fromInput.value];
-  let toCode = stationMap[toInput.value];
+  const fromName = fromSelect.value;
+  const toName = toSelect.value;
 
-  if(!fromCode || !toCode){
-    const names = Object.keys(stationMap);
-    if(!fromCode) {
-      const match = names.find(n => n.toLowerCase().startsWith(fromInput.value.toLowerCase()));
-      fromCode = match ? stationMap[match] : '';
-    }
-    if(!toCode) {
-      const match = names.find(n => n.toLowerCase().startsWith(toInput.value.toLowerCase()));
-      toCode = match ? stationMap[match] : '';
-    }
+  if (!fromName || !toName) {
+    return alert("Please select both From and To stations");
   }
 
   const payload = {
-    boardStationCode: fromCode,
-    arrivalStationCode: toCode,
+    boardStationCode: stationMap[fromName],
+    arrivalStationCode: stationMap[toName],
     travelDate: date.value + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
@@ -264,7 +297,6 @@ function showResults(data) {
           ${t.departureTime} → ${t.arrivalTime}
         </div>
     `;
-
     t.seatTypeList.forEach(s => {
       html += `
         <div class="seat">
@@ -274,7 +306,6 @@ function showResults(data) {
         </div>
       `;
     });
-
     html += `</div>`;
     cell.innerHTML = html;
   });
