@@ -43,6 +43,11 @@ body {
   max-width: 400px;
 }
 
+.search-panel label {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
 .search-panel input,
 .search-panel select,
 .search-panel button {
@@ -144,14 +149,15 @@ td {
 
 <!-- SEARCH PANEL -->
 <div class="search-panel">
-  <!-- Mobile-friendly drop downs -->
-  <label>From</label>
-  <select id="fromMobile"></select>
+  <label for="fromInput">From</label>
+  <input list="stationsList" id="fromInput" placeholder="Type station">
+  
+  <label for="toInput">To</label>
+  <input list="stationsList" id="toInput" placeholder="Type station">
+  
+  <datalist id="stationsList"></datalist>
 
-  <label>To</label>
-  <select id="toMobile"></select>
-
-  <label>Date</label>
+  <label for="date">Date</label>
   <input type="date" id="date">
 
   <button onclick="search()">Search</button>
@@ -172,25 +178,39 @@ td {
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
 
-/* Load stations */
+/* Load stations and populate datalist + fallback select */
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
-    const fromMobile = document.getElementById("fromMobile");
-    const toMobile = document.getElementById("toMobile");
+    const datalist = document.getElementById("stationsList");
 
     d.rows.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
-      fromMobile.add(new Option(s.stationNameEn, s.stationCode));
-      toMobile.add(new Option(s.stationNameEn, s.stationCode));
+      datalist.innerHTML += `<option value="${s.stationNameEn}">`;
     });
   });
 
 /* Search function */
 function search() {
+  // Fallback for mobile: if datalist input value not found, pick first match
+  let fromCode = stationMap[fromInput.value];
+  let toCode = stationMap[toInput.value];
+
+  if(!fromCode || !toCode) {
+    const names = Object.keys(stationMap);
+    if(!fromCode) {
+      const match = names.find(n => n.toLowerCase().startsWith(fromInput.value.toLowerCase()));
+      fromCode = match ? stationMap[match] : '';
+    }
+    if(!toCode) {
+      const match = names.find(n => n.toLowerCase().startsWith(toInput.value.toLowerCase()));
+      toCode = match ? stationMap[match] : '';
+    }
+  }
+
   const payload = {
-    boardStationCode: fromMobile.value,
-    arrivalStationCode: toMobile.value,
+    boardStationCode: fromCode,
+    arrivalStationCode: toCode,
     travelDate: date.value + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
