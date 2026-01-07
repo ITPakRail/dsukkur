@@ -3,51 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <title>Pakistan Railways – Seat Availability</title>
-
 <style>
-/* ====== GLOBAL ====== */
+/* ===== GLOBAL ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   background: #f4f6f8;
 }
 
-/* ====== TOP PANEL ====== */
+/* ===== TOP PANEL ===== */
 .top-panel {
-  height: 1in;
   background: #1b7f3b;
   color: white;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-}
-
-.logo {
-  width: 90px;
-  height: 60px;
-  background: #ffffff33;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.title {
-  text-align: center;
-  flex: 1;
+  padding: 10px 20px;
 }
 
 .title h1 {
   margin: 0;
   font-size: 24px;
 }
-
 .title div {
   font-size: 14px;
+  margin-top: 4px;
 }
 
-/* ====== SEARCH PANEL ====== */
+/* ===== SEARCH PANEL ===== */
 .search-panel {
   background: white;
   padding: 15px;
@@ -55,59 +38,62 @@ body {
   border-radius: 6px;
   box-shadow: 0 0 6px #ccc;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  justify-content: center;
+  max-width: 400px;
 }
 
 .search-panel input,
 .search-panel select,
 .search-panel button {
   padding: 8px;
-  min-width: 160px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Desktop / Mobile toggle */
-.desktop-only { display: block; }
-.mobile-only { display: none; }
-
-/* ====== LAYOUT ====== */
+/* ===== MAIN LAYOUT ===== */
 .main-layout {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Ads */
 .ads {
-  width: 3in;
+  width: 300px;
   min-height: 500px;
   background: #e9ecef;
   margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
 }
 
 /* Results */
 .results-center {
-  width: 900px;
+  flex: 1;
+  min-width: 300px;
   margin: 10px;
 }
 
-/* ====== TABLE ====== */
+/* ===== TABLE ===== */
 table {
   width: 100%;
   border-spacing: 10px;
 }
-
 td {
   width: 50%;
   vertical-align: top;
 }
 
-/* ====== TRAIN CARD ====== */
+/* ===== TRAIN CARD ===== */
 .card {
   background: white;
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 2px 6px #ddd;
+  margin-bottom: 12px;
 }
 
 .train-name {
@@ -120,7 +106,6 @@ td {
   margin: 6px 0;
   font-size: 14px;
 }
-
 .from { color: #0d47a1; font-weight: bold; }
 .to { color: #b71c1c; font-weight: bold; }
 
@@ -136,140 +121,76 @@ td {
   font-size: 13px;
   margin-top: 2px;
 }
-
 .seat-count { color: #2e7d32; font-weight: bold; }
 .seat-fare { color: #1565c0; font-weight: bold; }
 
-/* ====== MOBILE ====== */
+/* ===== MOBILE ===== */
 @media (max-width: 768px) {
-
-  .desktop-only { display: none; }
-  .mobile-only { display: block; }
-
-  .search-panel {
-    width: 100%;
-  }
-
-  .search-panel input,
-  .search-panel select,
-  .search-panel button {
-    width: 100%;
-  }
-
-  .ads {
-    display: none;
-  }
-
-  .results-center {
-    width: 100%;
-  }
-
-  td {
-    width: 100%;
-    display: block;
-  }
-
-  .top-panel {
-    flex-direction: column;
-    height: auto;
-  }
-
-  .logo {
-    display: none;
-  }
+  .ads { display: none; }
+  td { width: 100%; display: block; }
+  table { border-spacing: 0; }
 }
 </style>
 </head>
-
 <body>
 
-<!-- ===== TOP PANEL ===== -->
+<!-- TOP PANEL -->
 <div class="top-panel">
-  <div class="logo">LOGO</div>
-
   <div class="title">
     <h1>Pakistan Railways</h1>
     <div>Check Seat / Berth Availability</div>
   </div>
-
-  <div class="logo">LOGO</div>
 </div>
 
-<!-- ===== SEARCH PANEL ===== -->
+<!-- SEARCH PANEL -->
 <div class="search-panel">
+  <!-- Mobile-friendly drop downs -->
+  <label>From</label>
+  <select id="fromMobile"></select>
 
-  <!-- DESKTOP -->
-  <div class="desktop-only">
-    From:
-    <input list="stationsFrom" id="fromInput" placeholder="Type station">
-    <datalist id="stationsFrom"></datalist>
+  <label>To</label>
+  <select id="toMobile"></select>
 
-    To:
-    <input list="stationsTo" id="toInput" placeholder="Type station">
-    <datalist id="stationsTo"></datalist>
-  </div>
-
-  <!-- MOBILE -->
-  <div class="mobile-only">
-    From:
-    <select id="fromMobile"></select>
-
-    To:
-    <select id="toMobile"></select>
-  </div>
-
-  Date:
+  <label>Date</label>
   <input type="date" id="date">
 
   <button onclick="search()">Search</button>
 </div>
 
-<!-- ===== MAIN ===== -->
+<!-- MAIN LAYOUT -->
 <div class="main-layout">
-  <div class="ads"></div>
+  <div class="ads">.</div>
 
   <div class="results-center">
     <table id="resultsTable"></table>
   </div>
 
-  <div class="ads"></div>
+  <div class="ads">.</div>
 </div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
 
-/* ---- Load Stations ---- */
+/* Load stations */
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
-    const fromList = document.getElementById("stationsFrom");
-    const toList = document.getElementById("stationsTo");
     const fromMobile = document.getElementById("fromMobile");
     const toMobile = document.getElementById("toMobile");
 
     d.rows.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
-      fromList.innerHTML += `<option value="${s.stationNameEn}">`;
-      toList.innerHTML += `<option value="${s.stationNameEn}">`;
       fromMobile.add(new Option(s.stationNameEn, s.stationCode));
       toMobile.add(new Option(s.stationNameEn, s.stationCode));
     });
   });
 
-/* ---- Search ---- */
+/* Search function */
 function search() {
-  const isMobile = window.innerWidth <= 768;
-
   const payload = {
-    boardStationCode: isMobile
-      ? fromMobile.value
-      : stationMap[fromInput.value],
-
-    arrivalStationCode: isMobile
-      ? toMobile.value
-      : stationMap[toInput.value],
-
+    boardStationCode: fromMobile.value,
+    arrivalStationCode: toMobile.value,
     travelDate: date.value + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
@@ -283,7 +204,7 @@ function search() {
   .then(showResults);
 }
 
-/* ---- Render ---- */
+/* Render results */
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
