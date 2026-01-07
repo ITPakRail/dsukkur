@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Pakistan Railways – Seat Availability</title>
@@ -43,14 +43,14 @@ body {
   gap: 10px;
   justify-content: center;
   align-items: flex-end;
-  max-width: 900px; /* same as middle results panel */
+  max-width: 900px;
 }
 
 .search-panel .field {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .search-panel button {
@@ -223,60 +223,63 @@ td {
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
+let fromChoices, toChoices;
 
 // Load stations
-const fromSelect = document.getElementById("fromSelect");
-const toSelect = document.getElementById("toSelect");
-
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
-  .then(d => {
-    console.log("Stations fetched:", d); // check JSON structure
-    const stations = d.rows ?? d;
+  .then(data => {
+    const stations = data.rows ?? data; // adjust if d.rows exists
+    console.log("Stations loaded:", stations);
 
-    // Add options
+    const fromSelect = document.getElementById("fromSelect");
+    const toSelect = document.getElementById("toSelect");
+
     stations.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
 
       const opt1 = document.createElement("option");
       opt1.value = s.stationNameEn;
+      opt1.textContent = s.stationNameEn;
       fromSelect.appendChild(opt1);
 
       const opt2 = document.createElement("option");
       opt2.value = s.stationNameEn;
+      opt2.textContent = s.stationNameEn;
       toSelect.appendChild(opt2);
     });
 
-    // Initialize Choices
-    new Choices(fromSelect, {
+    // Initialize Choices.js after options exist
+    fromChoices = new Choices(fromSelect, {
       searchEnabled: true,
       itemSelectText: '',
       placeholderValue: 'From station...',
       shouldSort: false
     });
 
-    new Choices(toSelect, {
+    toChoices = new Choices(toSelect, {
       searchEnabled: true,
       itemSelectText: '',
       placeholderValue: 'To station...',
       shouldSort: false
     });
   })
-  .catch(err => console.error("Failed to load stations:", err));
+  .catch(err => console.error("Error loading stations:", err));
 
 // Search function
 function search() {
-  const fromName = fromSelect.value;
-  const toName = toSelect.value;
+  const fromName = fromChoices.getValue(true);
+  const toName = toChoices.getValue(true);
+  const travelDate = document.getElementById("date").value;
 
-  if (!fromName || !toName) {
-    return alert("Please select both From and To stations");
+  if (!fromName || !toName || !travelDate) {
+    return alert("Please select From, To stations and Date");
   }
 
   const payload = {
     boardStationCode: stationMap[fromName],
     arrivalStationCode: stationMap[toName],
-    travelDate: date.value + " 00:00:00",
+    travelDate: travelDate + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
   };
@@ -287,7 +290,7 @@ function search() {
   })
   .then(r => r.json())
   .then(showResults)
-  .catch(err => console.error("Search failed:", err));
+  .catch(err => console.error("Error fetching trains:", err));
 }
 
 // Render results
@@ -296,7 +299,7 @@ function showResults(data) {
   table.innerHTML = "";
 
   if (!data.rows || data.rows.length === 0) {
-    table.innerHTML = "<tr><td>No trains found</td></tr>";
+    table.innerHTML = "<tr><td colspan='2'>No trains found.</td></tr>";
     return;
   }
 
