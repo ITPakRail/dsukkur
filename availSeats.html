@@ -117,7 +117,7 @@ td {
   margin-bottom: 6px;
 }
 
-/* From / To styling */
+/* Route */
 .route {
   margin: 6px 0;
   font-size: 14px;
@@ -133,7 +133,7 @@ td {
   font-weight: bold;
 }
 
-/* Time line */
+/* Timeline */
 .time-line {
   font-size: 13px;
   background: #f1f8e9;
@@ -146,6 +146,17 @@ td {
 .seat {
   padding: 3px 0;
   font-size: 13px;
+}
+
+/* ====== COLOR ENHANCEMENTS ====== */
+.seat-count {
+  color: #2e7d32; /* Green */
+  font-weight: bold;
+}
+
+.seat-fare {
+  color: #1565c0; /* Blue */
+  font-weight: bold;
 }
 </style>
 </head>
@@ -194,7 +205,7 @@ td {
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 
-// ---------- Load Stations ----------
+/* -------- Load Stations -------- */
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
@@ -207,7 +218,7 @@ fetch(`${GAS_URL}?action=stations`)
     });
   });
 
-// ---------- Search ----------
+/* -------- Search -------- */
 function search() {
   const payload = {
     boardStationCode: from.value,
@@ -228,7 +239,7 @@ function search() {
   .then(showResults);
 }
 
-// ---------- Render ----------
+/* -------- Render -------- */
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
@@ -260,8 +271,8 @@ function showResults(data) {
       html += `
         <div class="seat">
           ${s.seatTypeNameEn} :
-          <b>${s.surplus}</b> seats
-          (${s.price ?? "N/A"})
+          <span class="seat-count">${s.surplus}</span> seats
+          (<span class="seat-fare">${s.price ?? "N/A"}</span>)
         </div>
       `;
     });
