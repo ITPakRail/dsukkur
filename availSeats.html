@@ -2,30 +2,166 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Train Seat Availability</title>
+<title>Pakistan Railways – Seat Availability</title>
+
 <style>
-body { font-family: Arial; }
-.card { border:1px solid #ccc; padding:10px; margin:10px 0; }
-.seat { padding:4px; }
+/* ====== GLOBAL ====== */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+}
+
+/* ====== TOP PANEL ====== */
+.top-panel {
+  height: 1in;
+  background: #1b7f3b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.logo {
+  width: 90px;
+  height: 60px;
+  background: #ffffff33;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.title {
+  text-align: center;
+  flex: 1;
+}
+
+.title h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.title div {
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* ====== SEARCH PANEL ====== */
+.search-panel {
+  background: white;
+  padding: 15px;
+  margin: 15px auto;
+  width: fit-content;
+  border-radius: 6px;
+  box-shadow: 0 0 6px #ccc;
+}
+
+.search-panel select,
+.search-panel input,
+.search-panel button {
+  padding: 6px;
+  margin: 0 5px;
+}
+
+/* ====== LAYOUT ====== */
+.main-layout {
+  display: flex;
+  justify-content: center;
+}
+
+/* Ads panels */
+.ads {
+  width: 3in;
+  min-height: 500px;
+  background: #e9ecef;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+}
+
+/* Results center */
+.results-center {
+  width: 900px;
+  margin: 10px;
+}
+
+/* ====== TABLE ====== */
+table {
+  width: 100%;
+  border-spacing: 10px;
+}
+
+td {
+  width: 50%;
+  vertical-align: top;
+}
+
+/* ====== TRAIN CARD ====== */
+.card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 0 4px #ddd;
+}
+
+.card b {
+  font-size: 16px;
+  color: #1b7f3b;
+}
+
+.seat {
+  padding: 3px 0;
+  font-size: 13px;
+}
 </style>
 </head>
+
 <body>
 
-<h2>Pakistan Railways – Seat Availability</h2>
+<!-- ===== TOP PANEL ===== -->
+<div class="top-panel">
+  <div class="logo">LOGO</div>
 
-From:
-<select id="from"></select>
+  <div class="title">
+    <h1>Pakistan Railways</h1>
+    <div>Check Seat / Berth Availability</div>
+  </div>
 
-To:
-<select id="to"></select>
+  <div class="logo">LOGO</div>
+</div>
 
-Date:
-<input type="date" id="date">
+<!-- ===== SEARCH PANEL ===== -->
+<div class="search-panel">
+  From:
+  <select id="from"></select>
 
-<button onclick="search()">Search</button>
+  To:
+  <select id="to"></select>
 
-<hr>
-<div id="results"></div>
+  Date:
+  <input type="date" id="date">
+
+  <button onclick="search()">Search</button>
+</div>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="main-layout">
+
+  <div class="ads">Google Ads</div>
+
+  <div class="results-center">
+    <table id="resultsTable"></table>
+  </div>
+
+  <div class="ads">Google Ads</div>
+
+</div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
@@ -38,10 +174,8 @@ fetch(`${GAS_URL}?action=stations`)
     const to = document.getElementById("to");
 
     d.rows.forEach(s => {
-      const opt1 = new Option(s.stationNameEn, s.stationCode);
-      const opt2 = new Option(s.stationNameEn, s.stationCode);
-      from.add(opt1);
-      to.add(opt2);
+      from.add(new Option(s.stationNameEn, s.stationCode));
+      to.add(new Option(s.stationNameEn, s.stationCode));
     });
   });
 
@@ -66,12 +200,19 @@ function search() {
   .then(showResults);
 }
 
-// ---------- Render ----------
+// ---------- Render (2-column table) ----------
 function showResults(data) {
-  const box = document.getElementById("results");
-  box.innerHTML = "";
+  const table = document.getElementById("resultsTable");
+  table.innerHTML = "";
 
-  data.rows.forEach(t => {
+  let row;
+
+  data.rows.forEach((t, index) => {
+    if (index % 2 === 0) {
+      row = table.insertRow();
+    }
+
+    const cell = row.insertCell();
     let html = `
       <div class="card">
         <b>${t.trainClassName}</b><br>
@@ -90,7 +231,7 @@ function showResults(data) {
     });
 
     html += "</div>";
-    box.innerHTML += html;
+    cell.innerHTML = html;
   });
 }
 </script>
