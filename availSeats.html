@@ -56,13 +56,16 @@ body {
   width: fit-content;
   border-radius: 6px;
   box-shadow: 0 0 6px #ccc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
-.search-panel select,
 .search-panel input,
 .search-panel button {
-  padding: 6px;
-  margin: 0 5px;
+  padding: 7px;
+  min-width: 140px;
 }
 
 /* ====== LAYOUT ====== */
@@ -148,15 +151,53 @@ td {
   font-size: 13px;
 }
 
-/* ====== COLOR ENHANCEMENTS ====== */
 .seat-count {
-  color: #2e7d32; /* Green */
+  color: #2e7d32;
   font-weight: bold;
 }
 
 .seat-fare {
-  color: #1565c0; /* Blue */
+  color: #1565c0;
   font-weight: bold;
+}
+
+/* ====== MOBILE RESPONSIVE ====== */
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ads {
+    display: none;
+  }
+
+  .results-center {
+    width: 100%;
+  }
+
+  td {
+    width: 100%;
+    display: block;
+  }
+
+  table {
+    border-spacing: 0;
+  }
+
+  .card {
+    margin-bottom: 12px;
+  }
+
+  .top-panel {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+
+  .logo {
+    display: none;
+  }
 }
 </style>
 </head>
@@ -178,10 +219,12 @@ td {
 <!-- ===== SEARCH PANEL ===== -->
 <div class="search-panel">
   From:
-  <select id="from"></select>
+  <input list="stationsFrom" id="fromInput" placeholder="Type station">
+  <datalist id="stationsFrom"></datalist>
 
   To:
-  <select id="to"></select>
+  <input list="stationsTo" id="toInput" placeholder="Type station">
+  <datalist id="stationsTo"></datalist>
 
   Date:
   <input type="date" id="date">
@@ -205,24 +248,28 @@ td {
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 
+let stationMap = {};
+
 /* -------- Load Stations -------- */
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
-    const from = document.getElementById("from");
-    const to = document.getElementById("to");
+    const fromList = document.getElementById("stationsFrom");
+    const toList = document.getElementById("stationsTo");
 
     d.rows.forEach(s => {
-      from.add(new Option(s.stationNameEn, s.stationCode));
-      to.add(new Option(s.stationNameEn, s.stationCode));
+      stationMap[s.stationNameEn] = s.stationCode;
+
+      fromList.innerHTML += `<option value="${s.stationNameEn}">`;
+      toList.innerHTML += `<option value="${s.stationNameEn}">`;
     });
   });
 
 /* -------- Search -------- */
 function search() {
   const payload = {
-    boardStationCode: from.value,
-    arrivalStationCode: to.value,
+    boardStationCode: stationMap[fromInput.value],
+    arrivalStationCode: stationMap[toInput.value],
     travelDate: date.value + " 00:00:00",
     travelPeriod: "00:00-24:00",
     searchType: 0
@@ -257,13 +304,11 @@ function showResults(data) {
 
         <div class="route">
           From: <span class="from">${t.departureStationCode}</span>
-          &nbsp; → &nbsp;
-          To: <span class="to">${t.destinationStationCode}</span>
+          → To: <span class="to">${t.destinationStationCode}</span>
         </div>
 
         <div class="time-line">
-          Departure from <b>${t.departureStationCode}</b>: ${t.departureTime}<br>
-          Arrival at <b>${t.destinationStationCode}</b>: ${t.arrivalTime}
+          ${t.departureTime} → ${t.arrivalTime}
         </div>
     `;
 
@@ -271,7 +316,7 @@ function showResults(data) {
       html += `
         <div class="seat">
           ${s.seatTypeNameEn} :
-          <span class="seat-count">${s.surplus}</span> seats
+          <span class="seat-count">${s.surplus}</span>
           (<span class="seat-fare">${s.price ?? "N/A"}</span>)
         </div>
       `;
