@@ -43,14 +43,14 @@ body {
   gap: 10px;
   justify-content: center;
   align-items: flex-end;
-  max-width: 900px; /* aligned with middle results panel */
+  max-width: 900px; /* same as middle results panel */
 }
 
 .search-panel .field {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 160px;
+  min-width: 180px;
 }
 
 .search-panel button {
@@ -224,18 +224,20 @@ td {
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
 
-// Load stations and initialize Choices.js
+// Load stations
 const fromSelect = document.getElementById("fromSelect");
 const toSelect = document.getElementById("toSelect");
 
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
-    fromSelect.innerHTML = `<option value="">Select station...</option>`;
-    toSelect.innerHTML = `<option value="">Select station...</option>`;
+    console.log("Stations fetched:", d); // check JSON structure
+    const stations = d.rows ?? d;
 
-    d.rows.forEach(s => {
+    // Add options
+    stations.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
+
       const opt1 = document.createElement("option");
       opt1.value = s.stationNameEn;
       fromSelect.appendChild(opt1);
@@ -245,6 +247,7 @@ fetch(`${GAS_URL}?action=stations`)
       toSelect.appendChild(opt2);
     });
 
+    // Initialize Choices
     new Choices(fromSelect, {
       searchEnabled: true,
       itemSelectText: '',
@@ -258,7 +261,8 @@ fetch(`${GAS_URL}?action=stations`)
       placeholderValue: 'To station...',
       shouldSort: false
     });
-  });
+  })
+  .catch(err => console.error("Failed to load stations:", err));
 
 // Search function
 function search() {
@@ -282,13 +286,19 @@ function search() {
     body: JSON.stringify({ action: "searchTrains", payload })
   })
   .then(r => r.json())
-  .then(showResults);
+  .then(showResults)
+  .catch(err => console.error("Search failed:", err));
 }
 
 // Render results
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
+
+  if (!data.rows || data.rows.length === 0) {
+    table.innerHTML = "<tr><td>No trains found</td></tr>";
+    return;
+  }
 
   let row;
   data.rows.forEach((t, i) => {
@@ -300,4 +310,26 @@ function showResults(data) {
         <div class="train-name">${t.trainClassName}</div>
         <div class="route">
           From <span class="from">${t.departureStationCode}</span>
-          → To <span class="to">${t.destinatio
+          → To <span class="to">${t.destinationStationCode}</span>
+        </div>
+        <div class="time-line">
+          ${t.departureTime} → ${t.arrivalTime}
+        </div>
+    `;
+    t.seatTypeList.forEach(s => {
+      html += `
+        <div class="seat">
+          ${s.seatTypeNameEn} :
+          <span class="seat-count">${s.surplus}</span>
+          (<span class="seat-fare">${s.price ?? "N/A"}</span>)
+        </div>
+      `;
+    });
+    html += `</div>`;
+    cell.innerHTML = html;
+  });
+}
+</script>
+
+</body>
+</html>
