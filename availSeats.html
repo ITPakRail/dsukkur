@@ -38,25 +38,34 @@ body {
   border-radius: 6px;
   box-shadow: 0 0 6px #ccc;
   display: flex;
-  flex-direction: column;
   gap: 8px;
-  max-width: 400px;
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  max-width: 1000px;
 }
 
 .search-panel label {
+  display: block;
   font-weight: bold;
   margin-bottom: 2px;
 }
 
+.search-panel .field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inputs and button */
 .search-panel input,
 .search-panel select,
 .search-panel button {
   padding: 8px;
-  width: 100%;
+  min-width: 160px;
   box-sizing: border-box;
 }
 
-/* ===== MAIN LAYOUT ===== */
+/* Layout main */
 .main-layout {
   display: flex;
   justify-content: center;
@@ -82,7 +91,7 @@ body {
   margin: 10px;
 }
 
-/* ===== TABLE ===== */
+/* Table */
 table {
   width: 100%;
   border-spacing: 10px;
@@ -92,7 +101,7 @@ td {
   vertical-align: top;
 }
 
-/* ===== TRAIN CARD ===== */
+/* Train card */
 .card {
   background: white;
   border-radius: 8px;
@@ -131,6 +140,10 @@ td {
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
+  .search-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .ads { display: none; }
   td { width: 100%; display: block; }
   table { border-spacing: 0; }
@@ -149,18 +162,26 @@ td {
 
 <!-- SEARCH PANEL -->
 <div class="search-panel">
-  <label for="fromInput">From</label>
-  <input list="stationsList" id="fromInput" placeholder="Type station">
-  
-  <label for="toInput">To</label>
-  <input list="stationsList" id="toInput" placeholder="Type station">
-  
+  <div class="field">
+    <label for="fromInput">From</label>
+    <input list="stationsList" id="fromInput" placeholder="Type station">
+  </div>
+
+  <div class="field">
+    <label for="toInput">To</label>
+    <input list="stationsList" id="toInput" placeholder="Type station">
+  </div>
+
+  <div class="field">
+    <label for="date">Date</label>
+    <input type="date" id="date">
+  </div>
+
+  <div class="field">
+    <button onclick="search()">Search</button>
+  </div>
+
   <datalist id="stationsList"></datalist>
-
-  <label for="date">Date</label>
-  <input type="date" id="date">
-
-  <button onclick="search()">Search</button>
 </div>
 
 <!-- MAIN LAYOUT -->
@@ -178,25 +199,23 @@ td {
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxIK397B-pelGligxVrMJaibWfIrEM13lipzrHf3MD9tq5woVBPxboNO2g191rn1TNF/exec";
 let stationMap = {};
 
-/* Load stations and populate datalist + fallback select */
+// Load stations
 fetch(`${GAS_URL}?action=stations`)
   .then(r => r.json())
   .then(d => {
     const datalist = document.getElementById("stationsList");
-
     d.rows.forEach(s => {
       stationMap[s.stationNameEn] = s.stationCode;
       datalist.innerHTML += `<option value="${s.stationNameEn}">`;
     });
   });
 
-/* Search function */
+// Search
 function search() {
-  // Fallback for mobile: if datalist input value not found, pick first match
   let fromCode = stationMap[fromInput.value];
   let toCode = stationMap[toInput.value];
 
-  if(!fromCode || !toCode) {
+  if(!fromCode || !toCode){
     const names = Object.keys(stationMap);
     if(!fromCode) {
       const match = names.find(n => n.toLowerCase().startsWith(fromInput.value.toLowerCase()));
@@ -224,14 +243,14 @@ function search() {
   .then(showResults);
 }
 
-/* Render results */
+// Render results
 function showResults(data) {
   const table = document.getElementById("resultsTable");
   table.innerHTML = "";
 
   let row;
   data.rows.forEach((t, i) => {
-    if (i % 2 === 0) row = table.insertRow();
+    if(i % 2 === 0) row = table.insertRow();
     const cell = row.insertCell();
 
     let html = `
