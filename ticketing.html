@@ -186,7 +186,7 @@ nav a:hover {
   width: 100%;
   height: 100%;
   border: none;
-  min-width: 320px; /* ensures mobile minimum width */
+  min-width: 320px;
   transform-origin: top left;
 }
 
@@ -234,9 +234,16 @@ nav a:hover {
   <a href="tracking1.html" class="blink-tracking">Train Tracking</a>
 </nav>
 
+<!-- ================= SEAT AVAILABILITY BUTTON ================= -->
+<div class="booking-panel">
+  <h3>Seat Availability</h3>
+  <button onclick="window.open('https://pakrail.online/availSeats.html','_blank')">
+    Check Available Seats
+  </button>
+</div>
+
 <!-- ================= ONLINE BOOKING BUTTON ================= -->
 <div class="booking-panel">
-
   <h3>Online Ticket Booking (Official)</h3>
   <button onclick="openTicketing()">Book Tickets Online</button>
 </div>
