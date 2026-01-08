@@ -190,13 +190,8 @@ nav a:hover {
   transform-origin: top left;
 }
 
-/* ================= MOBILE SCALING FIX ================= */
+/* ================= MOBILE ================= */
 @media (max-width: 768px) {
-  .close-btn {
-    font-size: 20px;
-    padding: 6px 12px;
-  }
-
   .modal iframe {
     transform: scale(0.95);
     width: 105%;
@@ -211,7 +206,7 @@ nav a:hover {
 <!-- ================= HEADER ================= -->
 <header class="main-header">
   <div class="header-left">
-    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
+    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80">
   </div>
 
   <div class="header-center">
@@ -219,7 +214,7 @@ nav a:hover {
   </div>
 
   <div class="header-right">
-    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150">
   </div>
 </header>
 
@@ -234,18 +229,27 @@ nav a:hover {
   <a href="tracking1.html" class="blink-tracking">Train Tracking</a>
 </nav>
 
-<!-- ================= SEAT AVAILABILITY BUTTON ================= -->
+<!-- ================= SINGLE COMBINED PANEL ================= -->
 <div class="booking-panel">
-  <h3>Seat Availability</h3>
-  <button onclick="window.open('https://pakrail.online/availSeats.html','_blank')">
-    Check Available Seats
-  </button>
-</div>
 
-<!-- ================= ONLINE BOOKING BUTTON ================= -->
-<div class="booking-panel">
-  <h3>Online Ticket Booking (Official)</h3>
-  <button onclick="openTicketing()">Book Tickets Online</button>
+  <div style="display:flex; justify-content:center; gap:50px; flex-wrap:wrap;">
+
+    <!-- LEFT -->
+    <div>
+      <h3>Seat Availability</h3>
+      <button onclick="window.open('https://pakrail.online/availSeats.html','_blank')">
+        Check Available Seats
+      </button>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <h3>Online Ticket Booking (Official)</h3>
+      <button onclick="openTicketing()">Book Tickets Online</button>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- ================= CONTENT ================= -->
@@ -260,18 +264,12 @@ nav a:hover {
   <div class="text-section">
     The Sukkur Division operates <strong>27 POS stations</strong>,
     providing <strong>24/7 ticketing and reservation services</strong>.
-    Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>,
-    offering convenient reservation options.
+    Ticket Vending Machines (TVMs) are installed at <strong>Rohri and Rahimyar Khan</strong>.
 
-    <p>All main line stations, as well as major branch line stations, are equipped for
-    <strong>computerized ticketing</strong>, and work is underway to extend this facility
-    to the remaining branch line stations.</p>
+    <p>All main line stations are equipped for <strong>computerized ticketing</strong>.</p>
 
     <p>Passengers can also make reservations through the <strong>RABTA mobile app</strong>
     and the <strong>Pakistan Railways website</strong>.</p>
-
-    <p>A dedicated <strong>IT server room</strong> at the Sukkur Reservation Office is staffed
-    by IT personnel from <strong>8:00 AM to midnight</strong>.</p>
   </div>
 </div>
 
@@ -280,32 +278,26 @@ nav a:hover {
   <div class="panel-row">
     <div class="apps">
       <strong>Download Apps</strong><br>
-      <a href="https://play.google.com/store/apps/details?id=com.easyway.ticket.app" target="_blank">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg">
-      </a>
-      <a href="https://apps.apple.com/pk/app/rabta/id6446243993" target="_blank">
-        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg">
-      </a>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg">
+      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg">
     </div>
 
     <div>
       <strong>E-Ticketing Website</strong><br>
-      <a href="https://www.pakrailways.gov.pk/home" target="_blank">
-        www.pakrailways.gov.pk
-      </a>
+      www.pakrailways.gov.pk
     </div>
 
     <div>
-      <a href="faq.html"><strong>FAQs</strong></a>
+      <strong>FAQs</strong>
     </div>
   </div>
 </div>
 
-<!-- ================= FULLSCREEN MODAL ================= -->
+<!-- ================= MODAL ================= -->
 <div id="ticketModal" class="modal">
   <div class="modal-content">
     <span class="close-btn" onclick="closeTicketing()">✖</span>
-    <iframe src="https://www.pakrailways.gov.pk/buy" allowfullscreen></iframe>
+    <iframe src="https://www.pakrailways.gov.pk/buy"></iframe>
   </div>
 </div>
 
@@ -314,7 +306,6 @@ function openTicketing() {
   document.getElementById("ticketModal").style.display = "block";
   document.body.style.overflow = "hidden";
 }
-
 function closeTicketing() {
   document.getElementById("ticketModal").style.display = "none";
   document.body.style.overflow = "auto";
