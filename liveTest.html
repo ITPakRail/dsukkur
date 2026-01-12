@@ -87,50 +87,25 @@
     // 2. When user selects a train from dropdown
     // Replace your existing handleTrainChange with this improved version
 async function handleTrainChange() {
-    const select = document.getElementById('trainSelect');
-    selectedTrainId = select.value;
-    liveBuffer = null; 
-    
-    if (!selectedTrainId) return;
+        const select = document.getElementById('trainSelect');
+        selectedTrainId = select.value;
+        liveBuffer = null; // Reset buffer for new train
+        
+        if (!selectedTrainId) return;
 
-    const status = document.getElementById('liveStatus');
-    status.className = "status-badge waiting";
-    status.innerText = "Fetching Latest Status...";
-
-    try {
-        // 1. Fetch Station List (for naming)
-        const stationRes = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${selectedTrainId}`);
-        const stationData = await stationRes.json();
-        currentStations = stationData.IsSuccess ? stationData.Response : [];
-
-        // 2. FETCH INSTANT STATUS (This is the "secret" to 0-second loading)
-        const liveRes = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainLiveLocation?TrainId=${selectedTrainId}`);
-        const liveData = await liveRes.json();
-
-        if (liveData.IsSuccess && liveData.Response) {
-            const r = liveData.Response;
-            // Map the API response fields to match our WebSocket buffer format
-            liveBuffer = {
-                code: r.TrainNumber || selectedTrainId,
-                lat: parseFloat(r.Latitude),
-                lon: parseFloat(r.Longitude),
-                sp: r.Speed,
-                prev_st: r.ArrivalStationID, // API uses different field names than Socket
-                next_st: r.NextStationID,
-                late_by: r.DelayMinutes || 0
-            };
-            
-            // Immediately show the data in the table
-            takeSnapshot();
-            status.className = "status-badge live";
-            status.innerText = "Current Position Loaded (Waiting for Live Pulse...)";
+        document.getElementById('liveStatus').className = "status-badge waiting";
+        document.getElementById('liveStatus').innerText = "Fetching Stations...";
+        
+        // Fetch Stations for the newly selected train
+        try {
+            const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${selectedTrainId}`);
+            const data = await res.json();
+            currentStations = data.IsSuccess ? data.Response : [];
+            document.getElementById('liveStatus').innerText = "Waiting for GPS pulse...";
+        } catch (e) {
+            console.error("Error loading stations", e);
         }
-    } catch (e) {
-        console.error("Error fetching instant status", e);
-        status.innerText = "Error loading initial data.";
-    }
-}
-    // 3. Setup WebSocket (Shared for all selections)
+    }    // 3. Setup WebSocket (Shared for all selections)
     function initWebSocket() {
         socket = io("wss://cotrolroomapi.pakraillive.com", {
             transports: ["websocket"],
