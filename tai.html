@@ -2,112 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pakistan Rail Live Snapshot</title>
+    <title>Train 27 - Live Fixed Snapshot</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #007bff; color: white; }
-        .status { color: #666; font-size: 0.9em; margin-bottom: 10px; }
-        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        button:hover { background: #218838; }
-        .live-indicator { color: red; font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; }
+        .dashboard { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .status-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 10px; background: #e3f2fd; border-radius: 8px; }
+        .dot { height: 12px; width: 12px; border-radius: 50%; background: #ccc; }
+        .dot.active { background: #4caf50; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+        th { background: #1565c0; color: white; }
+        button { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Train 27: Snapshot Tracker</h2>
-    <div class="status">
-        Socket Status: <span id="socket-status">Connecting...</span> | 
-        Buffer Status: <span id="buffer-info">No data yet</span>
-    </div>
+<div class="dashboard">
+    <h2>Train 27 Snapshot Tracker</h2>
     
-    <button onclick="captureSnapshot()">Fetch Latest Position</button>
+    <div class="status-bar">
+        <div id="status-dot" class="dot"></div>
+        <span id="status-msg">Initializing Connection...</span>
+    </div>
+
+    <button onclick="takeSnapshot()">CAPTURE CURRENT POSITION</button>
 
     <table>
         <thead>
             <tr>
-                <th>Train ID</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Speed (km/h)</th>
-                <th>Late By (Min)</th>
+                <th>Train Code</th>
+                <th>Current Lat/Lon</th>
+                <th>Speed</th>
                 <th>Next Station ETA</th>
-                <th>Snapshot Time</th>
+                <th>Capture Time</th>
             </tr>
         </thead>
-        <tbody id="train-table-body">
-            <tr>
-                <td colspan="7" style="text-align:center;">Click "Fetch" to load latest snapshot</td>
-            </tr>
+        <tbody id="snapshot-body">
+            <tr><td colspan="5" style="text-align:center">No data captured yet.</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    let liveBuffer = null;
-    const trainIdToWatch = "27"; // Shalimar Express / Related
+    let latestTrainData = null;
+    const trainIdToWatch = "27";
 
-    // 1. Initialize WebSocket
-    // Note: In a real app, use the Socket.io client library for "42" messages.
-    // This example uses standard WebSocket to intercept the raw string.
-    const socket = new WebSocket('wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket');
+    // 1. Connect using the proper Socket.IO client
+    const socket = io("wss://cotrolroomapi.pakraillive.com", {
+        transports: ["websocket"],
+        path: "/socket.io/"
+    });
 
-    socket.onopen = () => {
-        document.getElementById('socket-status').innerText = "Connected";
-    };
+    socket.on("connect", () => {
+        document.getElementById('status-dot').className = "dot active";
+        document.getElementById('status-msg').innerText = "Connected & Listening...";
+    });
 
-    socket.onmessage = (event) => {
-        const rawData = event.data;
-        
-        // 2. Parse the Socket.io "42" message format
-        if (rawData.startsWith('42')) {
-            try {
-                const parsed = JSON.parse(rawData.substring(2)); // Remove the '42' prefix
-                const trainCode = parsed[0]; // e.g., "271201"
-                const details = parsed[1];   // The object with lat, lon, etc.
-
-                // 3. Filter for Train 27
-                if (trainCode.startsWith(trainIdToWatch)) {
-                    liveBuffer = {
-                        id: trainCode,
-                        ...details
-                    };
-                    document.getElementById('buffer-info').innerHTML = 
-                        `<span class="live-indicator">●</span> Live data received for ${trainCode}`;
-                }
-            } catch (e) {
-                console.error("Error parsing socket data", e);
-            }
+    // 2. Listen for ANY event (Socket.io often uses specific event names or catch-all)
+    socket.onAny((eventName, data) => {
+        // In PakRail, the 'eventName' is often the TrainID (e.g., "271201")
+        if (eventName.startsWith(trainIdToWatch)) {
+            latestTrainData = {
+                code: eventName,
+                ...data
+            };
+            document.getElementById('status-msg').innerHTML = 
+                `Receiving Live Stream for <b>${eventName}</b>`;
         }
-    };
+    });
 
-    // 4. Function to Update Table (Manual Snapshot)
-    function captureSnapshot() {
-        if (!liveBuffer) {
-            alert("No live data received yet for Train 27. Please wait a moment.");
+    // 3. The "Manual Fetch" function
+    function takeSnapshot() {
+        if (!latestTrainData) {
+            alert("Waiting for train 27 to send its next GPS pulse...");
             return;
         }
 
-        const tableBody = document.getElementById('train-table-body');
-        const now = new Date().toLocaleTimeString();
+        const tbody = document.getElementById('snapshot-body');
+        const timestamp = new Date().toLocaleTimeString();
 
-        // Create the fixed row
-        tableBody.innerHTML = `
+        // Overwrite the table with the fixed data from the moment of the click
+        tbody.innerHTML = `
             <tr>
-                <td><strong>${liveBuffer.id}</strong></td>
-                <td>${liveBuffer.lat}</td>
-                <td>${liveBuffer.lon}</td>
-                <td>${liveBuffer.sp}</td>
-                <td>${liveBuffer.late_by}</td>
-                <td>${liveBuffer.NextStationETA}</td>
-                <td>${now}</td>
+                <td><b>${latestTrainData.code}</b></td>
+                <td>${latestTrainData.lat.toFixed(5)}, ${latestTrainData.lon.toFixed(5)}</td>
+                <td>${latestTrainData.sp} km/h</td>
+                <td>${latestTrainData.NextStationETA || 'N/A'}</td>
+                <td>${timestamp}</td>
             </tr>
         `;
     }
+
+    socket.on("connect_error", (err) => {
+        document.getElementById('status-msg').innerText = "Connection Error: " + err.message;
+    });
 </script>
 
 </body>
