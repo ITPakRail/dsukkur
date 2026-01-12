@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pakistan Rail Live Snapshot</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .status { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        button:hover { background: #218838; }
+        .live-indicator { color: red; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Train 27: Snapshot Tracker</h2>
+    <div class="status">
+        Socket Status: <span id="socket-status">Connecting...</span> | 
+        Buffer Status: <span id="buffer-info">No data yet</span>
+    </div>
+    
+    <button onclick="captureSnapshot()">Fetch Latest Position</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Train ID</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Speed (km/h)</th>
+                <th>Late By (Min)</th>
+                <th>Next Station ETA</th>
+                <th>Snapshot Time</th>
+            </tr>
+        </thead>
+        <tbody id="train-table-body">
+            <tr>
+                <td colspan="7" style="text-align:center;">Click "Fetch" to load latest snapshot</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let liveBuffer = null;
+    const trainIdToWatch = "27"; // Shalimar Express / Related
+
+    // 1. Initialize WebSocket
+    // Note: In a real app, use the Socket.io client library for "42" messages.
+    // This example uses standard WebSocket to intercept the raw string.
+    const socket = new WebSocket('wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket');
+
+    socket.onopen = () => {
+        document.getElementById('socket-status').innerText = "Connected";
+    };
+
+    socket.onmessage = (event) => {
+        const rawData = event.data;
+        
+        // 2. Parse the Socket.io "42" message format
+        if (rawData.startsWith('42')) {
+            try {
+                const parsed = JSON.parse(rawData.substring(2)); // Remove the '42' prefix
+                const trainCode = parsed[0]; // e.g., "271201"
+                const details = parsed[1];   // The object with lat, lon, etc.
+
+                // 3. Filter for Train 27
+                if (trainCode.startsWith(trainIdToWatch)) {
+                    liveBuffer = {
+                        id: trainCode,
+                        ...details
+                    };
+                    document.getElementById('buffer-info').innerHTML = 
+                        `<span class="live-indicator">●</span> Live data received for ${trainCode}`;
+                }
+            } catch (e) {
+                console.error("Error parsing socket data", e);
+            }
+        }
+    };
+
+    // 4. Function to Update Table (Manual Snapshot)
+    function captureSnapshot() {
+        if (!liveBuffer) {
+            alert("No live data received yet for Train 27. Please wait a moment.");
+            return;
+        }
+
+        const tableBody = document.getElementById('train-table-body');
+        const now = new Date().toLocaleTimeString();
+
+        // Create the fixed row
+        tableBody.innerHTML = `
+            <tr>
+                <td><strong>${liveBuffer.id}</strong></td>
+                <td>${liveBuffer.lat}</td>
+                <td>${liveBuffer.lon}</td>
+                <td>${liveBuffer.sp}</td>
+                <td>${liveBuffer.late_by}</td>
+                <td>${liveBuffer.NextStationETA}</td>
+                <td>${now}</td>
+            </tr>
+        `;
+    }
+</script>
+
+</body>
+</html>
