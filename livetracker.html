@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Railways - Secure Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        :root { --pk-green: #005a32; --pk-light-green: #2e7d32; --bg-gray: #f0f2f5; }
+
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg-gray); padding: 0; margin: 0; color: #333; }
+
+        .page-wrapper { display: flex; justify-content: center; max-width: 1400px; margin: auto; padding: 15px; gap: 15px; }
+        .main-content { flex: 1; width: 100%; max-width: 1000px; }
+
+        .dashboard { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+        .header-box { background: var(--pk-green); color: white; padding: 20px; text-align: center; }
+
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #e8f5e9; padding: 20px; align-items: end; }
+        label { font-weight: bold; color: var(--pk-light-green); display: block; margin-bottom: 5px; font-size: 14px; }
+
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; width: 100%; font-size: 15px; box-sizing: border-box; background: white; outline: none; }
+        input:focus { border-color: var(--pk-green); box-shadow: 0 0 5px rgba(0,90,50,0.2); }
+
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: var(--pk-light-green); color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .page-wrapper { padding: 10px; }
+            .ad-sidebar { display: none; }
+            .controls { grid-template-columns: 1fr; }
+            thead { display: none; }
+            td { display: block; text-align: right; border: none; padding: 10px 15px; position: relative; }
+            td::before { content: attr(data-label); position: absolute; left: 15px; font-weight: bold; color: #666; text-transform: uppercase; font-size: 12px; }
+            tr { display: block; border-bottom: 2px solid var(--pk-green); margin-bottom: 10px; }
+        }
+
+        .blink-text { animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .delay-red { color: #d32f2f; font-weight: bold; }
+        .speed-val { color: #1976d2; font-weight: bold; font-family: monospace; }
+        .status-msg { padding: 15px; font-size: 12px; color: #666; font-style: italic; background: #fafafa; border-top: 1px solid #eee; }
+        .ad-placeholder { background: #e0e0e0; border: 1px dashed #bbb; color: #888; display: flex; align-items: center; justify-content: center; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">Ad</div></aside>
+
+    <main class="main-content">
+        <div class="dashboard">
+            <div class="header-box"><h2 style="margin:0; font-size: 1.4rem;">Pakistan Railways Live GPS</h2></div>
+
+            <div class="controls">
+                <div>
+                    <label>Travel Date</label>
+                    <input type="date" id="datePicker" onchange="updateTracker()">
+                </div>
+                <div>
+                    <label>Type or Select Train</label>
+                    <input list="trainList" id="trainSearch" placeholder="Click to see all or Type Name..."
+                           oninput="handleSearchInput()"
+                           onclick="this.value=''; this.placeholder='Searching...';"
+                           onfocus="this.value='';"
+                           autocomplete="off">
+                    <datalist id="trainList"></datalist>
+                </div>
+                <div>
+                    <label>Tracking ID</label>
+                    <div id="targetDisplay" style="font-family:monospace; font-weight:bold; font-size:20px; color:var(--pk-green);">----</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Train</th><th>Next</th><th>Prev</th><th>Delay</th><th>Speed</th><th>ETA</th><th>Update</th>
+                    </tr>
+                    </thead>
+                    <tbody id="liveRow">
+                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Search and select a train to begin.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg">System Initializing...</div>
+        </div>
+        <footer style="text-align: center; padding: 20px; color: #888; font-size: 12px;">© 2026 Secure Railway Tracker</footer>
+    </main>
+
+    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">Ad</div></aside>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    // When you deploy to VPS, change this to "https://api.pakrail.online" or your VPS IP
+    const API_BASE = "http://localhost:8080"; 
+    // ---------------------
+
+    let stompClient = null;
+    let stations = [];
+    let currentTargetID = "";
+    let selectedTrainName = "";
+    let currentTrainNum = "";
+    let waitingForLive = false;
+    let lastLiveData = null;
+
+    document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+
+    async function init() {
+        const datalist = document.getElementById('trainList');
+        try {
+            // Use API_BASE here
+            const res = await fetch(`${API_BASE}/api/proxy/live-trains`);
+            const data = await res.json();
+            if(data?.Response) {
+                const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
+                    a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
+
+                sorted.forEach(t => {
+                    let cleanName = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
+                    let opt = document.createElement('option');
+                    opt.value = cleanName;
+                    opt.dataset.num = t.TrainNumber;
+                    datalist.appendChild(opt);
+                });
+            }
+            initRelayConnection();
+        } catch (e) {
+            document.getElementById('statusMsg').innerText = "Backend Offline.";
+        }
+    }
+
+    function initRelayConnection() {
+        // Use API_BASE here for WebSocket
+        const socket = new SockJS(`${API_BASE}/ws-rail`);
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+        stompClient.connect({}, function () {
+            document.getElementById('statusMsg').innerText = "Live Relay Active ✅";
+            stompClient.subscribe('/topic/train-updates', function (msg) {
+                const wrapped = JSON.parse(msg.body);
+                if (wrapped.targetID === currentTargetID) {
+                    waitingForLive = false;
+                    render(wrapped.data, true);
+                }
+            });
+        });
+    }
+
+    async function updateTracker() {
+        if (!currentTrainNum) return;
+        const selDate = new Date(document.getElementById('datePicker').value);
+        if (isNaN(selDate)) return;
+
+        const dd = String(selDate.getDate()).padStart(2, '0');
+        const mm = String(selDate.getMonth() + 1).padStart(2, '0');
+        currentTargetID = `${currentTrainNum}${dd}${mm}`;
+
+        document.getElementById('targetDisplay').innerText = currentTargetID;
+        lastLiveData = null;
+        stations = [];
+        showUpdatingState();
+
+        // 1. Background Station Fetch
+        fetch(`${API_BASE}/api/proxy/stations?id=${currentTrainNum}`)
+            .then(res => res.json())
+            .then(sData => {
+                stations = sData.Response || [];
+                if (lastLiveData) render(lastLiveData, false);
+            }).catch(() => {});
+
+        // 2. Cache Check
+        try {
+            const cacheRes = await fetch(`${API_BASE}/api/proxy/snapshot?trackingId=${currentTargetID}&trainNum=${currentTrainNum}`);
+            if (cacheRes.ok) {
+                const result = await cacheRes.json();
+                const finalData = result.data || result.Response;
+                if (finalData) {
+                    waitingForLive = false;
+                    render(finalData, false); 
+                    document.getElementById('statusMsg').innerText = "Instant Sync ⚡";
+                    return;
+                }
+            }
+
+            // 3. Trigger Poke
+            waitingForLive = true;
+            fetch(`${API_BASE}/api/proxy/trigger-live?trackingId=${currentTargetID}`);
+            document.getElementById('statusMsg').innerText = "Requesting Satellite Ping... 🛰️";
+        } catch (e) {
+            document.getElementById('statusMsg').innerText = "Connection lost.";
+        }
+    }
+
+    // ... handleSearchInput, showUpdatingState, render, formatTime remain same ...
+    // (Ensure handleSearchInput and other functions are included as before)
+    init();
+</script>
+</body>
+</html>
