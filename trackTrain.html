@@ -1,29 +1,199 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Train Live Status</title>
-  <style>
-    body { font-family: Arial; }
-    .card {
-      border: 1px solid #ccc;
-      padding: 15px;
-      width: 350px;
-      margin-top: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Railways - Precise Live Tracker</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        /* BASE STYLES - UNCHANGED */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 10px; color: #333; margin: 0; }
+        .dashboard { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; box-sizing: border-box; }
+        .header-box { background: #005a32; color: white; padding: 20px; border-radius: 10px 10px 0 0; margin: -25px -25px 25px -25px; text-align: center; }
+        .controls { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 25px; align-items: end; }
+        label { font-weight: bold; color: #2e7d32; display: block; margin-bottom: 5px; }
+        input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; width: 100%; font-size: 15px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; min-width: 800px; }
+        th { background: #2e7d32; color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .delay-red { color: #c62828; font-weight: bold; }
+        .speed-val { font-family: 'Courier New', monospace; font-weight: bold; color: #1565c0; }
+        .status-msg { font-size: 12px; color: #666; margin-top: 10px; font-style: italic; }
+
+        /* NEW RESPONSIVE & AD LAYOUT */
+        .page-wrapper { display: flex; justify-content: center; gap: 15px; max-width: 1600px; margin: auto; }
+        .ad-sidebar { width: 160px; min-width: 160px; display: flex; flex-direction: column; gap: 20px; }
+        .main-content { flex-grow: 1; max-width: 1100px; }
+        .ad-bottom { width: 100%; height: 100px; margin-top: 20px; display: flex; justify-content: center; }
+        .ad-placeholder { background: #e0e0e0; border: 1px dashed #bbb; color: #888; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; }
+        
+        /* Mobile Scroll for Table */
+        .table-container { width: 100%; overflow-x: auto; border-radius: 8px; }
+
+        @media (max-width: 1024px) {
+            .ad-sidebar { display: none; } /* Hide side ads on tablets/phones */
+            .controls { grid-template-columns: 1fr; } /* Stack controls vertically on mobile */
+        }
+    </style>
 </head>
 <body>
 
-<select id="trainSelect">
-  <option value="27">Shalimar Express (27UP)</option>
-</select>
+<div class="page-wrapper">
+    <div class="ad-sidebar">
+        <div class="ad-placeholder" style="height: 600px;">Google Ad Vertical</div>
+    </div>
 
-<button onclick="loadTrain()">Show Status</button>
+    <div class="main-content">
+        <div class="dashboard">
+            <div class="header-box">
+                <h2 style="margin:0;">Pakistan Railways Live GPS Tracking</h2>
+            </div>
 
-<div class="card" id="status">Waiting...</div>
+            <div class="controls">
+                <div>
+                    <label>Travel Date</label>
+                    <input type="date" id="datePicker" onchange="updateTracker()">
+                </div>
+                <div>
+                    <label>Select Live Train</label>
+                    <select id="trainSelect" onchange="updateTracker()">
+                        <option value="">Connecting to system...</option>
+                    </select>
+                </div>
+                <div style="text-align: right;">
+                    <label>Tracking ID</label>
+                    <div id="targetDisplay" style="font-family:monospace; font-weight:bold; font-size:18px; color:#005a32;">----</div>
+                </div>
+            </div>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script src="train.js"></script>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Train Name</th>
+                            <th>Next Station</th>
+                            <th>Previous Station</th>
+                            <th>Delay</th>
+                            <th>Current Speed</th>
+                            <th>Estimated Arrival</th>
+                            <th>Last Update</th>
+                        </tr>
+                    </thead>
+                    <tbody id="liveRow">
+                        <tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Select a train and date to view live movement.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg">System Idle</div>
+        </div>
 
+        <div class="ad-bottom">
+            <div class="ad-placeholder" style="width: 728px; height: 90px;">Google Ad Horizontal (Bottom)</div>
+        </div>
+        
+        <footer style="text-align: center; padding: 20px; color: #888; font-size: 12px;">
+            © 2026 Pakistan Railways Tracker Interface
+        </footer>
+    </div>
+
+    <div class="ad-sidebar">
+        <div class="ad-placeholder" style="height: 600px;">Google Ad Vertical</div>
+    </div>
+</div>
+
+<script>
+    // 1. UPDATE THIS URL AFTER RE-DEPLOYING GAS
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxCMTdM75kkloj5LnWvwfSIW_nQquSgkNP1cO6bAorZmj0sK7Wb57QhIJJrEz3U5zPO/exec";
+
+    let stations = [];
+    let selectedTrainName = "";
+    let pollInterval;
+
+    document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+
+    async function init() {
+        try {
+            document.getElementById('statusMsg').innerText = "Connecting to Google Proxy...";
+            const res = await fetch(`${GAS_URL}?action=getTrains`);
+            const data = await res.json();
+            
+            if(!data.Response) throw new Error("No data in response");
+
+            const select = document.getElementById('trainSelect');
+            select.innerHTML = '<option value="">-- Choose a Train --</option>';
+            
+            data.Response.filter(t => t.IsLive).forEach(t => {
+                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
+            });
+            document.getElementById('statusMsg').innerText = "System Ready. Select a train to track.";
+        } catch (e) { 
+            document.getElementById('statusMsg').innerText = "Connection Failed. Refresh or check GAS deployment.";
+            console.error(e);
+        }
+    }
+
+    async function updateTracker() {
+        const trainNum = document.getElementById('trainSelect').value;
+        if (!trainNum) return;
+
+        // Reset UI
+        selectedTrainName = document.getElementById('trainSelect').options[document.getElementById('trainSelect').selectedIndex].text;
+        document.getElementById('statusMsg').innerText = "Fetching station data...";
+
+        try {
+            // 1. Fetch Stations (Essential for mapping IDs to Names)
+            const sRes = await fetch(`${GAS_URL}?action=getStations&id=${trainNum}`);
+            const sData = await sRes.json();
+            stations = sData.Response || [];
+
+            // 2. Start Live Polling (Mimics WebSocket)
+            if(pollInterval) clearInterval(pollInterval);
+            fetchLiveUpdate(trainNum); 
+            pollInterval = setInterval(() => fetchLiveUpdate(trainNum), 5000); // Poll every 5 seconds
+        } catch (e) {
+            document.getElementById('statusMsg').innerText = "Error syncing with Railway API.";
+        }
+    }
+
+    async function fetchLiveUpdate(trainNum) {
+        try {
+            // "cache: no-store" prevents the browser from showing "old" data
+            const lRes = await fetch(`${GAS_URL}?action=getLocation&id=${trainNum}`, { cache: "no-store" });
+            const lData = await lRes.json();
+            
+            if (lData.IsSuccess && lData.Response) {
+                const r = lData.Response;
+                renderUpdate({
+                    sp: r.Speed,
+                    prev_st: r.ArrivalStationID,
+                    next_st: r.NextStationID,
+                    late_by: r.DelayMinutes,
+                    eta_raw: r.ExpectedArrivalTime 
+                });
+            }
+        } catch (e) { 
+            console.warn("Polling tick skipped - proxy busy."); 
+        }
+    }
+
+    function renderUpdate(data) {
+        const tbody = document.getElementById('liveRow');
+        const prev = stations.find(s => s.StationDetailsId == data.prev_st);
+        const next = stations.find(s => s.StationDetailsId == data.next_st);
+
+        tbody.innerHTML = `<tr>
+            <td><strong>${selectedTrainName}</strong></td>
+            <td>${next ? next.StationName : 'Locating...'}</td>
+            <td>${prev ? prev.StationName : '---'}</td>
+            <td class="delay-red">${data.late_by > 0 ? data.late_by + 'm Late' : 'On Time'}</td>
+            <td class="speed-val">${data.sp} km/h</td>
+            <td style="color:#2e7d32; font-weight:bold;">${data.eta_raw || "---"}</td>
+            <td>${new Date().toLocaleTimeString()} ⚡</td>
+        </tr>`;
+        document.getElementById('statusMsg').innerText = "Live Update: " + new Date().toLocaleTimeString();
+    }
+
+    init();
+</script>
 </body>
 </html>
