@@ -106,37 +106,40 @@
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-   // Replace your init() function with this:
-async function init() {
+// Replace your existing init function with this exact pattern:
+function init() {
     const select = document.getElementById('trainSelect');
     const status = document.getElementById('statusMsg');
     
-    try {
-        status.innerText = "Fetching Fleet Data... 🛰️";
+    status.innerText = "Loading Trains... 🛰️";
 
-        // Simple GET fetch - bypasses CORS pre-flight
-        const response = await fetch(`${GAS_URL}?action=get-fleet`);
-        const data = await response.json();
-        
-        // Use data.Response because the Pakistan Rail API wraps results in a Response key
-        if (data && data.Response) {
-            select.innerHTML = '<option value="">-- Click to choose train --</option>';
+    // Use the exact fetch method from your working program
+    fetch(`${GAS_URL}?action=get-fleet`)
+        .then(response => response.json())
+        .then(data => {
+            // Pakistan Rail API wraps the array in a "Response" key
+            const trains = data.Response || []; 
             
-            // Filter and Sort
-            const liveTrains = data.Response.filter(t => t.IsLive);
-            liveTrains.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
+            select.innerHTML = '<option value="">-- Select a Train --</option>';
+            
+            // Filter live trains and sort them
+            const liveOnly = trains.filter(t => t.IsLive);
+            liveOnly.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
 
-            liveTrains.forEach(t => {
-                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
+            liveOnly.forEach(t => {
+                const opt = document.createElement("option");
+                opt.value = t.TrainNumber; // Use TrainNumber for the ID
+                opt.textContent = t.TrainNameWithNumber;
+                select.appendChild(opt);
             });
-            
+
             status.innerText = "System Ready ✅";
-            initSocket(); // WebSocket still starts here
-        }
-    } catch (e) {
-        console.error("Connection Error:", e);
-        status.innerText = "Error connecting to backend.";
-    }
+            initSocket(); // Start your WebSocket
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            status.innerText = "Connection Error. Check F12.";
+        });
 }
     function initSocket() {
         // Socket logic remains identical to your original working code
