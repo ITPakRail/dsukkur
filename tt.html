@@ -97,7 +97,7 @@
 
 <script>
     // 1. YOUR SETTINGS
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyugVQVL8GcP-Gt4Mk8NeIxzpT_2dbZ0BtaICaCctKLuUiTRmxK5tDn0yaj48ta4mJcww/exec"; // Paste your /exec URL here
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7H9A1fdMk1ZaISxGIJ-V1bvgf2vnm0wvcKBJ9DlEnG3rOI8on7V-djM3Yit3jtXzC-w/exec"; // Paste your /exec URL here
     
     let socket;
     let stations = [];
@@ -106,39 +106,33 @@
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-// Replace your existing init function with this exact pattern:
+  // Replace your existing init function with this exact pattern:
 function init() {
     const select = document.getElementById('trainSelect');
     const status = document.getElementById('statusMsg');
     
-    status.innerText = "Loading Trains... 🛰️";
+    status.innerText = "Connecting... 🛰️";
 
-    // Use the exact fetch method from your working program
+    // DO NOT add { headers: ... } or { mode: 'cors' }
+    // A plain fetch is a "Simple Request" and won't be blocked.
     fetch(`${GAS_URL}?action=get-fleet`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error("Network error");
+            return response.json();
+        })
         .then(data => {
-            // Pakistan Rail API wraps the array in a "Response" key
-            const trains = data.Response || []; 
+            const trains = data.Response || [];
+            select.innerHTML = '<option value="">-- Select Train --</option>';
             
-            select.innerHTML = '<option value="">-- Select a Train --</option>';
-            
-            // Filter live trains and sort them
-            const liveOnly = trains.filter(t => t.IsLive);
-            liveOnly.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
-
-            liveOnly.forEach(t => {
-                const opt = document.createElement("option");
-                opt.value = t.TrainNumber; // Use TrainNumber for the ID
-                opt.textContent = t.TrainNameWithNumber;
-                select.appendChild(opt);
+            trains.filter(t => t.IsLive).forEach(t => {
+                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
             });
-
+            
             status.innerText = "System Ready ✅";
-            initSocket(); // Start your WebSocket
         })
         .catch(err => {
-            console.error("Fetch Error:", err);
-            status.innerText = "Connection Error. Check F12.";
+            console.error(err);
+            status.innerText = "Still blocked. Check GAS Deployment.";
         });
 }
     function initSocket() {
