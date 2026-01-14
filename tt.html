@@ -1,84 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PR Live Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Railways - Secure Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        :root { --pk-green: #005a32; --pk-light-green: #2e7d32; --bg-gray: #f0f2f5; }
+
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg-gray); padding: 0; margin: 0; color: #333; }
+
+        .page-wrapper { display: flex; justify-content: center; max-width: 1400px; margin: auto; padding: 15px; gap: 15px; }
+        .main-content { flex: 1; width: 100%; max-width: 1000px; }
+
+        .dashboard { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
+        .header-box { background: var(--pk-green); color: white; padding: 20px; text-align: center; }
+
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #e8f5e9; padding: 20px; align-items: end; }
+        label { font-weight: bold; color: var(--pk-light-green); display: block; margin-bottom: 5px; font-size: 14px; }
+
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; width: 100%; font-size: 15px; box-sizing: border-box; background: white; outline: none; }
+        input:focus { border-color: var(--pk-green); box-shadow: 0 0 5px rgba(0,90,50,0.2); }
+
+        .table-container { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: var(--pk-light-green); color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .page-wrapper { padding: 10px; }
+            .ad-sidebar { display: none; }
+            .controls { grid-template-columns: 1fr; }
+            thead { display: none; }
+            td { display: block; text-align: right; border: none; padding: 10px 15px; position: relative; }
+            td::before { content: attr(data-label); position: absolute; left: 15px; font-weight: bold; color: #666; text-transform: uppercase; font-size: 12px; }
+            tr { display: block; border-bottom: 2px solid var(--pk-green); margin-bottom: 10px; }
+        }
+
+        .blink-text { animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .delay-red { color: #d32f2f; font-weight: bold; }
+        .speed-val { color: #1976d2; font-weight: bold; font-family: monospace; }
+        .status-msg { padding: 15px; font-size: 12px; color: #666; font-style: italic; background: #fafafa; border-top: 1px solid #eee; }
+        .ad-placeholder { background: #e0e0e0; border: 1px dashed #bbb; color: #888; display: flex; align-items: center; justify-content: center; text-align: center; }
+    </style>
 </head>
 <body>
 
-<pre id="log">Waiting…</pre>
+<div class="page-wrapper">
+    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">Ad</div></aside>
+
+    <main class="main-content">
+        <div class="dashboard">
+            <div class="header-box"><h2 style="margin:0; font-size: 1.4rem;">Pakistan Railways Live GPS</h2></div>
+
+            <div class="controls">
+                <div>
+                    <label>Travel Date</label>
+                    <input type="date" id="datePicker" onchange="updateTracker()">
+                </div>
+                <div>
+                    <label>Type or Select Train</label>
+                    <input list="trainList" id="trainSearch" placeholder="Click to see all or Type Name..."
+                           oninput="handleSearchInput()"
+                           onclick="this.value=''; this.placeholder='Searching...';"
+                           onfocus="this.value='';"
+                           autocomplete="off">
+                    <datalist id="trainList"></datalist>
+                </div>
+                <div>
+                    <label>Tracking ID</label>
+                    <div id="targetDisplay" style="font-family:monospace; font-weight:bold; font-size:20px; color:var(--pk-green);">----</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Train</th><th>Next</th><th>Prev</th><th>Delay</th><th>Speed</th><th>ETA</th><th>Update</th>
+                    </tr>
+                    </thead>
+                    <tbody id="liveRow">
+                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Search and select a train to begin.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg">System Initializing...</div>
+        </div>
+        <footer style="text-align: center; padding: 20px; color: #888; font-size: 12px;">© 2026 Secure Railway Tracker</footer>
+    </main>
+
+    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">Ad</div></aside>
+</div>
 
 <script>
-const log = document.getElementById("log");
-const TRAIN_ID = "27"; // change as needed
+    // Replace this with your actual Google Apps Script Web App URL
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzWa6MJb_MRfbwHAaPQstIxSTDD_M_PUABevfVxWJBcbkpxLL_QPdicmG5RRv0FuJxweA/exec";
+    
+    let stations = [];
+    let currentTargetID = "";
+    let selectedTrainName = "";
+    let currentTrainNum = "";
+    let lastLiveData = null;
+    let pollInterval = null;
 
-let stationMap = {}; // map of StationDetailsId -> StationName
+    document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-// 1️⃣ Load stations for this train once
-async function loadStations() {
-  try {
-    const res = await fetch(`https://app-api.pakraillive.com/api/Train/GetTrainStationsByTrainId?id=${TRAIN_ID}`);
-    const json = await res.json();
-    (json.Response || []).forEach(st => {
-      stationMap[String(st.StationDetailsId)] = st.StationName;
-    });
-    console.log("Station map loaded:", stationMap);
-  } catch (err) {
-    console.error("Failed to load stations:", err);
-  }
-}
+    async function init() {
+        const datalist = document.getElementById('trainList');
+        try {
+            // Call GAS instead of Spring Boot
+            const res = await fetch(`${GAS_URL}?path=live-trains`);
+            const data = await res.json();
+            if(data?.Response) {
+                const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
+                    a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
 
-// 2️⃣ Start WebSocket
-const ws = new WebSocket(
-  "wss://cotrolroomapi.pakraillive.com/socket.io/?EIO=4&transport=websocket"
-);
+                sorted.forEach(t => {
+                    let cleanName = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
+                    let opt = document.createElement('option');
+                    opt.value = cleanName;
+                    opt.dataset.num = t.TrainNumber;
+                    datalist.appendChild(opt);
+                });
+                document.getElementById('statusMsg').innerText = "System Ready ✅";
+            }
+        } catch (e) {
+            document.getElementById('statusMsg').innerText = "Backend Offline.";
+        }
+    }
 
-ws.onopen = () => {
-  console.log("WS open");
+    function handleSearchInput() {
+        const input = document.getElementById('trainSearch');
+        const val = input.value;
+        const opts = document.getElementById('trainList').options;
+        for (let i = 0; i < opts.length; i++) {
+            if (opts[i].value === val) {
+                currentTrainNum = opts[i].dataset.num;
+                selectedTrainName = val;
+                input.blur();
+                updateTracker();
+                break;
+            }
+        }
+    }
 
-  // Socket.IO handshake
-  ws.send("40");
+    async function updateTracker() {
+        if (!currentTrainNum) return;
+        
+        // Clear previous polling
+        if(pollInterval) clearInterval(pollInterval);
 
-  // Subscribe to this train
-  ws.send(`42["joinTrain","${TRAIN_ID}"]`);
+        const selDate = new Date(document.getElementById('datePicker').value);
+        const dd = String(selDate.getDate()).padStart(2, '0');
+        const mm = String(selDate.getMonth() + 1).padStart(2, '0');
+        currentTargetID = `${currentTrainNum}${dd}${mm}`;
+        document.getElementById('targetDisplay').innerText = currentTargetID;
 
-  log.textContent = "Connected & subscribed…";
-};
+        lastLiveData = null;
+        stations = [];
+        showUpdatingState();
 
-ws.onmessage = (e) => {
-  const raw = e.data;
+        // 1. Fetch Stations
+        fetch(`${GAS_URL}?path=stations&id=${currentTrainNum}`)
+            .then(res => res.json())
+            .then(sData => {
+                stations = sData.Response || [];
+                if (lastLiveData) render(lastLiveData, false);
+            });
 
-  if (!raw.startsWith("42")) return;
+        // 2. Initial Data Fetch & Start Polling (Simulating Socket)
+        fetchData();
+        pollInterval = setInterval(fetchData, 15000); // Update every 15 seconds
+    }
 
-  const payload = JSON.parse(raw.slice(2));
-  const runtimeTrainId = payload[0];
-  const live = payload[1];
+    async function fetchData() {
+        try {
+            document.getElementById('statusMsg').innerText = "Syncing GPS... 🛰️";
+            const res = await fetch(`${GAS_URL}?path=snapshot&trainNum=${currentTrainNum}`);
+            const result = await res.json();
+            const finalData = result.Response || result;
 
-  // map IDs to station names if available
-  const prevStation = stationMap[live.prev_st] || live.prev_st;
-  const nextStation = stationMap[live.next_st] || live.next_st;
-  const currentStation = stationMap[live.loc] || live.loc;
+            if (finalData) {
+                render(finalData, true);
+            }
+        } catch (e) {
+            document.getElementById('statusMsg').innerText = "Update failed. Retrying...";
+        }
+    }
 
-  log.textContent = JSON.stringify({
-    runtimeTrainId,
-    previousStation: prevStation,
-    currentStation: currentStation,
-    nextStation: nextStation,
-    latitude: live.lat,
-    longitude: live.lon,
-    delayMin: live.late_by,
-    speed: live.sp,
-    status: live.st,
-    nextETA: live.NextStationETA
-  }, null, 2);
-};
+    function showUpdatingState() {
+        const tbody = document.getElementById('liveRow');
+        tbody.innerHTML = `<tr><td data-label="Train"><strong>${selectedTrainName}</strong></td><td colspan="6" style="text-align:center; color:var(--pk-light-green);"><span class="blink-text">⏳ Searching live GPS...</span></td></tr>`;
+    }
 
-ws.onerror = e => console.error("WS error", e);
-ws.onclose = () => console.warn("WS closed");
+    function render(data, isLive) {
+        lastLiveData = data;
+        const tbody = document.getElementById('liveRow');
 
-// load stations once before listening
-loadStations();
+        const nextStID = data.next_st || data.NextStationID;
+        const prevStID = data.prev_st || data.ArrivalStationID;
+
+        const next = stations.find(s => s.StationDetailsId == nextStID);
+        const prev = stations.find(s => s.StationDetailsId == prevStID);
+
+        let nextName = next ? next.StationName : (nextStID ? "🛰️ Syncing Name..." : "In Transit");
+        let prevName = prev ? prev.StationName : (prevStID ? "🛰️ Syncing Name..." : "Departed");
+
+        tbody.innerHTML = `<tr>
+            <td data-label="Train"><strong>${selectedTrainName}</strong></td>
+            <td data-label="Next">${nextName}</td>
+            <td data-label="Prev">${prevName}</td>
+            <td data-label="Delay" class="delay-red">${formatTime(data.late_by || data.DelayMinutes)}</td>
+            <td data-label="Speed" class="speed-val">${data.sp || data.Speed || 0} km/h</td>
+            <td data-label="ETA" style="color:var(--pk-green); font-weight:bold;">${data.eta_raw || data.ExpectedArrivalTime || "---"}</td>
+            <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive ? '⚡' : ''}</td>
+        </tr>`;
+
+        if(isLive) document.getElementById('statusMsg').innerText = "Live Update Received ⚡";
+    }
+
+    function formatTime(min) {
+        if (!min || min <= 0) return "On Time";
+        return min >= 60 ? `${Math.floor(min/60)}h ${min%60}m` : `${min}m`;
+    }
+
+    init();
 </script>
-
 </body>
 </html>
