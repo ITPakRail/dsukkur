@@ -112,39 +112,31 @@
     
     status.innerText = "Loading Fleet... 🛰️";
 
-    // DO NOT use async/await here. Use the standard .then() chain.
-    // DO NOT add any headers or mode settings.
+    // DO NOT add headers, DO NOT add mode: 'cors'. 
+    // A naked fetch like this is a "Simple Request".
     fetch(GAS_URL + "?action=get-fleet")
         .then(response => {
-            // If the browser blocks the redirect, this will catch it
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
+            // This is the stage where the browser was previously blocking you
+            return response.json(); 
         })
         .then(data => {
-            // Check for the .Response key used by the Pakistan Rail API
             const trains = data.Response || [];
             
             select.innerHTML = '<option value="">-- Choose Train --</option>';
             
-            // Filter and sort the fleet
-            const liveOnly = trains.filter(t => t.IsLive);
-            liveOnly.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
-
-            liveOnly.forEach(t => {
-                const opt = document.createElement("option");
-                opt.value = t.TrainNumber;
-                opt.textContent = t.TrainNameWithNumber;
-                select.appendChild(opt);
+            // Sort and populate
+            trains.filter(t => t.IsLive).sort((a,b) => 
+                a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber)
+            ).forEach(t => {
+                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
             });
 
             status.innerText = "System Ready ✅";
-            
-            // Trigger your WebSocket now that data is loaded
             if (typeof initSocket === "function") initSocket();
         })
         .catch(err => {
-            console.error("Data was blocked by browser security:", err);
-            status.innerText = "Connection Blocked. Use a New GAS Deployment URL.";
+            console.error("Browser blocked data transfer:", err);
+            status.innerText = "Security Block. Refresh or check GAS Deploy.";
         });
 }
     function initSocket() {
