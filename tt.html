@@ -106,26 +106,23 @@
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-    async function init() {
+   // Replace your init() function with this:
+async function init() {
     const select = document.getElementById('trainSelect');
     const status = document.getElementById('statusMsg');
     
     try {
         status.innerText = "Fetching Fleet Data... 🛰️";
 
-        // We use redirect: 'follow' and mode: 'cors'
-        const res = await fetch(`${GAS_URL}?action=get-fleet`, {
-            method: 'GET',
-            redirect: 'follow'
-        });
-
-        // GAS returns a redirect, fetch follows it and returns the final response
-        const data = await res.json();
+        // Simple GET fetch - bypasses CORS pre-flight
+        const response = await fetch(`${GAS_URL}?action=get-fleet`);
+        const data = await response.json();
         
+        // Use data.Response because the Pakistan Rail API wraps results in a Response key
         if (data && data.Response) {
             select.innerHTML = '<option value="">-- Click to choose train --</option>';
             
-            // Filter and sort the fleet
+            // Filter and Sort
             const liveTrains = data.Response.filter(t => t.IsLive);
             liveTrains.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
 
@@ -134,16 +131,13 @@
             });
             
             status.innerText = "System Ready ✅";
-            initSocket(); // Start the websocket now that data is ready
-        } else {
-            status.innerText = "Error: Invalid data format from backend.";
+            initSocket(); // WebSocket still starts here
         }
     } catch (e) {
-        console.error("Fetch Error:", e);
-        status.innerText = "Connection Error. Check console (F12).";
+        console.error("Connection Error:", e);
+        status.innerText = "Error connecting to backend.";
     }
 }
-
     function initSocket() {
         // Socket logic remains identical to your original working code
         socket = io("wss://cotrolroomapi.pakraillive.com", { transports: ["websocket"], path: "/socket.io/" });
