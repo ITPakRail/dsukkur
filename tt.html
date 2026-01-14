@@ -107,24 +107,42 @@
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
     async function init() {
-        try {
-            // Fetch fleet via GAS
-            const res = await fetch(`${GAS_URL}?action=get-fleet`);
-            const data = await res.json();
-            
-            const select = document.getElementById('trainSelect');
+    const select = document.getElementById('trainSelect');
+    const status = document.getElementById('statusMsg');
+    
+    try {
+        status.innerText = "Fetching Fleet Data... 🛰️";
+
+        // We use redirect: 'follow' and mode: 'cors'
+        const res = await fetch(`${GAS_URL}?action=get-fleet`, {
+            method: 'GET',
+            redirect: 'follow'
+        });
+
+        // GAS returns a redirect, fetch follows it and returns the final response
+        const data = await res.json();
+        
+        if (data && data.Response) {
             select.innerHTML = '<option value="">-- Click to choose train --</option>';
             
-            if(data.Response) {
-                data.Response.filter(t => t.IsLive).forEach(t => {
-                    select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
-                });
-            }
-            initSocket(); // Keeping socket as requested
-        } catch (e) { 
-            document.getElementById('statusMsg').innerText = "Error connecting to backend."; 
+            // Filter and sort the fleet
+            const liveTrains = data.Response.filter(t => t.IsLive);
+            liveTrains.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
+
+            liveTrains.forEach(t => {
+                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
+            });
+            
+            status.innerText = "System Ready ✅";
+            initSocket(); // Start the websocket now that data is ready
+        } else {
+            status.innerText = "Error: Invalid data format from backend.";
         }
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        status.innerText = "Connection Error. Check console (F12).";
     }
+}
 
     function initSocket() {
         // Socket logic remains identical to your original working code
@@ -149,16 +167,13 @@
         document.getElementById('targetDisplay').innerText = currentTargetID;
 
         document.getElementById('statusMsg').innerText = "Syncing station data...";
-        
-        // 1. Fetch Stations via GAS
-        const sRes = await fetch(`${GAS_URL}?action=get-stations&id=${trainNum}`);
-        const sData = await sRes.json();
-        stations = sData.Response || [];
+        // Inside updateTracker(), replace the fetches with this style:
+const sRes = await fetch(`${GAS_URL}?action=get-stations&id=${trainNum}`, { redirect: 'follow' });
+const sData = await sRes.json();
+stations = sData.Response || [];
 
-        // 2. Fetch Instant Location via GAS
-        document.getElementById('statusMsg').innerText = "Querying satellite...";
-        const lRes = await fetch(`${GAS_URL}?action=get-location&id=${trainNum}`);
-        const lData = await lRes.json();
+const lRes = await fetch(`${GAS_URL}?action=get-location&id=${trainNum}`, { redirect: 'follow' });
+const lData = await lRes.json();
         
         if (lData.IsSuccess && lData.Response) {
             const r = lData.Response;
