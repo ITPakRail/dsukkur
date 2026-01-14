@@ -105,11 +105,15 @@
     let lastLiveData = null; // Store last received packet for re-rendering
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
-
+/ 1. Define your backend address explicitly
+// During local testing, use your PC's IP or localhost
+const BACKEND_BASE = "http://localhost:8080";
     async function init() {
         const datalist = document.getElementById('trainList');
         try {
-            const res = await fetch('/api/proxy/live-trains');
+            // 2. Attach the base URL to your fetch calls
+        const res = await fetch(`${BACKEND_BASE}/api/proxy/live-trains`);
+         //   const res = await fetch('/api/proxy/live-trains');
             const data = await res.json();
             if(data?.Response) {
                 const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
@@ -178,7 +182,9 @@
         showUpdatingState();
 
         // 1. BACKGROUND FETCH: Get station names
-        fetch(`/api/proxy/stations?id=${currentTrainNum}`)
+        
+        //fetch(`/api/proxy/stations?id=${currentTrainNum}`)
+            fetch(`${BACKEND_BASE}/api/proxy/stations?id=${currentTrainNum}`)
             .then(res => res.json())
             .then(sData => {
                 stations = sData.Response || [];
