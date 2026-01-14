@@ -97,7 +97,7 @@
 
 <script>
     // 1. YOUR SETTINGS
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbz7H9A1fdMk1ZaISxGIJ-V1bvgf2vnm0wvcKBJ9DlEnG3rOI8on7V-djM3Yit3jtXzC-w/exec"; // Paste your /exec URL here
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwr7uDECCeZx1EKgQR85b0DZ9zFAW8eBQb8t-YhKV-tMnnY8qhcPMj8TATwU238lk7xBw/exec"; // Paste your /exec URL here
     
     let socket;
     let stations = [];
@@ -106,33 +106,45 @@
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
-  // Replace your existing init function with this exact pattern:
-function init() {
+  function init() {
     const select = document.getElementById('trainSelect');
     const status = document.getElementById('statusMsg');
     
-    status.innerText = "Connecting... 🛰️";
+    status.innerText = "Loading Fleet... 🛰️";
 
-    // DO NOT add { headers: ... } or { mode: 'cors' }
-    // A plain fetch is a "Simple Request" and won't be blocked.
-    fetch(`${GAS_URL}?action=get-fleet`)
+    // DO NOT use async/await here. Use the standard .then() chain.
+    // DO NOT add any headers or mode settings.
+    fetch(GAS_URL + "?action=get-fleet")
         .then(response => {
-            if (!response.ok) throw new Error("Network error");
+            // If the browser blocks the redirect, this will catch it
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
         .then(data => {
+            // Check for the .Response key used by the Pakistan Rail API
             const trains = data.Response || [];
-            select.innerHTML = '<option value="">-- Select Train --</option>';
             
-            trains.filter(t => t.IsLive).forEach(t => {
-                select.appendChild(new Option(t.TrainNameWithNumber, t.TrainNumber));
+            select.innerHTML = '<option value="">-- Choose Train --</option>';
+            
+            // Filter and sort the fleet
+            const liveOnly = trains.filter(t => t.IsLive);
+            liveOnly.sort((a, b) => a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
+
+            liveOnly.forEach(t => {
+                const opt = document.createElement("option");
+                opt.value = t.TrainNumber;
+                opt.textContent = t.TrainNameWithNumber;
+                select.appendChild(opt);
             });
-            
+
             status.innerText = "System Ready ✅";
+            
+            // Trigger your WebSocket now that data is loaded
+            if (typeof initSocket === "function") initSocket();
         })
         .catch(err => {
-            console.error(err);
-            status.innerText = "Still blocked. Check GAS Deployment.";
+            console.error("Data was blocked by browser security:", err);
+            status.innerText = "Connection Blocked. Use a New GAS Deployment URL.";
         });
 }
     function initSocket() {
