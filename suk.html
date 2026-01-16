@@ -169,6 +169,42 @@ body.locked .page-content {
         font-size: 16px;
     }
 }
+    /* ===== USER MENU ===== */
+.user-menu {
+    position: relative;
+    font-size: 15px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#loggedUser {
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+}
+
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 35px;
+    background: white;
+    color: #333;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: none;
+    min-width: 120px;
+    z-index: 999;
+}
+
+.user-dropdown div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.user-dropdown div:hover {
+    background: #e8f5e9;
+}
+
 </style>
 </head>
 
@@ -177,11 +213,20 @@ body.locked .page-content {
 <!-- ===== PAGE CONTENT ===== -->
 <div class="page-content">
 
-    <div class="top-panel">
-        <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
-        <h1>Pakistan Railways Sukkur Division</h1>
-        <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+   <div class="top-panel">
+    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
+
+    <h1>Pakistan Railways Sukkur Division</h1>
+
+    <!-- USER INFO -->
+    <div class="user-menu">
+        <span id="loggedUser" onclick="toggleUserMenu()">Guest ▾</span>
+        <div class="user-dropdown" id="userDropdown">
+            <div onclick="logout()">Logout</div>
+        </div>
     </div>
+</div>
+
 
     <div class="center-container">
       <div class="menu">
@@ -222,18 +267,18 @@ body.locked .page-content {
     </div>
 </div>
 <script>
-/* ===== USER DATABASE (TEMP – later Google Sheet) ===== */
+/* ===== USER DATABASE (TEMP) ===== */
 const users = {
-    dco: { password: "1234", access: [1, 2] },
-    dto: { password: "1234", access: [3] },
-    ddl: { password: "1234", access: [4] },
-    ds:  { password: "1234", access: [1, 2, 3, 4] }
+    dco: { password: "1234", access: [1, 2], name: "DCO" },
+    dto: { password: "1234", access: [3], name: "DTO" },
+    ddl: { password: "1234", access: [4], name: "DDL" },
+    ds:  { password: "1234", access: [1, 2, 3, 4], name: "Divisional Supdt" }
 };
 
-/* ===== LOCK PAGE INITIALLY ===== */
+/* ===== INITIAL LOCK ===== */
 document.body.classList.add("locked");
 
-/* ===== LOGIN FUNCTION ===== */
+/* ===== LOGIN ===== */
 function login() {
     const user = document.getElementById("username").value.trim().toLowerCase();
     const pass = document.getElementById("password").value;
@@ -243,26 +288,59 @@ function login() {
         return;
     }
 
-    // Hide login
     document.getElementById("loginOverlay").style.display = "none";
     document.body.classList.remove("locked");
+
+    document.getElementById("loggedUser").innerText =
+        users[user].name + " ▾";
 
     applyAccess(users[user].access);
 }
 
 /* ===== ACCESS CONTROL ===== */
-function applyAccess(allowedLinks) {
+function applyAccess(allowed) {
     for (let i = 1; i <= 4; i++) {
         const link = document.getElementById("link" + i);
-        if (!allowedLinks.includes(i)) {
-            link.style.pointerEvents = "none";
-            link.style.opacity = "0.4";
-            link.style.cursor = "not-allowed";
-        }
+        link.style.pointerEvents = allowed.includes(i) ? "auto" : "none";
+        link.style.opacity = allowed.includes(i) ? "1" : "0.4";
     }
 }
+
+/* ===== USER MENU TOGGLE ===== */
+function toggleUserMenu() {
+    const menu = document.getElementById("userDropdown");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+/* ===== LOGOUT ===== */
+function logout() {
+    document.getElementById("userDropdown").style.display = "none";
+    document.getElementById("loggedUser").innerText = "Guest ▾";
+
+    // Reset links
+    for (let i = 1; i <= 4; i++) {
+        const link = document.getElementById("link" + i);
+        link.style.pointerEvents = "none";
+        link.style.opacity = "0.4";
+    }
+
+    // Clear fields
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("errorMsg").style.display = "none";
+
+    // Lock page & show login again
+    document.body.classList.add("locked");
+    document.getElementById("loginOverlay").style.display = "flex";
+}
+
+/* ===== CLICK OUTSIDE TO CLOSE DROPDOWN ===== */
+document.addEventListener("click", function (e) {
+    const userMenu = document.querySelector(".user-menu");
+    if (!userMenu.contains(e.target)) {
+        document.getElementById("userDropdown").style.display = "none";
+    }
+});
 </script>
-
-
 </body>
 </html>
