@@ -184,12 +184,13 @@ body.locked .page-content {
     </div>
 
     <div class="center-container">
-        <div class="menu">
-            <a href="https://lookerstudio.google.com/reporting/ab5881ca-3bf5-49c5-9af9-748d00b66dad" target="_blank">Commercial Revenue BI Dashboard</a>
-            <a href="https://lookerstudio.google.com/reporting/80622fbd-98b8-48f0-8af1-982f849a8639" target="_blank">Stations Infrastructure Info</a>
-            <a href="#">Operation Dashboard</a>
-            <a href="#">Land Revenue Dashboard</a>
-        </div>
+      <div class="menu">
+    <a id="link1" href="https://lookerstudio.google.com/reporting/ab5881ca-3bf5-49c5-9af9-748d00b66dad" target="_blank">Commercial Revenue BI Dashboard</a>
+    <a id="link2" href="https://lookerstudio.google.com/reporting/80622fbd-98b8-48f0-8af1-982f849a8639" target="_blank">Stations Infrastructure Info</a>
+    <a id="link3" href="#">Operation Dashboard</a>
+    <a id="link4" href="#">Land Revenue Dashboard</a>
+</div>
+
     </div>
 
     <!-- Bottom Footer -->
@@ -211,6 +212,56 @@ body.locked .page-content {
 
 
 </div>
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <h2>User Login</h2>
+        <input type="text" id="username" placeholder="User ID">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div class="error" id="errorMsg">Invalid user ID or password</div>
+    </div>
+</div>
+<script>
+/* ===== USER DATABASE (TEMP – later Google Sheet) ===== */
+const users = {
+    dco: { password: "1234", access: [1, 2] },
+    dto: { password: "1234", access: [3] },
+    ddl: { password: "1234", access: [4] },
+    ds:  { password: "1234", access: [1, 2, 3, 4] }
+};
+
+/* ===== LOCK PAGE INITIALLY ===== */
+document.body.classList.add("locked");
+
+/* ===== LOGIN FUNCTION ===== */
+function login() {
+    const user = document.getElementById("username").value.trim().toLowerCase();
+    const pass = document.getElementById("password").value;
+
+    if (!users[user] || users[user].password !== pass) {
+        document.getElementById("errorMsg").style.display = "block";
+        return;
+    }
+
+    // Hide login
+    document.getElementById("loginOverlay").style.display = "none";
+    document.body.classList.remove("locked");
+
+    applyAccess(users[user].access);
+}
+
+/* ===== ACCESS CONTROL ===== */
+function applyAccess(allowedLinks) {
+    for (let i = 1; i <= 4; i++) {
+        const link = document.getElementById("link" + i);
+        if (!allowedLinks.includes(i)) {
+            link.style.pointerEvents = "none";
+            link.style.opacity = "0.4";
+            link.style.cursor = "not-allowed";
+        }
+    }
+}
+</script>
 
 
 </body>
