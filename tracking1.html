@@ -104,14 +104,14 @@
     let selectedTrainName = "";
     let currentTrainNum = "";
     let waitingForLive = false;
-    let lastLiveData = null; // Store last received packet for re-rendering
+    let lastLiveData = null;
 
     document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
 
     async function init() {
         const datalist = document.getElementById('trainList');
         try {
-            const res = await fetch('${API_BASE}/api/proxy/live-trains');
+            const res = await fetch(`${API_BASE}/api/proxy/live-trains`);
             const data = await res.json();
             if(data?.Response) {
                 const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
@@ -147,7 +147,7 @@
     }
 
     function initRelayConnection() {
-        const socket = new SockJS('${API_BASE}/ws-rail');
+        const socket = new SockJS(`${API_BASE}/ws-rail`);
         stompClient = Stomp.over(socket);
         stompClient.debug = null;
         stompClient.connect({}, function () {
@@ -173,22 +173,18 @@
 
         document.getElementById('targetDisplay').innerText = currentTargetID;
 
-        // Reset memory for the new selection
         lastLiveData = null;
         stations = [];
 
         showUpdatingState();
 
-        // 1. BACKGROUND FETCH: Get station names
         fetch(`${API_BASE}/api/proxy/stations?id=${currentTrainNum}`)
             .then(res => res.json())
             .then(sData => {
                 stations = sData.Response || [];
-                // If data is already on screen from cache, refresh it to show names
                 if (lastLiveData) render(lastLiveData, false);
             }).catch(() => {});
 
-        // 2. CACHE CHECK: Immediate display if in memory
         try {
             const cacheRes = await fetch(`${API_BASE}/api/proxy/snapshot?trackingId=${currentTargetID}&trainNum=${currentTrainNum}`);
             if (cacheRes.ok) {
@@ -202,7 +198,6 @@
                 }
             }
 
-            // 3. SOCKET POKE: Only if cache is empty
             waitingForLive = true;
             fetch(`${API_BASE}/api/proxy/trigger-live?trackingId=${currentTargetID}`);
             document.getElementById('statusMsg').innerText = "Requesting Satellite Ping... 🛰️";
@@ -217,7 +212,7 @@
     }
 
     function render(data, isLive) {
-        lastLiveData = data; // Keep for station name re-fills
+        lastLiveData = data;
 
         if (waitingForLive && !isLive) return;
         const tbody = document.getElementById('liveRow');
@@ -228,8 +223,6 @@
         const next = stations.find(s => s.StationDetailsId == nextStID);
         const prev = stations.find(s => s.StationDetailsId == prevStID);
 
-        // CLEAN LABELS: No IDs shown here.
-        // If IDs exist but names haven't loaded, we show "Syncing Name..."
         let nextName = next ? next.StationName : (nextStID ? "🛰️ Syncing Name..." : "In Transit");
         let prevName = prev ? prev.StationName : (prevStID ? "🛰️ Syncing Name..." : "Departed");
 
