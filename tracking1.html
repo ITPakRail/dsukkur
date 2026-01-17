@@ -159,49 +159,26 @@
         });
     }
 
-    async function updateTracker() {
-        if (!currentTrainNum) return;
-        const selDate = new Date(document.getElementById('datePicker').value);
-        if (isNaN(selDate)) return;
+   async function updateTracker() {
+    if (!currentTrainNum) return;
 
-        const dd = String(selDate.getDate()).padStart(2, '0');
-        const mm = String(selDate.getMonth() + 1).padStart(2, '0');
-        currentTargetID = `${currentTrainNum}${dd}${mm}`;
+    const selDate = new Date(document.getElementById('datePicker').value);
+    const dd = String(selDate.getDate()).padStart(2, '0');
+    const mm = String(selDate.getMonth() + 1).padStart(2, '0');
+    currentTargetID = `${currentTrainNum}${dd}${mm}`;
 
-        document.getElementById('targetDisplay').innerText = currentTargetID;
+    document.getElementById('statusMsg').innerText = "Fetching live data...";
 
-        lastLiveData = null;
-        stations = [];
+    // Get stations
+    const sData = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`).then(r=>r.json());
+    stations = sData.Response || [];
 
-        showUpdatingState();
+    // Get snapshot
+    const snapshot = await fetch(`${API_BASE}?action=snapshot&trackingId=${currentTargetID}&trainNum=${currentTrainNum}`).then(r=>r.json());
+    render(snapshot.data || snapshot.Response, false);
 
-        fetch(`${API_BASE}/api/proxy/stations?id=${currentTrainNum}`)
-            .then(res => res.json())
-            .then(sData => {
-                stations = sData.Response || [];
-                if (lastLiveData) render(lastLiveData, false);
-            }).catch(() => {});
-
-        try {
-            const cacheRes = await fetch(`${API_BASE}/api/proxy/snapshot?trackingId=${currentTargetID}&trainNum=${currentTrainNum}`);
-            if (cacheRes.ok) {
-                const result = await cacheRes.json();
-                const finalData = result.data || result.Response;
-                if (finalData) {
-                    waitingForLive = false;
-                    render(finalData, false);
-                    document.getElementById('statusMsg').innerText = "Instant Sync ⚡";
-                    return;
-                }
-            }
-
-            waitingForLive = true;
-            fetch(`${API_BASE}/api/proxy/trigger-live?trackingId=${currentTargetID}`);
-            document.getElementById('statusMsg').innerText = "Requesting Satellite Ping... 🛰️";
-        } catch (e) {
-            document.getElementById('statusMsg').innerText = "Connection lost.";
-        }
-    }
+    document.getElementById('statusMsg').innerText = "Data updated ⚡";
+}
 
     function showUpdatingState() {
         const tbody = document.getElementById('liveRow');
