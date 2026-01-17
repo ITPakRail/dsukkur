@@ -1,224 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pakistan Railways - Secure Tracker</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <style>
-        :root { --pk-green: #005a32; --pk-light-green: #2e7d32; --bg-gray: #f0f2f5; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Railways - Live Tracker</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+:root { --pk-green: #005a32; --pk-light-green: #2e7d32; --bg-gray: #f0f2f5; }
+body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-gray); margin:0; padding:20px; color:#333; }
+.dashboard { max-width:1250px; margin:auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+.header-box { background:var(--pk-green); color:white; padding:20px; border-radius:10px 10px 0 0; text-align:center; }
+.controls { display:grid; grid-template-columns:1fr 2fr 1fr; gap:20px; background:#e8f5e9; padding:20px; border-radius:8px; margin-bottom:25px; align-items:end; }
+label { font-weight:bold; color:var(--pk-light-green); display:block; margin-bottom:5px; }
+input, select { padding:12px; border:1px solid #ccc; border-radius:6px; width:100%; font-size:15px; }
 
-        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: var(--bg-gray); padding: 0; margin: 0; color: #333; }
+/* Table with side panels wrapper */
+.table-wrapper { display:flex; justify-content:center; gap:20px; }
+.side-panel { width:120px; min-width:100px; background:#f9f9f9; border-radius:8px; text-align:center; padding:10px; font-size:12px; color:#666; }
+.table-container { flex:1; overflow-x:auto; }
 
-        .page-wrapper { display: flex; justify-content: center; max-width: 1400px; margin: auto; padding: 15px; gap: 15px; }
-        .main-content { flex: 1; width: 100%; max-width: 1000px; }
+table { width:100%; border-collapse:collapse; background:white; border-radius:8px; overflow:hidden; min-width:600px; }
+th { background:var(--pk-light-green); color:white; padding:15px; text-align:left; font-size:13px; text-transform:uppercase; }
+td { padding:15px; border-bottom:1px solid #eee; font-size:14px; }
+.delay-red { color:#c62828; font-weight:bold; }
+.speed-val { font-family: 'Courier New', monospace; font-weight:bold; color:#1565c0; }
+.status-msg { font-size:12px; color:#666; margin-top:10px; font-style:italic; }
 
-        .dashboard { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; }
-        .header-box { background: var(--pk-green); color: white; padding: 20px; text-align: center; }
+/* Mobile Responsive */
+@media(max-width:768px){
+  .controls { grid-template-columns:1fr 1fr; gap:10px; }
+  input, select { font-size:14px; padding:10px; }
+  th, td { padding:12px; font-size:13px; }
+}
 
-        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #e8f5e9; padding: 20px; align-items: end; }
-        label { font-weight: bold; color: var(--pk-light-green); display: block; margin-bottom: 5px; font-size: 14px; }
+@media(max-width:480px){
+  .controls { grid-template-columns:1fr; gap:10px; }
+  input, select { font-size:13px; padding:8px; }
+  .table-wrapper { flex-direction:column; gap:0; }
+  .side-panel { display:none; }
+  table { min-width:100%; }
+  table thead { display:none; }
+  table, tbody, tr, td { display:block; width:100%; }
+  tr { margin-bottom:15px; border-bottom:2px solid var(--pk-green); }
+  td { text-align:right; padding:10px; position:relative; }
+  td::before { content: attr(data-label); position:absolute; left:10px; font-weight:bold; text-transform:uppercase; color:#666; font-size:12px; }
+}
 
-        input { padding: 12px; border: 1px solid #ccc; border-radius: 6px; width: 100%; font-size: 15px; box-sizing: border-box; background: white; outline: none; }
-        input:focus { border-color: var(--pk-green); box-shadow: 0 0 5px rgba(0,90,50,0.2); }
-
-        .table-container { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: var(--pk-light-green); color: white; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-
-        @media (max-width: 768px) {
-            .page-wrapper { padding: 10px; }
-            .ad-sidebar { display: none; }
-            .controls { grid-template-columns: 1fr; }
-            thead { display: none; }
-            td { display: block; text-align: right; border: none; padding: 10px 15px; position: relative; }
-            td::before { content: attr(data-label); position: absolute; left: 15px; font-weight: bold; color: #666; text-transform: uppercase; font-size: 12px; }
-            tr { display: block; border-bottom: 2px solid var(--pk-green); margin-bottom: 10px; }
-        }
-
-        .blink-text { animation: blink 1.5s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .delay-red { color: #d32f2f; font-weight: bold; }
-        .speed-val { color: #1976d2; font-weight: bold; font-family: monospace; }
-        .status-msg { padding: 15px; font-size: 12px; color: #666; font-style: italic; background: #fafafa; border-top: 1px solid #eee; }
-        .ad-placeholder { background: #e0e0e0; border: 1px dashed #bbb; color: #888; display: flex; align-items: center; justify-content: center; text-align: center; }
-    </style>
+/* ===== FOOTER ===== */
+.footer-text { text-align: center; font-size: 14px; color: #555; margin-top: 20px; }
+</style>
 </head>
 <body>
 
-<div class="page-wrapper">
-    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">.</div></aside>
+<div class="dashboard">
+  <div class="header-box"><h2 style="margin:0;">Pakistan Railways(Live Tracker)</h2></div>
 
-    <main class="main-content">
-        <div class="dashboard">
-            <div class="header-box"><h2 style="margin:0; font-size: 1.4rem;">Pakistan Railways(Live Tracker)</h2></div>
+  <div class="controls">
+      <div>
+          <label>Select Date</label>
+          <input type="date" id="datePicker">
+      </div>
+      <div>
+          <label>Select Train</label>
+          <input list="trainList" id="trainSearch" placeholder="Type or select train" oninput="handleTrainSelect()" autocomplete="off">
+          <datalist id="trainList"></datalist>
+      </div>
+  </div>
 
-            <div class="controls">
-                <div>
-                    <label>Travel Date</label>
-                    <input type="date" id="datePicker" onchange="updateTracker()">
-                </div>
-                <div>
-                    <label>Type or Select Train</label>
-                    <input list="trainList" id="trainSearch" placeholder="Click to see all or Type Name..."
-                           oninput="handleSearchInput()"
-                           onclick="this.value=''; this.placeholder='Searching...';"
-                           onfocus="this.value='';"
-                           autocomplete="off">
-                    <datalist id="trainList"></datalist>
-                </div>
-               
-            </div>
+  <!-- Table wrapper with side panels -->
+  <div class="table-wrapper">
+      <div class="side-panel">.</div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Train</th><th>Next</th><th>Prev</th><th>Delay</th><th>Speed</th><th>ETA</th><th>Update</th>
-                    </tr>
-                    </thead>
-                    <tbody id="liveRow">
-                    <tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">Search and select a train to begin.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="statusMsg" class="status-msg">System Initializing...</div>
-        </div>
-        <footer style="text-align: center; padding: 20px; color: #888; font-size: 12px;">--</footer>
-    </main>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr><th>Train</th><th>Next</th><th>Prev</th><th>Delay</th><th>Speed</th><th>Update</th></tr>
+          </thead>
+          <tbody id="liveRow">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Search and select a train to begin.</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-    <aside class="ad-sidebar" style="width:160px;"><div class="ad-placeholder" style="height:600px;">.</div></aside>
+      <div class="side-panel">.</div>
+  </div>
+
+  <div id="statusMsg" class="status-msg">Initializing...</div>
 </div>
 
 <script>
-    const API_BASE = "https://script.google.com/macros/s/AKfycbyILz_a27_sXqT5jNE-jQS3VsgqhBedxSVGyug-L2RpRQnvL5YCMBwbz0Dgs3JqTbnGoA/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbwfOEm2aU2Cfpy8RbTwagPmvYZmc-RBgTyxFYsoPszreId4cVnIpD19TOFieZUQrWnX7Q/exec";
+let stations=[], currentTrainNum="", currentTargetID="", selectedTrainName="", socket;
 
-    let stompClient = null;
-    let stations = [];
-    let currentTargetID = "";
-    let selectedTrainName = "";
-    let currentTrainNum = "";
-    let waitingForLive = false;
-    let lastLiveData = null;
+document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+const ss = "wss://cotrolroomapi.pakraillive.com";
 
-    document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
-
-    async function init() {
-        const datalist = document.getElementById('trainList');
-        try {
-            const res = await fetch(`${API_BASE}/api/proxy/live-trains`);
-            const data = await res.json();
-            if(data?.Response) {
-                const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
-                    a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber));
-
-                sorted.forEach(t => {
-                    let cleanName = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
-                    let opt = document.createElement('option');
-                    opt.value = cleanName;
-                    opt.dataset.num = t.TrainNumber;
-                    datalist.appendChild(opt);
-                });
-            }
-            initRelayConnection();
-        } catch (e) {
-            document.getElementById('statusMsg').innerText = "Backend Offline.";
-        }
-    }
-
-    function handleSearchInput() {
-        const input = document.getElementById('trainSearch');
-        const val = input.value;
-        const opts = document.getElementById('trainList').options;
-        for (let i = 0; i < opts.length; i++) {
-            if (opts[i].value === val) {
-                currentTrainNum = opts[i].dataset.num;
-                selectedTrainName = val;
-                input.blur();
-                updateTracker();
-                break;
-            }
-        }
-    }
-
-    function initRelayConnection() {
-        const socket = new SockJS(`${API_BASE}/ws-rail`);
-        stompClient = Stomp.over(socket);
-        stompClient.debug = null;
-        stompClient.connect({}, function () {
-            document.getElementById('statusMsg').innerText = "Live Relay Active ✅";
-            stompClient.subscribe('/topic/train-updates', function (msg) {
-                const wrapped = JSON.parse(msg.body);
-                if (wrapped.targetID === currentTargetID) {
-                    waitingForLive = false;
-                    render(wrapped.data, true);
-                }
+async function init() {
+    const trainListEl = document.getElementById('trainList');
+    try{
+        const res = await fetch(`${API_BASE}?action=live-trains`);
+        const data = await res.json();
+        if(data?.Response){
+            data.Response.filter(t=>t.IsLive)
+            .sort((a,b)=>a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber))
+            .forEach(t=>{
+                const opt = document.createElement('option');
+                opt.value = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
+                opt.dataset.num = t.TrainNumber;
+                trainListEl.appendChild(opt);
             });
-        });
-    }
-
-   async function updateTracker() {
-    if (!currentTrainNum) return;
-
-    const selDate = new Date(document.getElementById('datePicker').value);
-    const dd = String(selDate.getDate()).padStart(2, '0');
-    const mm = String(selDate.getMonth() + 1).padStart(2, '0');
-    currentTargetID = `${currentTrainNum}${dd}${mm}`;
-
-    document.getElementById('statusMsg').innerText = "Fetching live data...";
-
-    // Get stations
-    const sData = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`).then(r=>r.json());
-    stations = sData.Response || [];
-
-    // Get snapshot
-    const snapshot = await fetch(`${API_BASE}?action=snapshot&trackingId=${currentTargetID}&trainNum=${currentTrainNum}`).then(r=>r.json());
-    render(snapshot.data || snapshot.Response, false);
-
-    document.getElementById('statusMsg').innerText = "Data updated ⚡";
+        }
+        document.getElementById('statusMsg').innerText="Select train to load live data ⚡";
+    }catch(e){ document.getElementById('statusMsg').innerText="Backend Offline ⚠"; }
 }
 
-    function showUpdatingState() {
-        const tbody = document.getElementById('liveRow');
-        tbody.innerHTML = `<tr><td data-label="Train"><strong>${selectedTrainName}</strong></td><td colspan="6" style="text-align:center; color:var(--pk-light-green);"><span class="blink-text">⏳ Searching live GPS...</span></td></tr>`;
+function handleTrainSelect(){
+    const input=document.getElementById('trainSearch');
+    const val=input.value;
+    const opts=document.getElementById('trainList').options;
+    for(let i=0;i<opts.length;i++){
+        if(opts[i].value===val){
+            selectedTrainName=val;
+            currentTrainNum=opts[i].dataset.num;
+            input.blur();
+            updateTracker();
+            break;
+        }
     }
+}
 
-    function render(data, isLive) {
-        lastLiveData = data;
+function formatTime(min){ if(!min||min<=0) return "On Time"; const h=Math.floor(min/60); const m=min%60; return h>0?`${h}h ${m}m`:`${m}m`; }
 
-        if (waitingForLive && !isLive) return;
-        const tbody = document.getElementById('liveRow');
+function initSocket(){ if(socket) socket.disconnect(); socket=io(ss,{transports:["websocket"],path:"/socket.io/"}); socket.onAny((id,data)=>{ if(id===currentTargetID){ renderLive(data,true); } }); }
 
-        const nextStID = data.next_st || data.NextStationID;
-        const prevStID = data.prev_st || data.ArrivalStationID;
+async function updateTracker(){
+    if(!currentTrainNum) return;
+    const selDate=new Date(document.getElementById('datePicker').value);
+    if(isNaN(selDate)) return;
+    const dd=String(selDate.getDate()).padStart(2,'0');
+    const mm=String(selDate.getMonth()+1).padStart(2,'0');
+    currentTargetID=`${currentTrainNum}${dd}${mm}`;
+    document.getElementById('liveRow').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--pk-light-green);"><span class="blink-text">⏳ Loading...</span></td></tr>`;
+    document.getElementById('statusMsg').innerText="Fetching station data...";
+    try{
+        const resStations = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`);
+        const dataStations = await resStations.json();
+        stations=dataStations.Response||[];
+    }catch(e){}
+    document.getElementById('statusMsg').innerText="Please wait..! Getting live status...";
+    initSocket();
+}
 
-        const next = stations.find(s => s.StationDetailsId == nextStID);
-        const prev = stations.find(s => s.StationDetailsId == prevStID);
+function renderLive(data,isLive){
+    const tbody=document.getElementById('liveRow');
+    const prev=stations.find(s=>s.StationDetailsId==(data.prev_st||data.ArrivalStationID));
+    const next=stations.find(s=>s.StationDetailsId==(data.next_st||data.NextStationID));
+    const speed=data.sp??data.Speed??0;
+    const delay=data.late_by??data.DelayMinutes??0;
+    const eta=data.eta_raw??data.ExpectedArrivalTime??"---";
+    tbody.innerHTML=`<tr>
+        <td data-label="Train">${selectedTrainName}</td>
+        <td data-label="Next">${next?next.StationName:"In Transit"}</td>
+        <td data-label="Prev">${prev?prev.StationName:"Departed"}</td>
+        <td data-label="Delay" class="delay-red">${formatTime(delay)}</td>
+        <td data-label="Speed" class="speed-val">${speed} km/h</td>
+        <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive?"⚡":""}</td>
+    </tr>`;
+    if(isLive) document.getElementById('statusMsg').innerText="Live Trains ⚡";
+}
 
-        let nextName = next ? next.StationName : (nextStID ? "🛰️ Syncing Name..." : "In Transit");
-        let prevName = prev ? prev.StationName : (prevStID ? "🛰️ Syncing Name..." : "Departed");
-
-        tbody.innerHTML = `<tr>
-            <td data-label="Train"><strong>${selectedTrainName}</strong></td>
-            <td data-label="Next">${nextName}</td>
-            <td data-label="Prev">${prevName}</td>
-            <td data-label="Delay" class="delay-red">${formatTime(data.late_by || data.DelayMinutes)}</td>
-            <td data-label="Speed" class="speed-val">${data.sp || data.Speed || 0} km/h</td>
-            <td data-label="ETA" style="color:var(--pk-green); font-weight:bold;">${data.eta_raw || data.ExpectedArrivalTime || "---"}</td>
-            <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive ? '⚡' : ''}</td>
-        </tr>`;
-
-        if(isLive) document.getElementById('statusMsg').innerText = "Live Stream Active ⚡";
-    }
-
-    function formatTime(min) {
-        if (!min || min <= 0) return "On Time";
-        return min >= 60 ? `${Math.floor(min/60)}h ${min%60}m` : `${min}m`;
-    }
-
-    init();
+init();
 </script>
+
+<div class="footer-text">Copyright &copy; <span id="year"></span> Pakistan Railways</div>
 </body>
 </html>
