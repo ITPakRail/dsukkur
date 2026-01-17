@@ -96,6 +96,8 @@
 </div>
 
 <script>
+    const API_BASE = "https://gibraltar-exams-undo-orlando.trycloudflare.com";
+
     let stompClient = null;
     let stations = [];
     let currentTargetID = "";
@@ -109,7 +111,7 @@
     async function init() {
         const datalist = document.getElementById('trainList');
         try {
-            const res = await fetch('/api/proxy/live-trains');
+            const res = await fetch('${API_BASE}/api/proxy/live-trains');
             const data = await res.json();
             if(data?.Response) {
                 const sorted = data.Response.filter(t => t.IsLive).sort((a,b) =>
@@ -145,7 +147,7 @@
     }
 
     function initRelayConnection() {
-        const socket = new SockJS('/ws-rail');
+        const socket = new SockJS('${API_BASE}/ws-rail');
         stompClient = Stomp.over(socket);
         stompClient.debug = null;
         stompClient.connect({}, function () {
@@ -178,7 +180,7 @@
         showUpdatingState();
 
         // 1. BACKGROUND FETCH: Get station names
-        fetch(`/api/proxy/stations?id=${currentTrainNum}`)
+        fetch(`${API_BASE}/api/proxy/stations?id=${currentTrainNum}`)
             .then(res => res.json())
             .then(sData => {
                 stations = sData.Response || [];
@@ -188,7 +190,7 @@
 
         // 2. CACHE CHECK: Immediate display if in memory
         try {
-            const cacheRes = await fetch(`/api/proxy/snapshot?trackingId=${currentTargetID}&trainNum=${currentTrainNum}`);
+            const cacheRes = await fetch(`${API_BASE}/api/proxy/snapshot?trackingId=${currentTargetID}&trainNum=${currentTrainNum}`);
             if (cacheRes.ok) {
                 const result = await cacheRes.json();
                 const finalData = result.data || result.Response;
@@ -202,7 +204,7 @@
 
             // 3. SOCKET POKE: Only if cache is empty
             waitingForLive = true;
-            fetch(`/api/proxy/trigger-live?trackingId=${currentTargetID}`);
+            fetch(`${API_BASE}/api/proxy/trigger-live?trackingId=${currentTargetID}`);
             document.getElementById('statusMsg').innerText = "Requesting Satellite Ping... 🛰️";
         } catch (e) {
             document.getElementById('statusMsg').innerText = "Connection lost.";
