@@ -5,264 +5,157 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pakistan Railways - Live Tracker</title>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
 <style>
-:root {
-  --pk-green: #005a32;
-  --pk-light-green: #2e7d32;
-  --bg-gray: #f0f2f5;
+:root { --pk-green: #005a32; --pk-light-green: #2e7d32; --bg-gray: #f0f2f5; }
+body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-gray); margin:0; padding:20px; color:#333; }
+.dashboard { max-width:1250px; margin:auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+.header-box { background:var(--pk-green); color:white; padding:20px; border-radius:10px 10px 0 0; text-align:center; }
+.controls { display:grid; grid-template-columns:1fr 2fr 1fr; gap:20px; background:#e8f5e9; padding:20px; border-radius:8px; margin-bottom:25px; align-items:end; }
+label { font-weight:bold; color:var(--pk-light-green); display:block; margin-bottom:5px; }
+input, select { padding:12px; border:1px solid #ccc; border-radius:6px; width:100%; font-size:15px; }
+
+/* Table with side panels wrapper */
+.table-wrapper { display:flex; justify-content:center; gap:20px; }
+.side-panel { width:120px; min-width:100px; background:#f9f9f9; border-radius:8px; text-align:center; padding:10px; font-size:12px; color:#666; }
+.table-container { flex:1; overflow-x:auto; }
+
+table { width:100%; border-collapse:collapse; background:white; border-radius:8px; overflow:hidden; min-width:600px; }
+th { background:var(--pk-light-green); color:white; padding:15px; text-align:left; font-size:13px; text-transform:uppercase; }
+td { padding:15px; border-bottom:1px solid #eee; font-size:14px; }
+.delay-red { color:#c62828; font-weight:bold; }
+.speed-val { font-family: 'Courier New', monospace; font-weight:bold; color:#1565c0; }
+.status-msg { font-size:12px; color:#666; margin-top:10px; font-style:italic; }
+
+/* Mobile Responsive */
+@media(max-width:768px){
+.controls { grid-template-columns:1fr 1fr; gap:10px; }
+input, select { font-size:14px; padding:10px; }
+th, td { padding:12px; font-size:13px; }
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: var(--bg-gray);
-  margin: 0;
-  padding: 20px;
-  color: #333;
+@media(max-width:480px){
+.controls { grid-template-columns:1fr; gap:10px; }
+input, select { font-size:13px; padding:8px; }
+.table-wrapper { flex-direction:column; gap:0; }
+.side-panel { display:none; }
+table { min-width:100%; }
+table thead { display:none; }
+table, tbody, tr, td { display:block; width:100%; }
+tr { margin-bottom:15px; border-bottom:2px solid var(--pk-green); }
+td { text-align:right; padding:10px; position:relative; }
+td::before { content: attr(data-label); position:absolute; left:10px; font-weight:bold; text-transform:uppercase; color:#666; font-size:12px; }
 }
 
-.dashboard {
-  max-width: 1250px;
-  margin: auto;
-  background: #fff;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-
-/* ================= HEADER ================= */
-.main-header {
-  background-color: #2e7d32;
-  color: white;
-  padding: 5px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-left img,
-.header-right img {
-  height: 50px;
-  width: auto;
-}
-
-.header-center {
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  flex: 1;
-}
-
-.header-left,
-.header-right {
-  width: 60px;
-  text-align: center;
-}
-
-/* ================= NAV ================= */
+/* ===== FOOTER ===== */
+.footer-text { text-align: center; font-size: 14px; color: #555; margin-top: 20px; }
+/* ================= NAVIGATION ================= */
 nav {
-  background-color: rgba(0, 0, 50, 0.9);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+background-color: rgba(0, 0, 50, 0.9);
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
 }
 
 nav a {
-  color: white;
-  padding: 12px 20px;
-  text-decoration: none;
-  font-size: 16px;
-  transition: background 0.3s;
+color: white;
+padding: 12px 20px;
+text-decoration: none;
+font-size: 16px;
+text-align: center;
+transition: background 0.3s;
 }
 
 nav a:hover {
-  background-color: #1a237e;
+background-color: #1a237e;
+}
+/* ================= HEADER ================= */
+.main-header {
+background-color: #2e7d32;
+color: white;
+padding: 5px 10px;
+display: flex;
+align-items: center;
+justify-content: space-between;
 }
 
-/* ================= CONTROLS ================= */
-.controls {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 20px;
-  background: #e8f5e9;
-  padding: 20px;
-  border-radius: 8px;
-  margin: 25px 0;
+/* Left & Right logos */
+.header-left img,
+.header-right img {
+height: 50px;
+width: auto;
 }
 
-label {
-  font-weight: bold;
-  color: var(--pk-light-green);
-  display: block;
-  margin-bottom: 5px;
+/* Center title */
+.header-center {
+font-size: 22px;
+font-weight: bold;
+text-align: center;
+flex: 1;
 }
 
-input {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
-  font-size: 15px;
-}
-
-/* ================= TABLE LAYOUT ================= */
-.table-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.side-panel {
-  width: 120px;
-  min-width: 100px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  text-align: center;
-  padding: 10px;
-  font-size: 12px;
-  color: #666;
-}
-
-/* IMPORTANT: enable horizontal scrolling */
-.table-container {
-  flex: 1;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  width: 100%;
-  min-width: 900px; /* forces scroll on mobile */
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-}
-
-th {
-  background: var(--pk-light-green);
-  color: white;
-  padding: 15px;
-  text-align: left;
-  font-size: 13px;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-td {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.delay-red {
-  color: #c62828;
-  font-weight: bold;
-}
-
-.speed-val {
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  color: #1565c0;
-}
-
-.status-msg {
-  font-size: 12px;
-  color: #666;
-  margin-top: 10px;
-  font-style: italic;
-}
-
-/* ================= MOBILE FIXES ONLY ================= */
-@media (max-width: 768px) {
-  .controls {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  input {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .side-panel {
-    display: none;
-  }
-}
-
-/* Footer */
-.footer-text {
-  text-align: center;
-  font-size: 14px;
-  color: #555;
-  margin-top: 20px;
+/* Logos alignment */
+.header-left,
+.header-right {
+width: 60px;
+text-align: center;
 }
 </style>
 </head>
-
 <body>
-
 <header class="main-header">
-  <div class="header-left">
-    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80">
-  </div>
-  <div class="header-center">Pakistan Railways - Live Tracker</div>
-  <div class="header-right">
-    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150">
-  </div>
-</header>
-
-<nav>
-  <a href="/index.html">Home</a>
-  <a href="/timing.html">Train Timing</a>
-  <a href="/ticketing.html">Ticketing</a>
- 
-</nav>
-
-
-<div class="controls">
-  <div>
-    <label>Select Date</label>
-    <input type="date" id="datePicker">
-  </div>
-  <div>
-    <label>Select Train</label>
-    <input list="trainList" id="trainSearch" placeholder="Type or select train" autocomplete="off">
-    <datalist id="trainList"></datalist>
-  </div>
+<div class="header-left">
+<img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
 </div>
 
+<div class="header-center">
+    Pakistan Railways – Sukkur Division
+    Pakistan Railways - Live Tracker
+</div>
+
+<div class="header-right">
+<img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+</div>
+</header>
+<!-- MENU -->
+<nav>
+<a href="index.html">Home</a>
+<a href="timing.html">Train Timing</a>
+<a href="ticketing.html">Ticketing</a>
+
+
+</nav>
+<div class="controls">
+<div>
+<label>Select Date</label>
+<input type="date" id="datePicker">
+</div>
+<div>
+<label>Select Train</label>
+<input list="trainList" id="trainSearch" placeholder="Type or select train" oninput="handleTrainSelect()" autocomplete="off">
+<datalist id="trainList"></datalist>
+</div>
+</div>
+
+<!-- Table wrapper with side panels -->
 <div class="table-wrapper">
-  <div class="side-panel">.</div>
+<div class="side-panel">.</div>
 
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Train</th>
-          <th>Next</th>
-          <th>Prev</th>
-          <th>Delay</th>
-          <th>Speed</th>
-          <th>Update</th>
-        </tr>
-      </thead>
-      <tbody id="liveRow">
-        <tr>
-          <td colspan="6" style="text-align:center;padding:40px;color:#999;">
-            Search and select a train to begin.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<div class="table-container">
+<table>
+<thead>
+<tr><th>Train</th><th>Next</th><th>Prev</th><th>Delay</th><th>Speed</th><th>Update</th></tr>
+</thead>
+<tbody id="liveRow">
+<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">Search and select a train to begin.</td></tr>
+</tbody>
+</table>
+</div>
 
-  <div class="side-panel">.</div>
+<div class="side-panel">.</div>
 </div>
 
 <div id="statusMsg" class="status-msg">Initializing...</div>
-
-
+</div>
 
 <script>
 const API_BASE = "https://script.google.com/macros/s/AKfycbwfOEm2aU2Cfpy8RbTwagPmvYZmc-RBgTyxFYsoPszreId4cVnIpD19TOFieZUQrWnX7Q/exec";
@@ -272,37 +165,37 @@ document.getElementById('datePicker').value = new Date().toISOString().split('T'
 const ss = "wss://cotrolroomapi.pakraillive.com";
 
 async function init() {
-    const trainListEl = document.getElementById('trainList');
-    try{
-        const res = await fetch(`${API_BASE}?action=live-trains`);
-        const data = await res.json();
-        if(data?.Response){
-            data.Response.filter(t=>t.IsLive)
-            .sort((a,b)=>a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber))
-            .forEach(t=>{
-                const opt = document.createElement('option');
-                opt.value = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
-                opt.dataset.num = t.TrainNumber;
-                trainListEl.appendChild(opt);
-            });
-        }
-        document.getElementById('statusMsg').innerText="Select train to load live data ⚡";
-    }catch(e){ document.getElementById('statusMsg').innerText="Backend Offline ⚠"; }
+const trainListEl = document.getElementById('trainList');
+try{
+const res = await fetch(`${API_BASE}?action=live-trains`);
+const data = await res.json();
+if(data?.Response){
+data.Response.filter(t=>t.IsLive)
+.sort((a,b)=>a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber))
+.forEach(t=>{
+const opt = document.createElement('option');
+opt.value = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
+opt.dataset.num = t.TrainNumber;
+trainListEl.appendChild(opt);
+});
+}
+document.getElementById('statusMsg').innerText="Select train to load live data ⚡";
+}catch(e){ document.getElementById('statusMsg').innerText="Backend Offline ⚠"; }
 }
 
 function handleTrainSelect(){
-    const input=document.getElementById('trainSearch');
-    const val=input.value;
-    const opts=document.getElementById('trainList').options;
-    for(let i=0;i<opts.length;i++){
-        if(opts[i].value===val){
-            selectedTrainName=val;
-            currentTrainNum=opts[i].dataset.num;
-            input.blur();
-            updateTracker();
-            break;
-        }
-    }
+const input=document.getElementById('trainSearch');
+const val=input.value;
+const opts=document.getElementById('trainList').options;
+for(let i=0;i<opts.length;i++){
+if(opts[i].value===val){
+selectedTrainName=val;
+currentTrainNum=opts[i].dataset.num;
+input.blur();
+updateTracker();
+break;
+}
+}
 }
 
 function formatTime(min){ if(!min||min<=0) return "On Time"; const h=Math.floor(min/60); const m=min%60; return h>0?`${h}h ${m}m`:`${m}m`; }
@@ -310,39 +203,39 @@ function formatTime(min){ if(!min||min<=0) return "On Time"; const h=Math.floor(
 function initSocket(){ if(socket) socket.disconnect(); socket=io(ss,{transports:["websocket"],path:"/socket.io/"}); socket.onAny((id,data)=>{ if(id===currentTargetID){ renderLive(data,true); } }); }
 
 async function updateTracker(){
-    if(!currentTrainNum) return;
-    const selDate=new Date(document.getElementById('datePicker').value);
-    if(isNaN(selDate)) return;
-    const dd=String(selDate.getDate()).padStart(2,'0');
-    const mm=String(selDate.getMonth()+1).padStart(2,'0');
-    currentTargetID=`${currentTrainNum}${dd}${mm}`;
-    document.getElementById('liveRow').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--pk-light-green);"><span class="blink-text">⏳ Loading...</span></td></tr>`;
-    document.getElementById('statusMsg').innerText="Fetching station data...";
-    try{
-        const resStations = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`);
-        const dataStations = await resStations.json();
-        stations=dataStations.Response||[];
-    }catch(e){}
-    document.getElementById('statusMsg').innerText="Please wait..! Getting live status...";
-    initSocket();
+if(!currentTrainNum) return;
+const selDate=new Date(document.getElementById('datePicker').value);
+if(isNaN(selDate)) return;
+const dd=String(selDate.getDate()).padStart(2,'0');
+const mm=String(selDate.getMonth()+1).padStart(2,'0');
+currentTargetID=`${currentTrainNum}${dd}${mm}`;
+document.getElementById('liveRow').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--pk-light-green);"><span class="blink-text">⏳ Loading...</span></td></tr>`;
+document.getElementById('statusMsg').innerText="Fetching station data...";
+try{
+const resStations = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`);
+const dataStations = await resStations.json();
+stations=dataStations.Response||[];
+}catch(e){}
+document.getElementById('statusMsg').innerText="Please wait..! Getting live status...";
+initSocket();
 }
 
 function renderLive(data,isLive){
-    const tbody=document.getElementById('liveRow');
-    const prev=stations.find(s=>s.StationDetailsId==(data.prev_st||data.ArrivalStationID));
-    const next=stations.find(s=>s.StationDetailsId==(data.next_st||data.NextStationID));
-    const speed=data.sp??data.Speed??0;
-    const delay=data.late_by??data.DelayMinutes??0;
-    const eta=data.eta_raw??data.ExpectedArrivalTime??"---";
-    tbody.innerHTML=`<tr>
-        <td data-label="Train">${selectedTrainName}</td>
-        <td data-label="Next">${next?next.StationName:"In Transit"}</td>
-        <td data-label="Prev">${prev?prev.StationName:"Departed"}</td>
-        <td data-label="Delay" class="delay-red">${formatTime(delay)}</td>
-        <td data-label="Speed" class="speed-val">${speed} km/h</td>
-        <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive?"⚡":""}</td>
-    </tr>`;
-    if(isLive) document.getElementById('statusMsg').innerText="Live Trains ⚡";
+const tbody=document.getElementById('liveRow');
+const prev=stations.find(s=>s.StationDetailsId==(data.prev_st||data.ArrivalStationID));
+const next=stations.find(s=>s.StationDetailsId==(data.next_st||data.NextStationID));
+const speed=data.sp??data.Speed??0;
+const delay=data.late_by??data.DelayMinutes??0;
+const eta=data.eta_raw??data.ExpectedArrivalTime??"---";
+tbody.innerHTML=`<tr>
+       <td data-label="Train">${selectedTrainName}</td>
+       <td data-label="Next">${next?next.StationName:"In Transit"}</td>
+       <td data-label="Prev">${prev?prev.StationName:"Departed"}</td>
+       <td data-label="Delay" class="delay-red">${formatTime(delay)}</td>
+       <td data-label="Speed" class="speed-val">${speed} km/h</td>
+       <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive?"⚡":""}</td>
+   </tr>`;
+if(isLive) document.getElementById('statusMsg').innerText="Live Trains ⚡";
 }
 
 init();
