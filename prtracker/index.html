@@ -171,9 +171,22 @@ const API_BASE = "https://script.google.com/macros/s/AKfycbwfOEm2aU2Cfpy8RbTwagP
 let stations=[], currentTrainNum="", currentTargetID="", selectedTrainName="", socket;
 
 document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
-const ss = "wss://cotrolroomapi.pakraillive.com";
+let ss = "";
+
+async function loadSocketURL() {
+  try {
+    const res = await fetch(
+      "https://script.google.com/macros/s/AKfycbyxxJs2NlcA53i0a5PZXGV2KM-KILjLi4joLh-uD1-Mytfs6qQGjt55-6GN-TwilAf9/exec"
+    );
+    const data = await res.json();
+    ss = data.ss;
+  } catch (e) {
+    console.error("Socket config load failed", e);
+  }
+}
 
 async function init() {
+
 const trainListEl = document.getElementById('trainList');
 try{
 const res = await fetch(`${API_BASE}?action=live-trains`);
@@ -190,6 +203,7 @@ trainListEl.appendChild(opt);
 }
 document.getElementById('statusMsg').innerText="Select train to load live data ⚡";
 }catch(e){ document.getElementById('statusMsg').innerText="Backend Offline ⚠"; }
+await loadSocketURL();
 }
 
 function handleTrainSelect(){
@@ -209,24 +223,74 @@ break;
 
 function formatTime(min){ if(!min||min<=0) return "On Time"; const h=Math.floor(min/60); const m=min%60; return h>0?`${h}h ${m}m`:`${m}m`; }
 
-function initSocket(){ if(socket) socket.disconnect(); socket=io(ss,{transports:["websocket"],path:"/socket.io/"}); socket.onAny((id,data)=>{ if(id===currentTargetID){ renderLive(data,true); } }); }
+function initSocket() {
+  if (socket) socket.disconnect();
 
-async function updateTracker(){
-if(!currentTrainNum) return;
-const selDate=new Date(document.getElementById('datePicker').value);
-if(isNaN(selDate)) return;
-const dd=String(selDate.getDate()).padStart(2,'0');
-const mm=String(selDate.getMonth()+1).padStart(2,'0');
-currentTargetID=`${currentTrainNum}${dd}${mm}`;
-document.getElementById('liveRow').innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--pk-light-green);"><span class="blink-text">⏳ Loading...</span></td></tr>`;
-document.getElementById('statusMsg').innerText="Fetching station data...";
-try{
-const resStations = await fetch(`${API_BASE}?action=stations&id=${currentTrainNum}`);
-const dataStations = await resStations.json();
-stations=dataStations.Response||[];
-}catch(e){}
-document.getElementById('statusMsg').innerText="Please wait..! Getting live status...";
-initSocket();
+  console.log("Connecting socket to:", ss);
+
+  socket = io(ss, {
+    transports: ["websocket"],
+    path: "/socket.io/"
+  });
+
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
+  });
+
+  socket.on("connect_error", err => {
+    console.error("Socket error:", err);
+  });
+
+  // ✅ SOCKET = UPDATER (CACHE EVERYTHING)
+  socket.onAny((id, data) => {
+    trainCache[id] = data; // store immediately
+
+    if (String(id) === String(currentTargetID)) {
+      renderLive(data, true);
+    }
+  });
+}
+
+
+async function updateTracker() {
+  if (!currentTrainNum) return;
+
+  const selDate = new Date(
+    document.getElementById('datePicker').value
+  );
+  if (isNaN(selDate)) return;
+
+  const dd = String(selDate.getDate()).padStart(2, '0');
+  const mm = String(selDate.getMonth() + 1).padStart(2, '0');
+
+  currentTargetID = `${currentTrainNum}${dd}${mm}`;
+
+  document.getElementById('liveRow').innerHTML =
+    `<tr><td colspan="6" style="text-align:center;color:var(--pk-light-green);">
+     <span class="blink-text">⏳ Loading...</span></td></tr>`;
+
+  document.getElementById('statusMsg').innerText =
+    "Fetching station data...";
+
+  try {
+    const resStations = await fetch(
+      `${API_BASE}?action=stations&id=${currentTrainNum}`
+    );
+    const dataStations = await resStations.json();
+    stations = dataStations.Response || [];
+  } catch (e) {}
+
+  // ✅ UI = READER FROM MEMORY (INSTANT)
+  if (trainCache[currentTargetID]) {
+    renderLive(trainCache[currentTargetID], false);
+    document.getElementById('statusMsg').innerText =
+      "Live (cached) ⚡";
+  }
+
+  document.getElementById('statusMsg').innerText =
+    "Please wait..! Getting live status...";
+
+  initSocket();
 }
 
 function renderLive(data,isLive){
