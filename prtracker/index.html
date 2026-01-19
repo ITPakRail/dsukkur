@@ -249,14 +249,10 @@ function formatTime(min) {
 
 function initSocket() {
   if (socket) socket.disconnect();
-
-  console.log("Connecting socket to:", ss);
-
   socket = io(ss, {
     transports: ["websocket"],
     path: "/socket.io/"
   });
-
   socket.on("connect", () => {
     console.log("Socket connected:", socket.id);
   });
