@@ -168,9 +168,19 @@ text-align: center;
 
 <script>
 const API_BASE = "https://script.google.com/macros/s/AKfycbwfOEm2aU2Cfpy8RbTwagPmvYZmc-RBgTyxFYsoPszreId4cVnIpD19TOFieZUQrWnX7Q/exec";
-let stations=[], currentTrainNum="", currentTargetID="", selectedTrainName="", socket;
 
-document.getElementById('datePicker').value = new Date().toISOString().split('T')[0];
+let stations = [],
+    currentTrainNum = "",
+    currentTargetID = "",
+    selectedTrainName = "",
+    socket;
+
+// ✅ SOCKET IN-MEMORY CACHE (ONLY ADDITION)
+const trainCache = {};
+
+document.getElementById('datePicker').value =
+  new Date().toISOString().split('T')[0];
+
 let ss = "";
 
 async function loadSocketURL() {
@@ -186,42 +196,56 @@ async function loadSocketURL() {
 }
 
 async function init() {
+  await loadSocketURL();
+  const trainListEl = document.getElementById('trainList');
 
-const trainListEl = document.getElementById('trainList');
-try{
-const res = await fetch(`${API_BASE}?action=live-trains`);
-const data = await res.json();
-if(data?.Response){
-data.Response.filter(t=>t.IsLive)
-.sort((a,b)=>a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber))
-.forEach(t=>{
-const opt = document.createElement('option');
-opt.value = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
-opt.dataset.num = t.TrainNumber;
-trainListEl.appendChild(opt);
-});
-}
-document.getElementById('statusMsg').innerText="Select train to load live data ⚡";
-}catch(e){ document.getElementById('statusMsg').innerText="Backend Offline ⚠"; }
-await loadSocketURL();
-}
+  try {
+    const res = await fetch(`${API_BASE}?action=live-trains`);
+    const data = await res.json();
 
-function handleTrainSelect(){
-const input=document.getElementById('trainSearch');
-const val=input.value;
-const opts=document.getElementById('trainList').options;
-for(let i=0;i<opts.length;i++){
-if(opts[i].value===val){
-selectedTrainName=val;
-currentTrainNum=opts[i].dataset.num;
-input.blur();
-updateTracker();
-break;
-}
-}
+    if (data?.Response) {
+      data.Response
+        .filter(t => t.IsLive)
+        .sort((a, b) =>
+          a.TrainNameWithNumber.localeCompare(b.TrainNameWithNumber)
+        )
+        .forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.TrainNameWithNumber.replace(/\d+$/, '').trim();
+          opt.dataset.num = t.TrainNumber;
+          trainListEl.appendChild(opt);
+        });
+    }
+
+    document.getElementById('statusMsg').innerText =
+      "Select train to load live data ⚡";
+  } catch (e) {
+    document.getElementById('statusMsg').innerText = "Backend Offline ⚠";
+  }
 }
 
-function formatTime(min){ if(!min||min<=0) return "On Time"; const h=Math.floor(min/60); const m=min%60; return h>0?`${h}h ${m}m`:`${m}m`; }
+function handleTrainSelect() {
+  const input = document.getElementById('trainSearch');
+  const val = input.value;
+  const opts = document.getElementById('trainList').options;
+
+  for (let i = 0; i < opts.length; i++) {
+    if (opts[i].value === val) {
+      selectedTrainName = val;
+      currentTrainNum = opts[i].dataset.num;
+      input.blur();
+      updateTracker();
+      break;
+    }
+  }
+}
+
+function formatTime(min) {
+  if (!min || min <= 0) return "On Time";
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
 
 function initSocket() {
   if (socket) socket.disconnect();
@@ -250,7 +274,6 @@ function initSocket() {
     }
   });
 }
-
 
 async function updateTracker() {
   if (!currentTrainNum) return;
@@ -293,26 +316,41 @@ async function updateTracker() {
   initSocket();
 }
 
-function renderLive(data,isLive){
-const tbody=document.getElementById('liveRow');
-const prev=stations.find(s=>s.StationDetailsId==(data.prev_st||data.ArrivalStationID));
-const next=stations.find(s=>s.StationDetailsId==(data.next_st||data.NextStationID));
-const speed=data.sp??data.Speed??0;
-const delay=data.late_by??data.DelayMinutes??0;
-const eta=data.eta_raw??data.ExpectedArrivalTime??"---";
-tbody.innerHTML=`<tr>
-       <td data-label="Train">${selectedTrainName}</td>
-       <td data-label="Next">${next?next.StationName:"In Transit"}</td>
-       <td data-label="Prev">${prev?prev.StationName:"Departed"}</td>
-       <td data-label="Delay" class="delay-red">${formatTime(delay)}</td>
-       <td data-label="Speed" class="speed-val">${speed} km/h</td>
-       <td data-label="Update">${new Date().toLocaleTimeString()} ${isLive?"⚡":""}</td>
-   </tr>`;
-if(isLive) document.getElementById('statusMsg').innerText="Live Trains ⚡";
+function renderLive(data, isLive) {
+  const tbody = document.getElementById('liveRow');
+
+  const prev = stations.find(
+    s => s.StationDetailsId ==
+      (data.prev_st || data.ArrivalStationID)
+  );
+
+  const next = stations.find(
+    s => s.StationDetailsId ==
+      (data.next_st || data.NextStationID)
+  );
+
+  const speed = data.sp ?? data.Speed ?? 0;
+  const delay = data.late_by ?? data.DelayMinutes ?? 0;
+
+  tbody.innerHTML = `<tr>
+    <td data-label="Train">${selectedTrainName}</td>
+    <td data-label="Next">${next ? next.StationName : "In Transit"}</td>
+    <td data-label="Prev">${prev ? prev.StationName : "Departed"}</td>
+    <td data-label="Delay" class="delay-red">${formatTime(delay)}</td>
+    <td data-label="Speed" class="speed-val">${speed} km/h</td>
+    <td data-label="Update">
+      ${new Date().toLocaleTimeString()} ${isLive ? "⚡" : ""}
+    </td>
+  </tr>`;
+
+  if (isLive)
+    document.getElementById('statusMsg').innerText =
+      "Live Trains ⚡";
 }
 
 init();
 </script>
+
 
 <div class="footer-text">Copyright &copy; <span id="year"></span> Pakistan Railways</div>
 </body>
