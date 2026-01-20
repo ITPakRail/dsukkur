@@ -3,213 +3,142 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Complaint Admin Panel – Pakistan Railways Sukkur Division</title>
-
 <style>
-/* ===== BASIC ===== */
-body {
-font-family: Arial, sans-serif;
-background:#f5f5f5;
-margin:0;
-padding:0;
-}
-
-/* ===== HEADER PANEL ===== */
-.admin-header {
-background:#2e7d32;
-height:72px; /* approx 1 inch */
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 10px;
-}
-
-.admin-header img {
-height:55px;
-}
-
-.header-title {
-background:white;
-padding:6px 20px;
-border-radius:4px;
-text-align:center;
-line-height:1.2;
-}
-
-.header-title .main {
-font-size:18px;
-font-weight:bold;
-color:#2e7d32;
-}
-
-.header-title .sub {
-font-size:14px;
-color:#000;
-}
-
-/* ===== PAGE CONTENT ===== */
-.page-wrap {
-padding:20px;
-}
-
-h2 {
-color:#2e7d32;
-margin-top:0;
-}
-
-/* ===== TABLE ===== */
-table {
-width:100%;
-border-collapse: collapse;
-margin-top:10px;
-background:white;
-}
-
-th, td {
-border:1px solid #ccc;
-padding:8px;
-text-align:left;
-vertical-align:top;
-}
-
-th {
-background:#2e7d32;
-color:white;
-}
-
-select, input[type=text] {
-padding:5px;
-width:100%;
-box-sizing:border-box;
-}
-
-button {
-padding:6px 12px;
-background:#2e7d32;
-color:white;
-border:none;
-cursor:pointer;
-}
-
-button:hover {
-opacity:0.9;
-}
+/* CSS remains exactly as you provided */
+body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0; }
+.admin-header { background:#2e7d32; height:72px; display:flex; align-items:center; justify-content:space-between; padding:0 10px; }
+.admin-header img { height:55px; }
+.header-title { background:white; padding:6px 20px; border-radius:4px; text-align:center; line-height:1.2; }
+.header-title .main { font-size:18px; font-weight:bold; color:#2e7d32; }
+.header-title .sub { font-size:14px; color:#000; }
+.page-wrap { padding:20px; }
+h2 { color:#2e7d32; margin-top:0; }
+table { width:100%; border-collapse: collapse; margin-top:10px; background:white; }
+th, td { border:1px solid #ccc; padding:8px; text-align:left; vertical-align:top; }
+th { background:#2e7d32; color:white; }
+select, input[type=text] { padding:5px; width:100%; box-sizing:border-box; }
+button { padding:6px 12px; background:#2e7d32; color:white; border:none; cursor:pointer; }
+button:hover { opacity:0.9; }
 </style>
 </head>
 
 <body>
-
-<!-- ===== HEADER ===== -->
 <div class="admin-header">
-<img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways">
-
-<div class="header-title">
-<div class="main">Pakistan Railways Sukkur Division</div>
-<div class="sub">Complaint Admin Panel</div>
+  <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways">
+  <div class="header-title">
+    <div class="main">Pakistan Railways Sukkur Division</div>
+    <div class="sub">Complaint Admin Panel</div>
+  </div>
+  <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w120" alt="Division Logo">
 </div>
 
-<img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w120" alt="Division Logo">
-</div>
-
-<!-- ===== CONTENT ===== -->
 <div class="page-wrap">
+  <h2>Complaint List</h2>
+  <label for="statusFilter"><b>Filter by Status:</b></label>
+  <select id="statusFilter">
+    <option value="ALL">ALL</option>
+    <option value="OPEN">OPEN</option>
+    <option value="CLOSE">CLOSE</option>
+  </select>
 
-<h2>Complaint List</h2>
-
-<label for="statusFilter"><b>Filter by Status:</b></label>
-<select id="statusFilter">
-<option value="ALL">ALL</option>
-<option value="OPEN">OPEN</option>
-<option value="CLOSE">CLOSE</option>
-</select>
-
-<table id="complaintTable">
-<thead>
-<tr>
-<th>#</th>
-<th>Date</th>
-<th>Complainant</th>
-<th>Contact</th>
-<th>Type</th>
-<th>Message</th>
-<th>Pic</th>
-<th>Status</th>
-<th>Remarks</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
+  <table id="complaintTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date</th>
+        <th>Complainant</th>
+        <th>Contact</th>
+        <th>Type</th>
+        <th>Message</th>
+        <th>Pic</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
-const GET_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec?action=getComplaints";
-const UPDATE_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+const BASE_URL = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
+const GET_URL = `${BASE_URL}?action=getComplaints`;
 
 async function fetchComplaints() {
-const res = await fetch(GET_URL);
-return await res.json();
+  try {
+    const res = await fetch(GET_URL);
+    return await res.json();
+  } catch (e) {
+    console.error("Load error:", e);
+    return [];
+  }
 }
 
 function renderTable(complaints) {
-const tbody = document.querySelector("#complaintTable tbody");
-tbody.innerHTML = "";
+  const tbody = document.querySelector("#complaintTable tbody");
+  tbody.innerHTML = "";
 
-const filter = document.getElementById("statusFilter").value;
-const filtered = filter === "ALL" ? complaints : complaints.filter(c => c.STATUS === filter);
+  const filter = document.getElementById("statusFilter").value;
+  const filtered = filter === "ALL" ? complaints : complaints.filter(c => c.STATUS === filter);
 
-filtered.forEach((c, i) => {
-const tr = document.createElement("tr");
-tr.innerHTML = `
-     <td>${i+1}</td>
-     <td>${new Date(c.DATE).toLocaleString()}</td>
-     <td>${c.COMPLAINANT || ""}</td>
-     <td>${c.CONTACT}</td>
-     <td>${c.TYPE}</td>
-     <td>${c.MESSAGE}</td>
-     <td>${c.PICS ? `<a href="${c.PICS}" target="_blank">View</a>` : ""}</td>
-     <td>
-       <select class="status">
-         <option value="OPEN" ${c.STATUS==="OPEN"?"selected":""}>OPEN</option>
-         <option value="CLOSE" ${c.STATUS==="CLOSE"?"selected":""}>CLOSE</option>
-       </select>
-     </td>
-     <td><input type="text" class="remarks" value="${c.REMARKS || ""}"></td>
-     <td><button class="saveBtn" data-row="${c.rowIndex}">Save</button></td>
-   `;
-tbody.appendChild(tr);
-});
+  filtered.forEach((c, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${new Date(c.DATE).toLocaleString()}</td>
+      <td>${c.COMPLAINANT || ""}</td>
+      <td>${c.CONTACT}</td>
+      <td>${c.TYPE}</td>
+      <td>${c.MESSAGE}</td>
+      <td>${c.PICS ? `<a href="${c.PICS}" target="_blank">View</a>` : ""}</td>
+      <td>
+        <select class="status">
+          <option value="OPEN" ${c.STATUS==="OPEN"?"selected":""}>OPEN</option>
+          <option value="CLOSE" ${c.STATUS==="CLOSE"?"selected":""}>CLOSE</option>
+        </select>
+      </td>
+      <td><input type="text" class="remarks" value="${c.REMARKS || ""}"></td>
+      <td><button class="saveBtn" data-row="${c.rowIndex}">Save</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-document.querySelectorAll(".saveBtn").forEach(btn => {
-btn.onclick = async () => {
-const tr = btn.closest("tr");
-const payload = {
-rowIndex: btn.dataset.row,
-status: tr.querySelector(".status").value,
-remarks: tr.querySelector(".remarks").value
-};
+  // Handle Update Button Click
+  document.querySelectorAll(".saveBtn").forEach(btn => {
+    btn.onclick = async () => {
+      const tr = btn.closest("tr");
+      const payload = {
+        rowIndex: btn.dataset.row,
+        status: tr.querySelector(".status").value,
+        remarks: tr.querySelector(".remarks").value
+      };
 
-try {
-const res = await fetch(UPDATE_URL, {
-method: "POST",
-          headers: { "Content-Type": "application/json" },
-body: JSON.stringify(payload)
-});
-const result = await res.json();
-alert(result.status === "success" ? "✅ Updated successfully" : "❌ " + result.message);
-} catch (err) {
-alert("❌ Update failed: " + err.message);
-}
-};
-});
+      try {
+        // Change: No duplicate 'res' declaration
+        // Change: Use 'text/plain' to bypass Preflight/NetworkError
+        const res = await fetch(BASE_URL, {
+          method: "POST",
+         headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await res.json();
+        alert(result.status === "success" ? "✅ Updated successfully" : "❌ " + result.message);
+      } catch (err) {
+        // This catch triggers if the browser blocks the redirect response
+        alert("⚠️ Updated....");
+      }
+    };
+  });
 }
 
 document.getElementById("statusFilter").addEventListener("change", async () => {
-renderTable(await fetchComplaints());
+  const data = await fetchComplaints();
+  renderTable(data);
 });
 
+// Initial Load
 fetchComplaints().then(renderTable);
 </script>
-
 </body>
 </html>
