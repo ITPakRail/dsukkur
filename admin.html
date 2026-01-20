@@ -189,18 +189,15 @@ function renderTable(complaints) {
         remarks: tr.querySelector(".remarks").value
       };
 
-      try {
-        const res = await fetch(UPDATE_URL, {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        alert(result.status === "success" ? "✅ Updated successfully" : "❌ " + result.message);
-      } catch (err) {
-        alert("❌ Update failed: " + err.message);
-      }
-    };
+    try {
+  await fetch(UPDATE_URL, {
+    method: "POST",
+    mode: "no-cors", // This bypasses CORS NetworkErrors
+    body: JSON.stringify(payload)
   });
+  alert("✅ Request sent (Check sheet to confirm)");
+} catch (err) {
+  alert("❌ Network Error: " + err.message);
 }
 
 document.getElementById("statusFilter").addEventListener("change", async () => {
