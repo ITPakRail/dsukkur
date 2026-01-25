@@ -204,12 +204,22 @@ function searchTable() {
 
 <!-- FOOTER -->
 <footer>
-  <div>© 2026 <strong>pakrail.online</strong>. All Rights Reserved.</div>
-  
-  <div style="font-size:13px;color:#dcdcdc;">
-  Pakistan Railways - Sukkur Division
+   <div>
+    <a href="privacy-policy.html">Privacy Policy</a> |
+    <a href="disclaimer.html">Disclaimer</a> |
+    <a href="about-us.html">About Us</a> |
+    <a href="contact-us.html">Contact</a>
   </div>
+  <div style="font-size:13px;color:#dcdcdc;">
+    Independent information portal.
+      © <span id="year"></span> pakrail.online
+  </div>
+
 </footer>
+</div>
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
