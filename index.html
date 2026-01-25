@@ -41,11 +41,21 @@
   min-height: calc(100vh - 130px);
   padding: 15px;
   gap: 10px;
+  align-items: center; /* vertically align center */
 }
 
-/* ===== ADS PANELS ===== */
+/* ===== ADS SIDE PANELS ===== */
 .ads-panel {
   flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* 2 boxes top & bottom */
+  gap: 15px;
+}
+
+/* Each rectangle ad box */
+.ads-box {
+  flex: 1; /* auto height, fills half of panel */
   background: #f1f1f1;
   border: 1px dashed #ccc;
   display: flex;
@@ -59,8 +69,8 @@
 .center-menu {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(2, 140px); /* 2 columns */
-  grid-template-rows: repeat(3, 120px);    /* 3 rows */
+  grid-template-columns: repeat(2, 140px);
+  grid-template-rows: repeat(3, 120px);
   gap: 18px;
   justify-content: center;
   align-content: center;
@@ -150,49 +160,26 @@
 <!-- ===== MAIN ===== -->
 <div class="main-container">
 
-  <!-- LEFT ADS -->
+  <!-- LEFT ADS PANEL -->
   <div class="ads-panel">
-    -
+    <div class="ads-box">Google Ad 1</div>
+    <div class="ads-box">Google Ad 2</div>
   </div>
 
   <!-- CENTER MENU -->
   <div class="center-menu">
-
-    <a href="timing.html" class="menu-item">
-      <i class="fas fa-clock"></i>
-      <span>Train Timing</span>
-    </a>
-
-    <a href="availSeats.html" class="menu-item">
-      <i class="fas fa-chair"></i>
-      <span>Seat Availability</span>
-    </a>
-
-    <a href="ticketing.html" class="menu-item">
-      <i class="fas fa-ticket"></i>
-      <span>Ticketing</span>
-    </a>
-
-    <a href="/prtracker" class="menu-item">
-      <i class="fas fa-train"></i>
-      <span>Train Tracking</span>
-    </a>
-
-    <a href="stations.html" class="menu-item">
-      <i class="fas fa-map-marker-alt"></i>
-      <span>Stations</span>
-    </a>
-
-    <a href="downloads.html" class="menu-item">
-      <i class="fas fa-download"></i>
-      <span>Downloads</span>
-    </a>
-
+    <a href="timing.html" class="menu-item"><i class="fas fa-clock"></i><span>Train Timing</span></a>
+    <a href="availSeats.html" class="menu-item"><i class="fas fa-chair"></i><span>Seat Availability</span></a>
+    <a href="ticketing.html" class="menu-item"><i class="fas fa-ticket"></i><span>Ticketing</span></a>
+    <a href="/prtracker" class="menu-item"><i class="fas fa-train"></i><span>Train Tracking</span></a>
+    <a href="stations.html" class="menu-item"><i class="fas fa-map-marker-alt"></i><span>Stations</span></a>
+    <a href="downloads.html" class="menu-item"><i class="fas fa-download"></i><span>Downloads</span></a>
   </div>
 
-  <!-- RIGHT ADS -->
+  <!-- RIGHT ADS PANEL -->
   <div class="ads-panel">
-   -
+    <div class="ads-box">Google Ad 1</div>
+    <div class="ads-box">Google Ad 2</div>
   </div>
 
 </div>
