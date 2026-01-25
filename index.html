@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PakRail Online</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
@@ -41,23 +40,29 @@
   min-height: calc(100vh - 130px);
   padding: 15px;
   gap: 10px;
-  align-items: center; /* vertically align center */
+  justify-content: center;
+  align-items: center;
 }
 
-/* ===== ADS SIDE PANELS ===== */
-.ads-panel {
-  flex: 0 0 160px;
+/* ===== VERTICAL BARS ===== */
+.vertical-bar {
+  width: 30px;
+  background: #ccc; /* vertical bar color */
+}
+
+/* ===== ADS COLUMN ===== */
+.ads-column {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 2 boxes top & bottom */
   gap: 15px;
+  justify-content: center;
 }
 
-/* Each rectangle ad box */
 .ads-box {
-  flex: 1; /* auto height, fills half of panel */
+  width: 160px;   /* width of ad box */
+  height: 120px;  /* height of ad box */
   background: #f1f1f1;
-  border: 1px dashed #ccc;
+  border: 1px dashed #aaa;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +72,6 @@
 
 /* ===== CENTER MENU ===== */
 .center-menu {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 140px);
   grid-template-rows: repeat(3, 120px);
@@ -118,12 +122,9 @@
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
-  .ads-panel {
+  .vertical-bar,
+  .ads-column {
     display: none;
-  }
-
-  .header-center {
-    font-size: 18px;
   }
 
   .center-menu {
@@ -139,7 +140,6 @@
 }
 </style>
 </head>
-
 <body>
 
 <!-- ===== HEADER ===== -->
@@ -160,8 +160,11 @@
 <!-- ===== MAIN ===== -->
 <div class="main-container">
 
-  <!-- LEFT ADS PANEL -->
-  <div class="ads-panel">
+  <!-- LEFT VERTICAL BAR -->
+  <div class="vertical-bar"></div>
+
+  <!-- LEFT ADS -->
+  <div class="ads-column">
     <div class="ads-box">Google Ad 1</div>
     <div class="ads-box">Google Ad 2</div>
   </div>
@@ -176,11 +179,14 @@
     <a href="downloads.html" class="menu-item"><i class="fas fa-download"></i><span>Downloads</span></a>
   </div>
 
-  <!-- RIGHT ADS PANEL -->
-  <div class="ads-panel">
+  <!-- RIGHT ADS -->
+  <div class="ads-column">
     <div class="ads-box">Google Ad 1</div>
     <div class="ads-box">Google Ad 2</div>
   </div>
+
+  <!-- RIGHT VERTICAL BAR -->
+  <div class="vertical-bar"></div>
 
 </div>
 
