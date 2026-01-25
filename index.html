@@ -2,268 +2,128 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <meta name="description" content="Live train tracking of Pakistan Railways. Check real-time train status, delays and running position.">
-  <meta name="keywords" content="Pakistan Railways live tracking, train status Pakistan, Pak Rail tracking">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pakistan Railways – Sukkur Division</title>
+<title>PakRail Online</title>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* ================= HEADER ================= */
+/* ===== HEADER ===== */
 .main-header {
   background-color: #2e7d32;
   color: white;
-  padding: 5px 10px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
-/* Left & Right logos */
-.header-left img,
-.header-right img {
-  height: 50px;
-  width: auto;
-}
-
-/* Center title */
-.header-center {
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  flex: 1;
-}
-
-/* Logos alignment */
 .header-left,
 .header-right {
   width: 60px;
   text-align: center;
 }
 
-/* ================= NAVIGATION ================= */
-nav {
-  background-color: rgba(0, 0, 50, 0.9);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.header-left img,
+.header-right img {
+  height: 45px;
 }
 
-nav a {
-  color: white;
-  padding: 12px 20px;
-  text-decoration: none;
-  font-size: 16px;
-  text-align: center;
-  transition: background 0.3s;
-}
-
-nav a:hover {
-  background-color: #1a237e;
-}
-
-nav button {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 28px;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-/* ================= MAIN LAYOUT ================= */
-main {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 25px;
-}
-
-/* LEFT : DS IMAGE */
-.ds-pic {
-  flex: 0 0 300px;
-  text-align: center;
-}
-
-.ds-pic img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.ds-name {
-  margin-top: 10px;
-  font-size: 18px;
-  line-height: 1.4;
-}
-
-/* CENTER : DS MESSAGE */
-.ds-message {
+.header-center {
   flex: 1;
-  text-align: justify;
-  font-size: 17px;
-  line-height: 1.7;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
 }
 
-.ds-message h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-  color: #0b5c2d;
+/* ===== MAIN LAYOUT ===== */
+.main-container {
+  display: flex;
+  min-height: calc(100vh - 130px);
+  padding: 15px;
+  gap: 10px;
 }
 
-.ds-message p {
-  margin-bottom: 14px;
+/* ===== ADS PANELS ===== */
+.ads-panel {
+  flex: 0 0 160px;
+  background: #f1f1f1;
+  border: 1px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #777;
 }
 
-/* RIGHT : SECOND IMAGE / LOGO */
-.ds-right {
-  flex: 0 0 200px;
+/* ===== CENTER MENU ===== */
+.center-menu {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px;
+  align-content: center;
+  justify-items: center;
+}
+
+/* ===== MENU BUTTONS ===== */
+.menu-item {
+  width: 140px;
+  height: 120px;
+  background: #2e7d32;
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.menu-item i {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.menu-item span {
+  font-size: 14px;
+  font-weight: bold;
   text-align: center;
 }
 
-.ds-right img {
-  width: 100%;
-  border-radius: 8px;
+.menu-item:hover {
+  background: #81d4fa;
+  transform: translateY(-4px);
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 992px) {
-  main {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .ds-pic,
-  .ds-message,
-  .ds-right {
-    flex: 1 1 100%;
-    max-width: 100%;
-    text-align: center;
-  }
-
-  .ds-message {
-    text-align: justify;
-  }
+/* ===== FOOTER ===== */
+.footer {
+  background: #003366;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
 }
 
-@media (max-width: 600px) {
-  .header-left img,
-  .header-right img {
-    height: 40px;
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .ads-panel {
+    display: none;
   }
 
   .header-center {
     font-size: 18px;
   }
-
-  nav a {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
 }
-  
-.important-links {
-  background: #e6e6e6;   /* light grey */
-  padding: 12px 5px;
-  text-align: center;
-  border-top: 1px solid #ccc;
-}
-.links-title {
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.links-row {
-  display: flex;
-  justify-content: center;
-  gap: 40px; /* space between links */
-  flex-wrap: wrap;
-}
-
-.links-row a {
-  text-decoration: none;
-  color: #003366;
-  font-weight: 600;
-}
-
-.links-row a:hover {
-  text-decoration: underline;
-}
-
-/* FOOTER */
-.footer {
-  background: #003366;
-  color: white;
-  padding: 12px 10px;
-  font-size: 14px;
-}
-
-/* MOBILE RESPONSIVE */
-@media (max-width: 600px) {
-  .links-row {
-    gap: 15px;
-    font-size: 14px;
-  }
-}
-/* FOOTER LAYOUT FIX */
-.footer-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.visitor-counter {
-  text-align: left;
-}
-/* ===== Blinking Train Tracking menu ===== */
-.blink-tracking {
-  color: yellow !important;
-  font-weight: bold;
-  animation: blinkText 1s infinite;
-}
-/* ===== Seat Availablity ===== */
-.seat-avail {
-  color: yellow !important;
-  font-weight: bold;
-  
-}
-@keyframes blinkText {
-  0%   { opacity: 1; }
-  50%  { opacity: 0; }
-  100% { opacity: 1; }
-}
-/* ===== Blinking footer tracking link ===== */
-.footer-track {
-  color: yellow;
-  font-weight: bold;
-  text-decoration: none;
-  animation: blinkText 1.2s infinite;
-}
-
-.footer-track:hover {
-  text-decoration: underline;
-}
-
-/* reuse blink animation */
-@keyframes blinkText {
-  0%   { opacity: 1; }
-  50%  { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-</style>
-
 </style>
 </head>
 
 <body>
 
+<!-- ===== HEADER ===== -->
 <header class="main-header">
   <div class="header-left">
-    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80" alt="Pakistan Railways Logo">
+    <img src="https://drive.google.com/thumbnail?id=1WptR4123r4Le2CahaXv9khTtmptZvHOn&sz=w80">
   </div>
 
   <div class="header-center">
@@ -271,131 +131,68 @@ main {
   </div>
 
   <div class="header-right">
-    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w150" alt="Division Logo">
+    <img src="https://drive.google.com/thumbnail?id=1UD6SmPAI9x-y22oW4CIgrDaItR4MHttx&sz=w80">
   </div>
 </header>
 
-<nav id="menu">
-  <button onclick="toggleMenu()">☰ Menu</button>
-  <a href="index.html">Home</a>
-  <a href="stations.html">Stations</a>
-  <a href="timing.html">Train Timing</a>
-    <a href="availSeats.html" class="seat-avail">Seat Availability</a>
-  <a href="ticketing.html">Ticketing</a>
-  <a href="/prtracker" class="seat-avail">Train Tracking</a>
-  <a href="complaint.html"><b>Register Complaint</a></b>
-  <a href="downloads.html">Downloads</a>
-  <a href="gallery.html">Gallery</a>
-  <a href="contactus.html">Contact Us</a>  
-  <a href="suk.html" target="_blank" style="background-color:#2e7d32; color:white; padding:3px 12px; border-radius:4px; margin-left:5px; text-decoration:none;">Login(Officials)</a>
-</nav>
+<!-- ===== MAIN ===== -->
+<div class="main-container">
 
-<main>
-  <!-- LEFT : DS IMAGE & DETAILS -->
-  <div class="ds-pic">
-    <img src="https://drive.google.com/thumbnail?id=1A5baIOAx2aMHuJRuyD6Ru77wEBttPSj8&sz=w400" alt="Divisional Superintendent">
-    <div class="ds-name">
-      <strong style="color: green;">Jamshaid Alam</strong><br>
-      Divisional Superintendent<br>
-      Pakistan Railways, Sukkur Division
-    </div>
+  <!-- LEFT ADS -->
+  <div class="ads-panel">
+    Google Ads
   </div>
 
-  <!-- CENTER : DS MESSAGE -->
-  <div class="ds-message">
-    <h3>Message from the Divisional Superintendent</h3>
-    <p>
-      Pakistan Railways, Sukkur Division is committed to continuously improving
-      passenger services and station facilities to ensure a safe, comfortable,
-      and reliable travel experience. We are actively working on the upgradation
-      of infrastructure, cleanliness, information services, and passenger support
-      systems across all stations of the division.
-    </p>
-    <p>
-      This digital portal has been developed to provide easy access to station
-      information, facilities, and important updates for the public. It also
-      serves as a platform for passengers to share their concerns, suggestions,
-      or complaints.
-    </p>
-    <p>
-      If you experience any inconvenience during your journey or at any station,
-      we encourage you to register your complaint through this portal. Your
-      feedback is important to us and will be reviewed and addressed promptly by
-      the concerned authorities.
-    </p>
-    <p><b>
-      Together, we aim to build a more efficient, transparent, and
-      passenger-friendly railway system.</b>
-    </p>
+  <!-- CENTER MENU -->
+  <div class="center-menu">
+
+    <a href="timing.html" class="menu-item">
+      <i class="fas fa-clock"></i>
+      <span>Train Timing</span>
+    </a>
+
+    <a href="availSeats.html" class="menu-item">
+      <i class="fas fa-chair"></i>
+      <span>Seat Availability</span>
+    </a>
+
+    <a href="ticketing.html" class="menu-item">
+      <i class="fas fa-ticket"></i>
+      <span>Ticketing</span>
+    </a>
+
+    <a href="/prtracker" class="menu-item">
+      <i class="fas fa-train"></i>
+      <span>Train Tracking</span>
+    </a>
+
+    <a href="stations.html" class="menu-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Stations</span>
+    </a>
+
+    <a href="downloads.html" class="menu-item">
+      <i class="fas fa-download"></i>
+      <span>Downloads</span>
+    </a>
+
   </div>
 
-  <!-- RIGHT : SECOND IMAGE / LOGO -->
-  <div class="ds-right">
-    <img src="https://drive.google.com/thumbnail?id=1ilBOj7UVrqw40gYfGD9dDTkE2pPrJNms&sz=w150" alt="Division Logo">
-    
-  <img src="https://drive.google.com/thumbnail?id=1pL0fvHvNg0ZYiaUu5Lq3B_f1EiFNAAO6&sz=w150" alt="Additional Logo" style="margin-top: 15px;">
-    <img src="https://drive.google.com/thumbnail?id=1uJ0Q5pW7pieeg5kdOyvnJ6UOneFIFKi4&sz=w150" alt="Additional Logo2" style="margin-top: 15px;">
+  <!-- RIGHT ADS -->
+  <div class="ads-panel">
+    Google Ads
   </div>
-</main>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  © <span id="year"></span> pakrail.online
+</footer>
 
 <script>
-function toggleMenu() {
-  const links = document.querySelectorAll('nav a');
-  links.forEach(link => link.classList.toggle('active'));
-}
+document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-<!-- IMPORTANT LINKS PANEL -->
-<div class="important-links">
-  <div class="links-row">
-    <a href="https://www.railways.gov.pk/" target="_blank">Ministry of Railways</a>
-    <a href="https://web.citizenportal.gov.pk/" target="_blank">Pakistan Citizen Portal</a>
-    <a href="https://mohtasib.gov.pk/" target="_blank">Wafaqi Mohtasib</a>
-  </div>
-</div>
-<footer class="footer">
-  <div class="footer-container">
-
-    <!-- LEFT : VISITOR COUNTER -->
-    <div class="visitor-counter">
-      <a href="https://info.flagcounter.com/Nl4D">
-        <img src="https://s01.flagcounter.com/count2/Nl4D/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_0/pageviews_0/flags_0/percent_0/"
-             alt="Flag Counter" border="0">
-      </a>
-    </div>
-
-    <!-- CENTER : TRAIN TRACKING LINK -->
-    <div style="text-align:center;">
-      <a href="/prtracker" class="seat-avail">Train Tracking</a>
-        🚆 Train Tracking
-      </a>
-    </div>
-
-    <!-- RIGHT : FOOTER TEXT -->
-   <!-- RIGHT : FOOTER TEXT -->
-<div style="text-align:right;">
-
-  <!-- Facebook Link -->
-  <div style="margin-bottom:6px;">
-    
-    <a href="https://facebook.com/dssukkur1" target="_blank" style="color:#1877f2; font-size:18px; text-decoration:none;">
-      <i class="fab fa-facebook"></i> Follow us on Facebook
-    </a>
-  </div>
-  <!-- YouTube Link -->
-<div style="margin-bottom:6px;">
-  <a href="https://www.youtube.com/@pakrailsuk" target="_blank" style="color:#ff0000; font-size:18px; text-decoration:none;">
-    <i class="fab fa-youtube"></i>  YouTube
-  </a>
-</div>
-
-  <div>Pakistan Railways Sukkur Division</div>
-  <div>Developed &amp; Powered by IT Dept: Sukkur Division</div>
-
-</div>
-
-
-  </div>
-</footer>
 
 </body>
 </html>
