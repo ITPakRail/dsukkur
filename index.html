@@ -36,20 +36,13 @@
 }
 
 /* ===== MAIN LAYOUT ===== */
-.main-container-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
 .main-container {
   display: flex;
   min-height: calc(100vh - 230px); /* header + footer + horizontal ads */
   padding: 15px;
   gap: 10px;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 /* ===== ADS PANELS ===== */
@@ -65,8 +58,16 @@
 }
 
 /* Horizontal ads above & below menu */
+.menu-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
 .ads-horizontal {
   width: 100%;
+  max-width: 320px; /* keep it centered between vertical panels */
   height: 90px;
   background: #f1f1f1;
   border: 1px dashed #ccc;
@@ -75,12 +76,10 @@
   justify-content: center;
   font-size: 16px;
   color: #777;
-  margin: 5px 0;
 }
 
 /* ===== CENTER MENU ===== */
 .center-menu {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 140px); /* 2 columns */
   grid-template-rows: repeat(3, 120px);    /* 3 rows */
@@ -181,21 +180,16 @@
   </div>
 </header>
 
-<!-- ===== MAIN WRAPPER ===== -->
-<div class="main-container-wrapper">
+<!-- ===== MAIN ===== -->
+<div class="main-container">
 
-  <!-- TOP HORIZONTAL AD -->
-  <div class="ads-horizontal">
-    Google Ad Space (Top)
-  </div>
+  <!-- LEFT ADS PANEL -->
+  <div class="ads-panel">-</div>
 
-  <!-- MAIN CONTENT -->
-  <div class="main-container">
+  <!-- MENU WRAPPER (with top & bottom horizontal ads) -->
+  <div class="menu-wrapper">
+    <div class="ads-horizontal">Google Ad Space (Top)</div>
 
-    <!-- LEFT ADS -->
-    <div class="ads-panel">-</div>
-
-    <!-- CENTER MENU -->
     <div class="center-menu">
       <a href="timing.html" class="menu-item">
         <i class="fas fa-clock"></i>
@@ -228,15 +222,11 @@
       </a>
     </div>
 
-    <!-- RIGHT ADS -->
-    <div class="ads-panel">-</div>
-
+    <div class="ads-horizontal">Google Ad Space (Bottom)</div>
   </div>
 
-  <!-- BOTTOM HORIZONTAL AD -->
-  <div class="ads-horizontal">
-    Google Ad Space (Bottom)
-  </div>
+  <!-- RIGHT ADS PANEL -->
+  <div class="ads-panel">-</div>
 
 </div>
 
