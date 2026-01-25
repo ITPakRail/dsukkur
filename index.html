@@ -38,11 +38,9 @@
 /* ===== MAIN LAYOUT ===== */
 .main-container {
   display: flex;
-  min-height: calc(100vh - 230px); /* header + footer + horizontal ads */
+  min-height: calc(100vh - 130px);
   padding: 15px;
   gap: 10px;
-  justify-content: center;
-  align-items: flex-start;
 }
 
 /* ===== ADS PANELS ===== */
@@ -57,29 +55,9 @@
   color: #777;
 }
 
-/* Horizontal ads above & below menu */
-.menu-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.ads-horizontal {
-  width: 100%;
-  max-width: 320px; /* keep it centered between vertical panels */
-  height: 90px;
-  background: #f1f1f1;
-  border: 1px dashed #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #777;
-}
-
 /* ===== CENTER MENU ===== */
 .center-menu {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 140px); /* 2 columns */
   grid-template-rows: repeat(3, 120px);    /* 3 rows */
@@ -121,31 +99,16 @@
 
 /* ===== FOOTER ===== */
 .footer {
-  background: #2e7d32;
-  color: #ffffff;
-  padding: 15px 10px;
+  background: #003366;
+  color: white;
   text-align: center;
-  font-family: Arial, sans-serif;
-  margin-top: 20px;
-}
-
-.footer a {
-  color: #ffeb3b;
-  text-decoration: none;
-  margin: 0 8px;
-}
-
-.footer a:hover {
-  text-decoration: underline;
+  padding: 12px;
+  font-size: 14px;
 }
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
   .ads-panel {
-    display: none;
-  }
-
-  .ads-horizontal {
     display: none;
   }
 
@@ -164,6 +127,25 @@
     height: 110px;
   }
 }
+  /* Footer */
+footer {
+  background:#2e7d32;
+  color:#ffffff;
+  padding:15px 10px;
+  text-align:center;
+  font-family:Arial, sans-serif;
+  margin-top:40px;
+}
+
+footer a {
+  color:#ffeb3b;
+  text-decoration:none;
+  margin:0 8px;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 
@@ -178,61 +160,64 @@
   <div class="header-center">
     PakRail.online
   </div>
+
 </header>
 
 <!-- ===== MAIN ===== -->
 <div class="main-container">
 
-  <!-- LEFT ADS PANEL -->
-  <div class="ads-panel">-</div>
-
-  <!-- MENU WRAPPER (with top & bottom horizontal ads) -->
-  <div class="menu-wrapper">
-    <div class="ads-horizontal">Google Ad Space (Top)</div>
-
-    <div class="center-menu">
-      <a href="timing.html" class="menu-item">
-        <i class="fas fa-clock"></i>
-        <span>Train Timing</span>
-      </a>
-
-      <a href="availSeats.html" class="menu-item">
-        <i class="fas fa-chair"></i>
-        <span>Seat Availability</span>
-      </a>
-
-      <a href="ticketing.html" class="menu-item">
-        <i class="fas fa-ticket"></i>
-        <span>Ticketing</span>
-      </a>
-
-      <a href="/prtracker" class="menu-item">
-        <i class="fas fa-train"></i>
-        <span>Train Tracking</span>
-      </a>
-
-      <a href="stations.html" class="menu-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Stations</span>
-      </a>
-
-      <a href="downloads.html" class="menu-item">
-        <i class="fas fa-download"></i>
-        <span>Downloads</span>
-      </a>
-    </div>
-
-    <div class="ads-horizontal">Google Ad Space (Bottom)</div>
+  <!-- LEFT ADS -->
+  <div class="ads-panel">
+    -
   </div>
 
-  <!-- RIGHT ADS PANEL -->
-  <div class="ads-panel">-</div>
+  <!-- CENTER MENU -->
+  <div class="center-menu">
+
+    <a href="timing.html" class="menu-item">
+      <i class="fas fa-clock"></i>
+      <span>Train Timing</span>
+    </a>
+
+    <a href="availSeats.html" class="menu-item">
+      <i class="fas fa-chair"></i>
+      <span>Seat Availability</span>
+    </a>
+
+    <a href="ticketing.html" class="menu-item">
+      <i class="fas fa-ticket"></i>
+      <span>Ticketing</span>
+    </a>
+
+    <a href="/prtracker" class="menu-item">
+      <i class="fas fa-train"></i>
+      <span>Train Tracking</span>
+    </a>
+
+    <a href="stations.html" class="menu-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Stations</span>
+    </a>
+
+    <a href="downloads.html" class="menu-item">
+      <i class="fas fa-download"></i>
+      <span>Downloads</span>
+    </a>
+
+  </div>
+
+  <!-- RIGHT ADS -->
+  <div class="ads-panel">
+   -
+  </div>
 
 </div>
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <div>
+  <!-- FOOTER -->
+<footer>
+   <div>
     <a href="privacy-policy.html">Privacy Policy</a> |
     <a href="disclaimer.html">Disclaimer</a> |
     <a href="about-us.html">About Us</a> |
@@ -242,6 +227,9 @@
     Independent information portal.
       © <span id="year"></span> pakrail.online
   </div>
+
+
+  
 </footer>
 
 <script>
