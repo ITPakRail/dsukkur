@@ -59,10 +59,11 @@
 .center-menu {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(2, 140px); /* 2 columns */
+  grid-template-rows: repeat(3, 120px);    /* 3 rows */
   gap: 18px;
+  justify-content: center;
   align-content: center;
-  justify-items: center;
 }
 
 /* ===== MENU BUTTONS ===== */
@@ -113,6 +114,17 @@
 
   .header-center {
     font-size: 18px;
+  }
+
+  .center-menu {
+    grid-template-columns: repeat(2, 120px);
+    grid-template-rows: auto;
+    gap: 14px;
+  }
+
+  .menu-item {
+    width: 120px;
+    height: 110px;
   }
 }
 </style>
