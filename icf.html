@@ -69,12 +69,40 @@
         p {font-size: 0.9rem;}
         .ads-placeholder {padding:12px; font-size:0.85rem;}
     }
+      /* ================= NAVIGATION ================= */
+nav {
+  background-color: rgba(0, 0, 50, 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+nav a {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  transition: background 0.3s;
+}
+
+nav a:hover {
+  background-color: #1a237e;
+}
 </style>
 </head>
 <body>
 
 <div class="main-heading">Islamabad Carriage Factory (ICF)</div>
-
+<!-- MENU -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="stations.html">Stations</a>
+  <a href="timing.html">Train Timing</a>
+    <a href="availSeats.html" class="seat-avail">Seat Availability</a>
+  <a href="ticketing.html">Ticketing</a>
+   <a href="/prtracker" class="seat-avail">Train Tracking</a>
+</nav>
 <!-- Top Google Ad Placeholder -->
 <div class="ads-placeholder">-</div>
 
