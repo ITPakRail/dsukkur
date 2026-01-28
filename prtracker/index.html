@@ -100,6 +100,23 @@ flex: 1;
 width: 60px;
 text-align: center;
 }
+       <!-- Optional: Responsive CSS -->
+<style>
+    .train-tracking-info p {
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .train-tracking-info p {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .train-tracking-info p {
+            font-size: 0.9rem;
+        }
+    }
 </style>
 </head>
 <body>
@@ -347,7 +364,20 @@ function renderLive(data, isLive) {
 init();
 </script>
 
+<!-- Train Tracking Info Section -->
+<div class="train-tracking-info" style="margin-top:20px; font-family: Arial, sans-serif;">
 
+    <!-- English Paragraph -->
+    <p style="text-align:justify; font-size:1rem; line-height:1.6; margin-bottom:15px;">
+        On this page, you can <strong>track the live status</strong> of any selected train. All currently running trains are listed in the drop-down menu. Simply select your train, click the <strong>Search</strong> button, and wait a few moments to view the train's live position. Stay updated on train locations in real-time and plan your journey accordingly.
+    </p>
+
+    <!-- Urdu Paragraph -->
+    <p style="text-align:justify; direction:rtl; font-family:'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; font-size:1rem; line-height:1.6;">
+        اس صفحہ پر آپ کسی بھی منتخب شدہ ٹرین کی <strong>لائیو اسٹیٹس</strong> دیکھ سکتے ہیں۔ تمام چلتی ہوئی ٹرینیں ڈراپ ڈاؤن مینو میں درج ہیں۔ بس اپنی ٹرین منتخب کریں، <strong>سرچ</strong> بٹن پر کلک کریں، اور چند لمحے انتظار کریں تاکہ ٹرین کی لائیو پوزیشن معلوم ہو سکے۔ حقیقی وقت میں ٹرین کی لوکیشن معلوم کریں اور اپنے سفر کی منصوبہ بندی کریں۔
+    </p>
+
+</div>
 <div class="footer-text">Copyright &copy; <span id="year"></span> Pakistan Railways</div>
 </body>
 </html>
