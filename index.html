@@ -164,7 +164,33 @@ nav a {
 nav a:hover {
   background-color: #1a237e;
 }
+/* Services Overview Styling */
+    .services-overview h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+    .services-overview h3 {
+        font-size: 1.3rem;
+        color: #007f3f;
+        margin: 15px 0 5px 0;
+    }
+    .services-overview p {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        text-align: justify;
+    }
 
+    /* Responsive adjustments */
+    @media (max-width: 768px){
+        .services-overview h2 {font-size:1.6rem;}
+        .services-overview h3 {font-size:1.2rem;}
+        .services-overview p {font-size:0.95rem;}
+    }
+    @media (max-width: 480px){
+        .services-overview h2 {font-size:1.4rem;}
+        .services-overview h3 {font-size:1.1rem;}
+        .services-overview p {font-size:0.9rem;}
+    }
 </style>
 </head>
 
@@ -245,9 +271,80 @@ nav a:hover {
   </div>
 
 </div>
+  <!-- Services Overview Section -->
+<div class="services-overview">
+    <h2 style="color:#007f3f; text-align:center; margin-bottom:15px;">Explore Our Services</h2>
+
+    <!-- English Version -->
+    <div class="english">
+        <h3>Train Timing</h3>
+        <p>
+            On PakRail.online, you can find the latest and updated train schedules for all major routes in Pakistan. Select your train and date to view departure, arrival, and stoppage timings with ease.
+        </p>
+
+        <h3>Seat Availability</h3>
+        <p>
+            Search for seat availability for any train in real time. Check all classes including Economy, Lower AC, AC Sleeper, AC Business, and Parlour. Find out which seats are free and plan your journey efficiently.
+        </p>
+
+        <h3>Ticketing</h3>
+        <p>
+            Obtain tickets through various convenient methods. Get computerized open tickets or advanced reservations at railway stations, online via Pakistan Railways official website, or through the RABTA mobile app. Major stations also provide Ticket Vending Machines (TVMs) for easy access.
+        </p>
+
+        <h3>Train Tracking</h3>
+        <p>
+            Track the live status of any train across Pakistan. Select a train from the drop-down list, click the search button, and wait a few moments to see its current location, delays, and expected arrival time.
+        </p>
+
+        <h3>Stations</h3>
+        <p>
+            View detailed information about all major railway stations including station facilities, nearby directions, and maps. Explore the images, amenities, and accessibility of each station to plan your journey better.
+        </p>
+
+        <h3>Flight Schedule</h3>
+        <p>
+            Check schedules for all major national and international flights from Pakistan’s airports. Stay informed about departures, arrivals, and timings to coordinate your train and flight travel seamlessly.
+        </p>
+    </div>
+
+    <!-- Urdu Version -->
+    <div class="urdu" style="direction:rtl; font-family:'Jameel Noori Nastaleeq','Noto Nastaliq Urdu', serif; margin-top:20px;">
+        <h3 style="text-align:right;">ٹرین کا وقت</h3>
+        <p>
+            PakRail.online پر آپ پاکستان کی تمام اہم لائنوں کی تازہ ترین اور اپ ڈیٹ شدہ ٹرین شیڈول دیکھ سکتے ہیں۔ اپنی ٹرین اور تاریخ منتخب کریں تاکہ روانگی، آمد اور اسٹاپیج کے اوقات آسانی سے دیکھ سکیں۔
+        </p>
+
+        <h3 style="text-align:right;">سیٹ کی دستیابی</h3>
+        <p>
+            کسی بھی ٹرین کے لیے سیٹ کی دستیابی حقیقی وقت میں تلاش کریں۔ تمام کلاسیں جیسے اکنامی، لوئر اے سی، اے سی سلیپر، اے سی بزنس اور پارلر چیک کریں۔ خالی سیٹیں دیکھیں اور اپنی سفر کی منصوبہ بندی مؤثر طریقے سے کریں۔
+        </p>
+
+        <h3 style="text-align:right;">ٹکٹنگ</h3>
+        <p>
+            مختلف آسان طریقوں سے ٹکٹ حاصل کریں۔ کمپیوٹرائزڈ اوپن ٹکٹ یا ایڈوانس ریزرویشن اسٹیشنوں پر، پاکستان ریلوے کی آفیشل ویب سائٹ یا RABTA موبائل ایپ کے ذریعے حاصل کریں۔ بڑے اسٹیشنوں پر ٹکٹ وینڈنگ مشینیں (TVMs) بھی دستیاب ہیں۔
+        </p>
+
+        <h3 style="text-align:right;">ٹرین کی لائیو ٹریکنگ</h3>
+        <p>
+            پاکستان کی کسی بھی ٹرین کی لائیو حیثیت معلوم کریں۔ ڈراپ ڈاؤن لسٹ سے ٹرین منتخب کریں، سرچ بٹن دبائیں اور چند لمحوں میں اس کی موجودہ جگہ، تاخیر اور متوقع آمد کا وقت دیکھیں۔
+        </p>
+
+        <h3 style="text-align:right;">اسٹیشنز</h3>
+        <p>
+            تمام بڑے ریلوے اسٹیشنوں کی تفصیلی معلومات دیکھیں، بشمول سہولیات، نزدیکی راستے اور نقشہ جات۔ ہر اسٹیشن کی تصاویر، سہولیات اور رسائی دیکھیں تاکہ اپنی سفر کی منصوبہ بندی بہتر ہو۔
+        </p>
+
+        <h3 style="text-align:right;">فلائٹ شیڈول</h3>
+        <p>
+            پاکستان کے تمام اہم ہوائی اڈوں سے قومی اور بین الاقوامی پروازوں کے شیڈول دیکھیں۔ روانگی، آمد اور اوقات معلوم کریں تاکہ اپنی ٹرین اور فلائٹ کے سفر کو با آسانی مربوط کر سکیں۔
+        </p>
+    </div>
+</div>
 <div class="footer-ad">
   -
 </div>
+  
 <!-- ===== FOOTER ===== -->
 <div class="footer">
   <!-- FOOTER -->
