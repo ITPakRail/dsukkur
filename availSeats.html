@@ -214,6 +214,21 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+   .reservation-info p {
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .reservation-info p {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .reservation-info p {
+            font-size: 0.9rem;
+        }
+    }
 </style>
 </head>
 <body>
@@ -381,6 +396,20 @@ function showResults(data) {
   });
 }
 </script>
+  <!-- Advance Reservation Explanation Section -->
+<div class="reservation-info" style="margin-top:20px; font-family: Arial, sans-serif;">
+
+    <!-- English Paragraph -->
+    <p style="text-align:justify; font-size:1rem; line-height:1.6; margin-bottom:15px;">
+        On this page, you can check the <strong>availability of advance reservation seats</strong> for any train up to 2 months in advance. You can view seat availability for all classes including <strong>Economy, Lower AC, AC Sleeper, AC Business</strong>, and <strong>Parlour</strong>, along with their respective fares.
+    </p>
+
+    <!-- Urdu Paragraph -->
+    <p style="text-align:justify; direction:rtl; font-family:'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; font-size:1rem; line-height:1.6;">
+        اس صفحہ پر آپ کسی بھی ٹرین کی <strong>ایڈوانس ریزرویشن سیٹ کی دستیابی</strong> دو ماہ تک پہلے سے دیکھ سکتے ہیں۔ آپ تمام کلاسز میں سیٹ دستیابی دیکھ سکتے ہیں جن میں <strong>اکانومی، لوئر اے سی، اے سی سلیپر، اے سی بزنس</strong> اور <strong>پارلر</strong> شامل ہیں، اور ساتھ ہی ان کے کرایے بھی معلوم کر سکتے ہیں۔
+    </p>
+
+</div>
 <!-- FOOTER -->
 <footer>
    <div>
