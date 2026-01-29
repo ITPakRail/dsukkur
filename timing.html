@@ -181,6 +181,28 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+  .station-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.station-grid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .station-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 </head>
 
@@ -286,31 +308,22 @@ function loadTiming() {
         Here you can view the <strong>train timing</strong> and <strong>stoppage information</strong> of all main line trains across Pakistan. Select your train and date above to see detailed schedule and station stops.
     </p>
 </div>
-<div class="station-grid"
-     style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:20px;">
+<!-- Station Images Grid -->
+<div class="station-grid">
 
-    <img src="https://drive.usercontent.google.com/download?id=19YEeZgEb8vNAEOoiihivsnbhqWZWMOmk&export=view"
-         alt="Karachi Station"
-         style="width:100%; height:200px; object-fit:cover; border-radius:5px;"
-         loading="lazy" referrerpolicy="no-referrer">
+    <img src="https://drive.google.com/thumbnail?id=19YEeZgEb8vNAEOoiihivsnbhqWZWMOmk&sz=w800"
+         alt="Karachi Station" loading="lazy">
 
-    <img src="https://drive.usercontent.google.com/download?id=1IhtqtfSVstYoV2J08Y9MoEHyQCqYEVqq&export=view"
-         alt="Rohri Station"
-         style="width:100%; height:200px; object-fit:cover; border-radius:5px;"
-         loading="lazy" referrerpolicy="no-referrer">
+    <img src="https://drive.google.com/thumbnail?id=1IhtqtfSVstYoV2J08Y9MoEHyQCqYEVqq&sz=w800"
+         alt="Rohri Station" loading="lazy">
 
-    <img src="https://drive.usercontent.google.com/download?id=1pT_I4sEcX_dfgImkUYN7AM7GlzlOX7Bu&export=view"
-         alt="Lahore Station"
-         style="width:100%; height:200px; object-fit:cover; border-radius:5px;"
-         loading="lazy" referrerpolicy="no-referrer">
+    <img src="https://drive.google.com/thumbnail?id=1pT_I4sEcX_dfgImkUYN7AM7GlzlOX7Bu&sz=w800"
+         alt="Lahore Station" loading="lazy">
 
-    <img src="https://drive.usercontent.google.com/download?id=1jBcISDm3_NiF92BdneaTKNKMliA6iizC&export=view"
-         alt="Peshawar Station"
-         style="width:100%; height:200px; object-fit:cover; border-radius:5px;"
-         loading="lazy" referrerpolicy="no-referrer">
+    <img src="https://drive.google.com/thumbnail?id=1jBcISDm3_NiF92BdneaTKNKMliA6iizC&sz=w800"
+         alt="Peshawar Station" loading="lazy">
+
 </div>
-
-
 
 <!-- FOOTER -->
 <footer>
