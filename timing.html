@@ -202,7 +202,15 @@ footer a:hover {
         grid-template-columns: 1fr;
     }
 }
-
+/* Mobile adjustments */
+@media (max-width:768px){
+  .train-timing-info h2 {
+    font-size:18px;
+  }
+  .train-timing-info p {
+    font-size:15px;
+  }
+}
 </style>
 </head>
 
@@ -301,7 +309,34 @@ function loadTiming() {
     });
 }
 </script>
+<!-- Train Timing Page Static Content -->
+<div class="train-timing-info" style="padding:15px; background:#ffffff; border-radius:6px; margin:15px auto; max-width:1000px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
 
+  <!-- English Version -->
+  <h2 style="color:#2e7d32; font-size:20px; margin-bottom:10px;">Train Timing Information</h2>
+  <p style="font-size:16px; line-height:1.6; color:#333;">
+    On this page, you can find the complete train timetable for Pakistan Railways.  
+    You can check the arrival and departure times of any train, view the list of stoppages, and plan your journey accordingly.  
+    All mainline trains and their schedules are updated regularly to provide you with the most accurate information.  
+    This tool helps passengers travel efficiently and avoid missing their trains.
+  </p>
+
+  <!-- Google Ads Placeholder (optional) -->
+  <div style="margin:15px 0; text-align:center;">
+    <!-- Example: Replace this div with your AdSense code -->
+    <p style="color:#888; font-size:14px;">[Google Ads Placeholder]</p>
+  </div>
+
+  <!-- Urdu Version -->
+  <h2 style="color:#2e7d32; font-size:20px; margin-bottom:10px; text-align:right;">ٹرین کے اوقات</h2>
+  <p style="font-size:16px; line-height:1.6; color:#333; text-align:right; direction:rtl;">
+    اس صفحہ پر آپ پاکستان ریلوے کے تمام ٹرینوں کے مکمل شیڈول دیکھ سکتے ہیں۔  
+    آپ کسی بھی ٹرین کے آمد و روانگی کے اوقات اور اسٹاپج لسٹ جان سکتے ہیں، اور اپنی سفر کی منصوبہ بندی کر سکتے ہیں۔  
+    تمام مین لائن ٹرینوں کے شیڈول باقاعدگی سے اپ ڈیٹ کیے جاتے ہیں تاکہ آپ کو درست معلومات فراہم کی جا سکیں۔  
+    یہ ٹول مسافروں کو اپنے سفر کو بہتر بنانے اور ٹرین چھوٹنے سے بچنے میں مدد دیتا ہے۔
+  </p>
+
+</div>
 
 <!-- FOOTER -->
 <footer>
