@@ -214,21 +214,14 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
-   .reservation-info p {
-        margin-bottom: 15px;
+  @media (max-width:768px){
+    .reservation-info h2 {
+        font-size:18px;
     }
-
-    @media (max-width: 768px) {
-        .reservation-info p {
-            font-size: 0.95rem;
-        }
+    .reservation-info p {
+        font-size:15px;
     }
-
-    @media (max-width: 480px) {
-        .reservation-info p {
-            font-size: 0.9rem;
-        }
-    }
+}
 </style>
 </head>
 <body>
@@ -246,6 +239,39 @@ footer a:hover {
 <a href="/prtracker" class="seat-avail">Train Tracking</a>
 
 </nav>
+  <!-- Advance Reservation Explanation Section -->
+<div class="reservation-info" style="margin-top:20px; font-family: Arial, sans-serif; background:#ffffff; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+
+    <!-- English Heading -->
+    <h2 style="color:#2e7d32; font-size:20px; margin-bottom:10px;">Advance Seat Availability</h2>
+
+    <!-- English Paragraph -->
+    <p style="text-align:justify; font-size:1rem; line-height:1.6; margin-bottom:15px;">
+        On this page, you can easily check the <strong>availability of advance reservation seats</strong> for any Pakistan Railways train up to 2 months in advance. 
+        Our system allows you to view seat availability for all classes, including <strong>Economy, Lower AC, AC Sleeper, AC Business</strong>, and <strong>Parlour</strong>, along with their respective fares.  
+        This helps passengers plan their journeys efficiently, compare classes, and make informed decisions before traveling.  
+        The data is updated regularly to ensure accuracy, making it a reliable source for both local and long-distance travelers.
+    </p>
+
+    <!-- Google Ads Placeholder -->
+    <div style="margin:15px 0; text-align:center;">
+        <!-- Example: Replace this div with your AdSense code -->
+        <p style="color:#888; font-size:14px;">[Google Ads Placeholder]</p>
+    </div>
+
+    <!-- Urdu Heading -->
+    <h2 style="color:#2e7d32; font-size:20px; margin-bottom:10px; text-align:right;">ایڈوانس سیٹ دستیابی</h2>
+
+    <!-- Urdu Paragraph -->
+    <p style="text-align:justify; direction:rtl; font-family:'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; font-size:1rem; line-height:1.6;">
+        اس صفحہ پر آپ پاکستان ریلوے کی کسی بھی ٹرین کی <strong>ایڈوانس ریزرویشن سیٹ کی دستیابی</strong> دو ماہ تک پہلے سے آسانی سے دیکھ سکتے ہیں۔  
+        ہمارا نظام تمام کلاسز کی سیٹ دستیابی دکھاتا ہے جن میں <strong>اکانومی، لوئر اے سی، اے سی سلیپر، اے سی بزنس</strong> اور <strong>پارلر</strong> شامل ہیں، اور ساتھ ہی ان کے کرائے بھی معلوم کیے جا سکتے ہیں۔  
+        یہ سہولت مسافروں کو اپنی سفر کی منصوبہ بندی بہتر بنانے، مختلف کلاسز کا موازنہ کرنے، اور سفر سے پہلے صحیح فیصلہ کرنے میں مدد دیتی ہے۔  
+        معلومات باقاعدگی سے اپ ڈیٹ کی جاتی ہیں تاکہ درستگی اور قابل اعتماد نتائج فراہم کیے جا سکیں، جو قریبی اور طویل فاصلے کے مسافروں دونوں کے لیے مفید ہے۔
+    </p>
+
+</div>
+
 <!-- SEARCH PANEL -->
 <div class="search-panel">
     <div class="field">
@@ -396,20 +422,7 @@ function showResults(data) {
   });
 }
 </script>
-  <!-- Advance Reservation Explanation Section -->
-<div class="reservation-info" style="margin-top:20px; font-family: Arial, sans-serif;">
-
-    <!-- English Paragraph -->
-    <p style="text-align:justify; font-size:1rem; line-height:1.6; margin-bottom:15px;">
-        On this page, you can check the <strong>availability of advance reservation seats</strong> for any train up to 2 months in advance. You can view seat availability for all classes including <strong>Economy, Lower AC, AC Sleeper, AC Business</strong>, and <strong>Parlour</strong>, along with their respective fares.
-    </p>
-
-    <!-- Urdu Paragraph -->
-    <p style="text-align:justify; direction:rtl; font-family:'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif; font-size:1rem; line-height:1.6;">
-        اس صفحہ پر آپ کسی بھی ٹرین کی <strong>ایڈوانس ریزرویشن سیٹ کی دستیابی</strong> دو ماہ تک پہلے سے دیکھ سکتے ہیں۔ آپ تمام کلاسز میں سیٹ دستیابی دیکھ سکتے ہیں جن میں <strong>اکانومی، لوئر اے سی، اے سی سلیپر، اے سی بزنس</strong> اور <strong>پارلر</strong> شامل ہیں، اور ساتھ ہی ان کے کرایے بھی معلوم کر سکتے ہیں۔
-    </p>
-
-</div>
+  
 <!-- FOOTER -->
 <footer>
    <div>
