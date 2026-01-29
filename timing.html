@@ -5,6 +5,7 @@
 <title>Train Timing – pakrail.online</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Choices.js CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 
 <style>
@@ -14,7 +15,7 @@ body {
   background: #f2f2f2;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 header {
   background: #2e7d32;
   color: white;
@@ -23,7 +24,7 @@ header {
   font-size: 22px;
 }
 
-/* NAV */
+/* ================= NAVIGATION ================= */
 nav {
   background-color: rgba(0, 0, 50, 0.9);
   display: flex;
@@ -37,26 +38,14 @@ nav a {
   text-decoration: none;
   font-size: 16px;
   text-align: center;
+  transition: background 0.3s;
 }
 
 nav a:hover {
   background-color: #1a237e;
 }
 
-/* GOOGLE ADS */
-.ad-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 15px auto;
-  text-align: center;
-  background: #ffffff;
-  padding: 10px;
-  border: 1px dashed #ccc;
-  font-size: 14px;
-  color: #666;
-}
-
-/* SEARCH PANEL */
+/* ================= SEARCH PANEL ================= */
 .panel {
   background: navy;
   padding: 15px;
@@ -73,7 +62,7 @@ button {
   cursor: pointer;
 }
 
-/* TABLE */
+/* ================= TABLE ================= */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -84,6 +73,7 @@ table {
 th, td {
   border: 1px solid #ccc;
   padding: 8px;
+  text-align: left;
 }
 
 th {
@@ -97,19 +87,88 @@ th {
   text-align: center;
 }
 
-/* RESPONSIVE */
+/* ================= Choices.js overrides ================= */
+.choices__inner {
+  background-color: white !important;
+  color: black !important;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  min-height: 40px;
+}
+
+.choices__list--single .choices__item,
+.choices__list--dropdown .choices__item,
+.choices__input {
+  color: black !important;
+}
+
+.choices__list--dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white !important;
+}
+
+.dropdown-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
   nav {
     flex-direction: column;
   }
 }
+/* ===== Force vertical scrollbar in Choices dropdown ===== */
+.choices__list--dropdown {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
 
-/* FOOTER */
+/* Show scrollbar clearly (Chrome, Edge, Brave) */
+.choices__list--dropdown::-webkit-scrollbar {
+  width: 10px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox scrollbar */
+.choices__list--dropdown {
+  scrollbar-width: auto;
+  scrollbar-color: #888 #f1f1f1;
+}
+/* ===== Blinking Train Tracking menu ===== */
+.blink-tracking {
+  color: yellow !important;
+  font-weight: bold;
+  animation: blinkText 1s infinite;
+}
+
+@keyframes blinkText {
+  0%   { opacity: 1; }
+  50%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+  /* Footer */
 footer {
   background:#2e7d32;
   color:#ffffff;
   padding:15px 10px;
   text-align:center;
+  font-family:Arial, sans-serif;
   margin-top:40px;
 }
 
@@ -118,37 +177,56 @@ footer a {
   text-decoration:none;
   margin:0 8px;
 }
+
+footer a:hover {
+  text-decoration: underline;
+}
+  .station-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.station-grid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    display: block;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .station-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header>PakRail.online (Train Timing)</header>
 
-<!-- GOOGLE AD : TOP -->
-<div class="ad-container">
-  Google Ad (Top – Responsive)
-</div>
-
+<!-- MENU -->
 <nav>
   <a href="index.html">Home</a>
   <a href="stations.html">Stations</a>
   <a href="timing.html">Train Timing</a>
-  <a href="availSeats.html">Seat Availability</a>
+    <a href="availSeats.html" class="seat-avail">Seat Availability</a>
   <a href="ticketing.html">Ticketing</a>
-  <a href="/prtracker">Train Tracking</a>
+   <a href="/prtracker" class="seat-avail">Train Tracking</a>
 </nav>
 
+<!-- SEARCH PANEL -->
 <div class="panel">
   <div class="dropdown-container">
     <select id="trainSelect"></select>
   </div>
   <button onclick="loadTiming()">Search</button>
-</div>
-
-<!-- GOOGLE AD : AFTER SEARCH -->
-<div class="ad-container">
-  Google Ad (Below Search Panel)
 </div>
 
 <div id="trainTitle"></div>
@@ -164,17 +242,14 @@ footer a {
   <tbody></tbody>
 </table>
 
-<!-- GOOGLE AD : AFTER RESULTS -->
-<div class="ad-container">
-  Google Ad (After Results)
-</div>
-
+<!-- Choices.js JS -->
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbya7KRQupcY_anV146gjtN0EeH6hQakjh20emQsgJqY0seA8MRV0vqst3zyE4zL2t6b/exec";
 const sel = document.getElementById("trainSelect");
 
+/* Load trains */
 fetch(API + "?action=trains")
   .then(r => r.json())
   .then(data => {
@@ -186,12 +261,20 @@ fetch(API + "?action=trains")
       sel.appendChild(opt);
     });
 
-    new Choices(sel, {
+    const choices = new Choices(sel, {
       searchEnabled: true,
-      shouldSort: false
+      itemSelectText: '',
+      placeholderValue: "Select Train...",
+      shouldSort: false,
+      position: 'bottom',
+      searchPlaceholderValue: "Type to search..."
     });
+
+    const choicesDiv = sel.closest('.choices');
+    choicesDiv.style.width = document.querySelector('button').offsetWidth + 'px';
   });
 
+/* Load timing */
 function loadTiming() {
   const trainId = sel.value;
   if (!trainId) return alert("Select a train");
@@ -207,35 +290,36 @@ function loadTiming() {
         sel.selectedOptions[0].text;
 
       rows.forEach(r => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${r.station}</td>
-            <td>${r.arrival}</td>
-            <td>${r.departure}</td>
-          </tr>`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.station}</td>
+          <td>${r.arrival}</td>
+          <td>${r.departure}</td>
+        `;
+        tbody.appendChild(tr);
       });
     });
 }
 </script>
 
-<!-- GOOGLE AD : BOTTOM -->
-<div class="ad-container">
-  Google Ad (Bottom – Responsive)
-</div>
 
+<!-- FOOTER -->
 <footer>
-  <a href="privacy-policy.html">Privacy Policy</a> |
-  <a href="disclaimer.html">Disclaimer</a> |
-  <a href="about-us.html">About Us</a> |
-  <a href="contact-us.html">Contact</a>
-  <div style="font-size:13px;color:#dcdcdc;">
-    © <span id="year"></span> pakrail.online
+   <div>
+    <a href="privacy-policy.html">Privacy Policy</a> |
+    <a href="disclaimer.html">Disclaimer</a> |
+    <a href="about-us.html">About Us</a> |
+    <a href="contact-us.html">Contact</a>
   </div>
-</footer>
+  <div style="font-size:13px;color:#dcdcdc;">
+    Independent information portal.
+      © <span id="year"></span> pakrail.online
+  </div>
 
+</footer>
+</div>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
 </body>
 </html>
