@@ -193,6 +193,81 @@ nav a:hover {
         .services-overview h3 {font-size:1.1rem;}
         .services-overview p {font-size:0.9rem;}
     }
+
+  .main-nav {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:15px;
+    background:#1b5e20;
+    padding:12px;
+}
+
+.main-nav a,
+.dropbtn {
+    color:#fff;
+    text-decoration:none;
+    padding:10px 14px;
+    font-size:15px;
+    background:#2e7d32;
+    border-radius:4px;
+    border:none;
+    cursor:pointer;
+    font-family:inherit;
+}
+
+.main-nav a:hover,
+.dropbtn:hover {
+    background:#81c784;
+    color:#000;
+}
+
+/* Dropdown */
+.dropdown {
+    position:relative;
+}
+
+.dropdown-content {
+    display:none;
+    position:absolute;
+    right:0;
+    background:#ffffff;
+    min-width:200px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.15);
+    border-radius:4px;
+    z-index:1000;
+}
+
+.dropdown-content a {
+    display:block;
+    padding:10px 14px;
+    color:#333;
+    background:#fff;
+}
+
+.dropdown-content a:hover {
+    background:#f2f2f2;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display:block;
+}
+
+/* Mobile friendly */
+@media (max-width:768px) {
+    .main-nav {
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .dropdown-content {
+        position:static;
+        box-shadow:none;
+        width:100%;
+    }
+}
+
 </style>
 </head>
 
@@ -209,22 +284,25 @@ nav a:hover {
   </div>
 
 </header>
-<nav>
+<nav class="main-nav">
   <a href="pakrail.html">Pakistan Railways Intro</a>
   <a href="pracademy.html">Pak Rail Academy</a>
-    <a href="icf.html">P.R Carriage Factory</a>
+  <a href="icf.html">P.R Carriage Factory</a>
   <a href="faqs.html">FAQs</a>
   <a href="https://news.pakrail.online" target="_blank">Latest News</a>
-  <!--
-  <a href="stations.html">Stations</a>
-  <a href="timing.html">Train Timing</a>
-  <a href="ticketing.html">Ticketing</a>
-  <a href="complaint.html">Register Complaint</a>
-  <a href="contactus.html">Contact Us</a>
-  <a href="gallery.html">Gallery</a>
-  <a href="tracking.html" class="blink-tracking">Train Tracking</a>
-  -->
+
+  <!-- DROPDOWN MENU -->
+  <div class="dropdown">
+    <button class="dropbtn">Railways ▾</button>
+    <div class="dropdown-content">
+      <a href="pakistan-railways.html">Pakistan Railways</a>
+      <a href="travel-guide.html">Travel Guide</a>
+      <a href="railway-classes.html">Railway Classes</a>
+      <a href="railway-safety.html">Railway Safety</a>
+    </div>
+  </div>
 </nav>
+
 <!-- ===== MAIN ===== -->
 <div class="main-container">
 
