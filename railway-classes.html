@@ -68,6 +68,52 @@ footer{
         font-size:22px;
     }
 }
+    /* Dropdown */
+.dropdown {
+    position:relative;
+}
+
+.dropdown-content {
+    display:none;
+    position:absolute;
+    right:0;
+    background:#ffffff;
+    min-width:200px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.15);
+    border-radius:4px;
+    z-index:1000;
+}
+
+.dropdown-content a {
+    display:block;
+    padding:10px 14px;
+    color:#333;
+    background:#fff;
+}
+
+.dropdown-content a:hover {
+    background:#f2f2f2;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display:block;
+}
+
+/* Mobile friendly */
+@media (max-width:768px) {
+    .main-nav {
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .dropdown-content {
+        position:static;
+        box-shadow:none;
+        width:100%;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -76,7 +122,23 @@ footer{
     <h1>Pakistan Railways - Railway Classes</h1>
     <p>Train Coaching Classes & Details</p>
 </header>
+<nav class="main-nav">
+  <a href="index.html">Home</a>
+  
+  <a href="faqs.html">FAQs</a>
+  <a href="https://news.pakrail.online" target="_blank">Latest News</a>
 
+  <!-- DROPDOWN MENU -->
+  <div class="dropdown">
+    <button class="dropbtn">Railways ▾</button>
+    <div class="dropdown-content">
+      <a href="pakistan-railways.html">Pakistan Railways</a>
+      <a href="travel-guide.html">Travel Guide</a>
+      <a href="railway-classes.html">Railway Classes</a>
+      <a href="railway-safety.html">Railway Safety</a>
+    </div>
+  </div>
+</nav>
 <div class="container">
 
 <!-- Introduction -->
