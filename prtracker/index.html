@@ -13,6 +13,12 @@ body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-gray); ma
 .dashboard { max-width:1250px; margin:auto; background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
 .header-box { background:var(--pk-green); color:white; padding:20px; border-radius:10px 10px 0 0; text-align:center; }
 .controls { display:grid; grid-template-columns:1fr 2fr 1fr; gap:20px; background:#e8f5e9; padding:20px; border-radius:8px; margin-bottom:25px; align-items:end; }
+/* ===== CENTER CONTROLS ON DESKTOP ===== */
+.controls {
+  max-width: 900px;     /* controls block width */
+  margin: 0 auto 25px;  /* center horizontally */
+}
+       
 label { font-weight:bold; color:var(--pk-light-green); display:block; margin-bottom:5px; }
 input, select { padding:12px; border:1px solid #ccc; border-radius:6px; width:100%; font-size:15px; }
 
