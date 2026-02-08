@@ -54,20 +54,22 @@ nav a:hover {
 }
 
 /* ===== SEARCH PANEL ===== */
+/* ===== SEARCH PANEL (ENHANCED) ===== */
 .search-panel {
-  background: white;
-  padding: 15px;
-  margin: 15px auto;
-  border-radius: 6px;
-  box-shadow: 0 0 6px #ccc;
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  padding: 18px;
+  margin: 18px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
   align-items: flex-end;
   max-width: 900px;
 }
 
+/* Fields */
 .search-panel .field {
   display: flex;
   flex-direction: column;
@@ -75,11 +77,42 @@ nav a:hover {
   min-width: 160px;
 }
 
+/* Labels */
+.search-panel label {
+  color: #ffffff;
+  font-size: 14px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+/* Inputs */
+.search-panel input[type="date"],
+.search-panel select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+}
+
+/* Search Button */
 .search-panel button {
-  padding: 8px;
-  min-width: 120px;
+  padding: 10px 18px;
+  min-width: 140px;
   cursor: pointer;
-  flex: 0 0 auto;
+  border: none;
+  border-radius: 25px;
+  background: #ffffff;
+  color: #2e7d32;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.search-panel button:hover {
+  background: #e8f5e9;
+  transform: translateY(-1px);
 }
 
 /* ===== MAIN LAYOUT ===== */
