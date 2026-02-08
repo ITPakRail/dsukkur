@@ -274,6 +274,53 @@ nav a:hover {
   font-weight: bold;
   animation: blinkText 1s infinite;
 }
+
+  /* ===== HAMBURGER MENU ===== */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Desktop */
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+/* ===== MOBILE NAV ===== */
+@media (max-width: 768px) {
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-nav {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nav-links a {
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+}
+
 </style>
 </head>
 
@@ -291,13 +338,17 @@ nav a:hover {
 
 </header>
 <nav class="main-nav">
+  <button class="menu-toggle" onclick="toggleMenu()">
+  <i class="fas fa-bars"></i>
+</button>
+<div class="nav-links">
   <a href="pakrail.html">Pakistan Railways Intro</a>
   <a href="pracademy.html">Pak Rail Academy</a>
   <a href="icf.html">P.R Carriage Factory</a>
   <a href="faqs.html">FAQs</a>
   <a href="https://news.pakrail.online" class="blink-tracking" target="_blank">Latest News</a>
    <a href="https://drama.pakrail.online" class="blink-tracking" target="_blank">Watch Drama</a>
-
+</div>
   <!-- DROPDOWN MENU -->
   <div class="dropdown">
     <button class="dropbtn">Railways ▾</button>
@@ -475,6 +526,11 @@ nav a:hover {
 </div>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script>
+function toggleMenu() {
+  document.querySelector('.nav-links').classList.toggle('active');
+}
 </script>
 
 </body>
